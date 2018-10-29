@@ -7,9 +7,19 @@
 
 
 
+/* BSD support */
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+
+#include <ti/net/slnetutils.h>
 #define __DEVICES_TCPRCBINDEVICE_ALTOMULTINETDEVICE_GLOBAL
 #include "includes.h"
 
+extern void fdOpenSession();
+extern void fdCloseSession();
+extern void *TaskSelf();
 
 Void vTCPRCBinServerFxn(UArg arg0, UArg arg1);
 Void vTCPRCBinWorker(UArg arg0, UArg arg1);

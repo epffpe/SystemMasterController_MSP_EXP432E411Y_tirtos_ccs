@@ -51,11 +51,12 @@
 
 #define UDPPACKETSIZE 1472
 
-extern Display_Handle display;
 
 extern void fdOpenSession();
 extern void fdCloseSession();
 extern void *TaskSelf();
+
+extern Display_Handle g_SMCDisplay;
 
 /*
  *  ======== echoFxn ========
@@ -77,11 +78,11 @@ void *echoFxn(void *arg0)
 
     fdOpenSession(TaskSelf());
 
-    Display_printf(display, 0, 0, "UDP Echo example started\n");
+    Display_printf(g_SMCDisplay, 0, 0, "UDP Echo example started\n");
 
     server = socket(AF_INET, SOCK_DGRAM, 0);
     if (server == -1) {
-        Display_printf(display, 0, 0, "Error: socket not created.\n");
+        Display_printf(g_SMCDisplay, 0, 0, "Error: socket not created.\n");
         goto shutdown;
     }
 
@@ -92,7 +93,7 @@ void *echoFxn(void *arg0)
 
     status = bind(server, (struct sockaddr *)&localAddr, sizeof(localAddr));
     if (status == -1) {
-        Display_printf(display, 0, 0, "Error: bind failed.\n");
+        Display_printf(g_SMCDisplay, 0, 0, "Error: bind failed.\n");
         goto shutdown;
     }
 
@@ -116,7 +117,7 @@ void *echoFxn(void *arg0)
                     bytesSent = sendto(server, buffer, bytesRcvd, 0,
                             (struct sockaddr *)&clientAddr, addrlen);
                     if (bytesSent < 0 || bytesSent != bytesRcvd) {
-                        Display_printf(display, 0, 0,
+                        Display_printf(g_SMCDisplay, 0, 0,
                                 "Error: sendto failed.\n");
                         goto shutdown;
                     }

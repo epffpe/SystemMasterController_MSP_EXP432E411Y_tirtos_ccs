@@ -41,7 +41,7 @@
 
 
 void test();
-
+void vHeartBeat_init();
 
 //*****************************************************************************
 //
@@ -63,6 +63,26 @@ void __error__(char *pcFilename, uint32_t ui32Line)
  */
 void *mainThread(void *arg0)
 {
+    /* Call driver init functions */
+    GPIO_init();
+    // I2C_init();
+    // SDSPI_init();
+    // SPI_init();
+    UART_init();
+    // Watchdog_init();
+
+    SMCDisplay_init();
+    GPIO_write(SMC_SERIAL0_DE, 1);
+    Display_printf(g_SMCDisplay, 0, 0, "Starting the System Master Controller\n"
+                   "-- Compiled: "__DATE__" "__TIME__" --\n");
+
+    vHeartBeat_init();
+
+    /*
+     * Initialize interfaces
+     */
+    vIF_init();
+
 
     test();
     return 0;
@@ -115,4 +135,47 @@ void test()
 
         usleep(time);
     }
+}
+
+/*
+ *  ======== heartBeatFxn ========
+ *  Toggle the Board_LED0. The Task_sleep is determined by arg0 which
+ *  is configured for the heartBeat Task instance.
+ */
+Void heartBeatFxn(UArg arg0, UArg arg1)
+{
+    Display_printf(g_SMCDisplay, 0, 0, "Heartbeat task started\n");
+    while (1) {
+//        GPIO_write(SMC_BLE_2OE, 1);
+        GPIO_write(Board_LED3,0);
+////        DOSet(DIO_LED_D6, DO_ON);
+        Task_sleep((unsigned int)50);
+        GPIO_write(Board_LED3,1);
+////        DOSet(DIO_LED_D6, DO_OFF);
+        Task_sleep((unsigned int)50);
+        GPIO_write(Board_LED3,0);
+////        DOSet(DIO_LED_D6, DO_ON);
+        Task_sleep((unsigned int)50);
+        GPIO_write(Board_LED3,1);
+////        DOSet(DIO_LED_D6, DO_OFF);
+//        GPIO_write(SMC_BLE_2OE, 0);
+        Task_sleep((unsigned int)850);
+    }
+}
+
+
+
+void vHeartBeat_init()
+{
+    Task_Params taskParams;
+//    Task_Handle taskHandle;
+    Error_Block eb;
+    /* Make sure Error_Block is initialized */
+    Error_init(&eb);
+    Display_printf(g_SMCDisplay, 0, 0, "Initializing heartbeat\n");
+    /* Construct heartBeat Task  thread */
+    Task_Params_init(&taskParams);
+    taskParams.arg0 = 1000;
+    taskParams.stackSize = 512;
+    Task_create((Task_FuncPtr)heartBeatFxn, &taskParams, NULL);
 }

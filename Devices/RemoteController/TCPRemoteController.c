@@ -6,10 +6,24 @@
  */
 
 
-
 #define __DEVICES_TCPRCDEVICE_ALTOMULTINETDEVICE_GLOBAL
 #include "includes.h"
+#undef htonl
+#undef htons
+#undef ntohl
+#undef ntohs
 
+/* BSD support */
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+
+#include <ti/net/slnetutils.h>
+
+extern void fdOpenSession();
+extern void fdCloseSession();
+extern void *TaskSelf();
 
 const unsigned char g_pucTCPCONSOLEWelcome[] = "\r\n>>>>>>> Welcome to the System Master Controller <<<<<<<\r\n";
 

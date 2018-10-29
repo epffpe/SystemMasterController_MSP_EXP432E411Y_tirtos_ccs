@@ -58,7 +58,7 @@
 
 /* Prototypes */
 extern void *tcpHandler(void *arg0);
-//extern void *echoFxn(void *arg0);
+extern void *echoFxn(void *arg0);
 
 extern Display_Handle g_SMCDisplay;
 
@@ -77,23 +77,25 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
     static bool createTask = true;
     int32_t status = 0;
 
+    System_printf("netIPAddrHook %s, line %d\n", __FILE__, __LINE__);
     status = SlNetSock_init(0);
     if (status != 0) {
-        Display_printf(g_SMCDisplay, 0, 0, "SlNetSock_init fail (%d)\n",
-            status);
+        Display_printf(g_SMCDisplay, 0, 0, "SlNetSock_init fail (%d)\n", status);
+        System_printf("SlNetSock_init fail (%d)\n", status);
+
     }
 
     status = SlNetIf_init(0);
     if (status != 0) {
-        Display_printf(g_SMCDisplay, 0, 0, "SlNetIf_init fail (%d)\n",
-            status);
+        Display_printf(g_SMCDisplay, 0, 0, "SlNetIf_init fail (%d)\n", status);
+        System_printf("SlNetIf_init fail (%d)\n", status);
     }
 
     status = SlNetIf_add(SLNETIF_ID_2, "eth0",
             (const SlNetIf_Config_t *)&SlNetIfConfigNDK, IFPRI);
     if (status != 0) {
-        Display_printf(g_SMCDisplay, 0, 0, "SlNetIf_add fail (%d)\n",
-            status);
+        Display_printf(g_SMCDisplay, 0, 0, "SlNetIf_add fail (%d)\n", status);
+        System_printf("SlNetIf_add fail (%d)\n", status);
     }
 
     if (fAdd && createTask) {
@@ -109,8 +111,8 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
         detachState = PTHREAD_CREATE_DETACHED;
         retc = pthread_attr_setdetachstate(&attrs, detachState);
         if (retc != 0) {
-            Display_printf(g_SMCDisplay, 0, 0,
-                    "netIPAddrHook: pthread_attr_setdetachstate() failed\n");
+            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_attr_setdetachstate() failed\n");
+            System_printf("netIPAddrHook: pthread_attr_setdetachstate() failed\n");
             while (1);
         }
 
@@ -118,36 +120,37 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
 
         retc |= pthread_attr_setstacksize(&attrs, TCPHANDLERSTACK);
         if (retc != 0) {
-            Display_printf(g_SMCDisplay, 0, 0,
-                    "netIPAddrHook: pthread_attr_setstacksize() failed\n");
+            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_attr_setstacksize() failed\n");
+            System_printf("netIPAddrHook: pthread_attr_setstacksize() failed\n");
             while (1);
         }
 
         retc = pthread_create(&thread, &attrs, tcpHandler, (void *)&arg0);
         if (retc != 0) {
-            Display_printf(g_SMCDisplay, 0, 0,
-                    "netIPAddrHook: pthread_create() failed\n");
+            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_create() failed\n");
+            System_printf("netIPAddrHook: pthread_create() failed\n");
             while (1);
         }
 
-//        pthread_attr_setschedparam(&attrs, &priParam);
-//
-//        retc |= pthread_attr_setstacksize(&attrs, UDPHANDLERSTACK);
-//        if (retc != 0) {
-//            Display_printf(g_SMCDisplay, 0, 0,
-//                           "netIPAddrHook: pthread_attr_setstacksize() failed\n");
-//            while (1);
-//        }
-//
-//        retc = pthread_create(&thread, &attrs, echoFxn, (void *)&arg0);
-//        if (retc != 0) {
-//            Display_printf(g_SMCDisplay, 0, 0,
-//                           "netIPAddrHook: pthread_create() failed\n");
-//            while (1);
-//        }
+        pthread_attr_setschedparam(&attrs, &priParam);
+
+        retc |= pthread_attr_setstacksize(&attrs, UDPHANDLERSTACK);
+        if (retc != 0) {
+            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_attr_setstacksize() failed\n");
+            System_printf("netIPAddrHook: pthread_attr_setstacksize() failed\n");
+            while (1);
+        }
+
+        retc = pthread_create(&thread, &attrs, echoFxn, (void *)&arg0);
+        if (retc != 0) {
+            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_create() failed\n");
+            System_printf("netIPAddrHook: pthread_create() failed\n");
+            while (1);
+        }
 
         createTask = false;
     }
+    System_flush();
 }
 
 

@@ -37,7 +37,7 @@
 
 #include <string.h>
 #include <stdint.h>
-
+#include <xdc/runtime/System.h>
 #include <pthread.h>
 /* BSD support */
 #include <netinet/in.h>
@@ -71,18 +71,22 @@ void *tcpWorker(void *arg0)
 
     fdOpenSession(TaskSelf());
 
-    Display_printf(g_SMCDisplay, 0, 0, "tcpWorker: start clientfd = 0x%x\n",
-            clientfd);
+    Display_printf(g_SMCDisplay, 0, 0, "tcpWorker: start clientfd = 0x%x\n", clientfd);
 
+//    System_printf("tcpWorker: start clientfd = 0x%x\n", clientfd);
+//    System_flush();
     while ((bytesRcvd = recv(clientfd, buffer, TCPPACKETSIZE, 0)) > 0) {
         bytesSent = send(clientfd, buffer, bytesRcvd, 0);
         if (bytesSent < 0 || bytesSent != bytesRcvd) {
             Display_printf(g_SMCDisplay, 0, 0, "send failed.\n");
+//            System_printf("send failed.\n");
+//            System_flush();
             break;
         }
     }
     Display_printf(g_SMCDisplay, 0, 0, "tcpWorker stop clientfd = 0x%x\n", clientfd);
-
+//    System_printf("tcpWorker stop clientfd = 0x%x\n", clientfd);
+//    System_flush();
     close(clientfd);
 
     fdCloseSession(TaskSelf());

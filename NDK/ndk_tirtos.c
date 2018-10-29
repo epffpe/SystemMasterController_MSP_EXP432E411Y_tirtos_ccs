@@ -192,10 +192,10 @@ static void networkIPAddr(uint32_t IPAddr, uint32_t IfIdx, uint32_t fAdd)
 //    System_printf("If-%d:%d.%d.%d.%d\n", IfIdx,
 //                  (uint8_t)(IPTmp>>24)&0xFF, (uint8_t)(IPTmp>>16)&0xFF,
 //                  (uint8_t)(IPTmp>>8)&0xFF, (uint8_t)IPTmp&0xFF);
-
+//    System_flush();
     extern void netIPAddrHook();
 
-//    System_flush();
+
     /* call user defined network IP address hook */
     netIPAddrHook(IPAddr, IfIdx, fAdd);
 }
@@ -214,6 +214,10 @@ static void serviceReport(uint32_t item, uint32_t status, uint32_t report,
     Display_printf(g_SMCDisplay, 0, 0, "Service Status: %-9s: %-9s: %-9s: %03d\n",
             taskName[item - 1], statusStr[status], reportStr[report / 256],
             report & 0xFF);
+//    System_printf("Service Status: %-9s: %-9s: %-9s: %03d\n",
+//                  taskName[item - 1], statusStr[status], reportStr[report / 256],
+//                  report & 0xFF);
+//    System_flush();
 }
 
 /*
@@ -361,7 +365,9 @@ main_exit:
 
     rc = timer_delete(ndkHeartBeat);
 
-    Display_printf(g_SMCDisplay, 0, 0, "ndkStackThread: exiting ...\n");
+//    Display_printf(g_SMCDisplay, 0, 0, "ndkStackThread: exiting ...\n");
+    System_printf("ndkStackThread: exiting ...\n");
+    System_flush();
 }
 
 /*

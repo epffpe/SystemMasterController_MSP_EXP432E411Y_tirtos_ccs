@@ -6,6 +6,26 @@
  */
 #define __TCPBINARYCOMMANDS_ALTOAMP_GLOBAL
 #include "includes.h"
+#undef htonl
+#undef htons
+#undef ntohl
+#undef ntohs
+
+
+
+
+/* BSD support */
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+
+#include <ti/net/slnetutils.h>
+
+extern void fdOpenSession();
+extern void fdCloseSession();
+extern void *TaskSelf();
+
 
 int xTCPRCBin_ALTOAmp_AmplifierClass_GetValueChangeHandler(char_data_t *pCharData);
 int xTCPRCBin_ALTOAmp_AmplifierClass_SetValueChangeHandler(char_data_t *pCharData);

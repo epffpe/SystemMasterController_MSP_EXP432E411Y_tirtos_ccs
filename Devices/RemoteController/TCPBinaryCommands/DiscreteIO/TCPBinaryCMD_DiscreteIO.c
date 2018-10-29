@@ -4,10 +4,26 @@
  *  Created on: Oct 12, 2018
  *      Author: epenate
  */
-
 #define __TCPBINARYCOMMANDS_DISCRETEIO_GLOBAL
 #include "includes.h"
+#undef htonl
+#undef htons
+#undef ntohl
+#undef ntohs
 
+
+
+/* BSD support */
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+
+#include <ti/net/slnetutils.h>
+
+extern void fdOpenSession();
+extern void fdCloseSession();
+extern void *TaskSelf();
 
 void vTCPRCBin_DiscreteIO_get5VOutputPowerStatus(int clientfd, char *payload, int32_t size)
 {

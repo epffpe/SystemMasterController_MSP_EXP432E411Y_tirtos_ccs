@@ -4,10 +4,26 @@
  *  Created on: May 7, 2018
  *      Author: epenate
  */
-
 #define __TCPBINARYCOMMANDS_GLOBAL
 #include "includes.h"
+#undef htonl
+#undef htons
+#undef ntohl
+#undef ntohs
 
+
+
+/* BSD support */
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+
+#include <ti/net/slnetutils.h>
+
+extern void fdOpenSession();
+extern void fdCloseSession();
+extern void *TaskSelf();
 
 
 void TCPBin_doNothing(int clientfd, char *payload, int32_t size)

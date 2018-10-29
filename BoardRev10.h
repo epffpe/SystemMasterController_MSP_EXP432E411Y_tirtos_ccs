@@ -105,6 +105,7 @@ extern "C" {
 #define Board_Serial7               MSP_EXP432E401Y_UART7
 
 #define Board_SerialMultinet        Board_Serial6
+#define Board_SerialDebug           Board_Serial5
 
 #define Board_SerialCount           MSP_EXP432E401Y_UARTCOUNT
 

@@ -129,7 +129,7 @@ void vForteManagerDevice_appRXMsgEventHook(UArg arg0, UArg arg1)
     ASSERT( (IF_SERIAL_0 <= (uint32_t)arg0) && ((uint32_t)arg0 < IF_COUNT));
     ASSERT(arg1 != NULL);
 
-    if ( !((IF_SERIAL_0 <= (uint32_t)arg0) && ((uint32_t)arg0 < IF_COUNT)) ) {
+    if ( !((IF_SERIAL_0 <= (int32_t)arg0) && ((uint32_t)arg0 < IF_COUNT)) ) {
         return;
     }
     if (arg1 == NULL) {

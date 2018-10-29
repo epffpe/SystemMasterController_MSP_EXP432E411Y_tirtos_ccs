@@ -6,8 +6,26 @@
  */
 #define __TCPCONSOLECOMMANDS_GLOBAL
 #include "includes.h"
+#undef htonl
+#undef htons
+#undef ntohl
+#undef ntohs
+
+
 #include <stdio.h>
 #include <stdlib.h>
+/* BSD support */
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+
+#include <ti/net/slnetutils.h>
+
+extern void fdOpenSession();
+extern void fdCloseSession();
+extern void *TaskSelf();
+
 
 const char g_cCMDContatInformation[] = {
                                         "\r\n"

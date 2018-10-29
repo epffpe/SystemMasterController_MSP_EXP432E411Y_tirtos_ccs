@@ -55,9 +55,12 @@ int xIFUART_control(IF_Handle handle, unsigned int cmd, void *arg)
 void vIFUART_init(IF_Handle handle)
 {
     IFUART_Object *object = (IFUART_Object *)handle->object;
+    IFUART_HWAttrs *hwAttrs = (IFUART_HWAttrs *)handle->hwAttrs;
     Error_Block eb;
 
     Error_init(&eb);
+
+    Display_printf(g_SMCDisplay, 0, 0, (char *)"Initializing Uart Port (%d)\n", hwAttrs->uartIndex);
 
     object->state.opened = false;
 
@@ -148,6 +151,8 @@ IF_Handle hIFUART_open(IF_Handle handle, IF_Params *params)
         Semaphore_post(object->hBSPSerial_semTxSerial);
         Semaphore_post(object->hBSPSerial_semRxSerial);
         object->state.opened = true;
+
+        Display_printf(g_SMCDisplay, 0, 0, (char *)"Uart Port (%d) oppened\n", hwAttrs->uartIndex);
 
         /* Clock to disable driverEnablePin */
         if (hwAttrs->driverEnablePin && (hwAttrs->driverEnablePin < Board_SerialCount)) {

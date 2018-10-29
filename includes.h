@@ -91,6 +91,9 @@
 
 
 #include <ti/display/Display.h>
+#include <ti/display/DisplayUart.h>
+#include <ti/display/DisplayExt.h>
+#include <ti/display/AnsiColor.h>
 
 /* TI-RTOS Header files */
 //#include <ti/drivers/EMAC.h>
@@ -215,15 +218,15 @@
 
 
 
-//#include "Devices/RemoteController/TCPRemoteController.h"
-//#include "Devices/RemoteController/TCPConsoleCommands/TCPConsoleCommands.h"
-//
-//#include "Devices/RemoteController/TCPRemoteControllerBinary.h"
-//#include "Devices/RemoteController/TCPBinaryCommands/TCPBinaryCommands.h"
-//#include "Devices/RemoteController/TCPBinaryCommands/ALTOAmp/TCPBinaryCMD_ALTOAmp.h"
-//#include "Devices/RemoteController/TCPBinaryCommands/ALTOMultinet/TCPBinaryCMD_ALTOMultinet.h"
-//#include "Devices/RemoteController/TCPBinaryCommands/RAWCharacteristicData/TCPBinaryCMD_RAWCharacteristicData.h"
-//#include "Devices/RemoteController/TCPBinaryCommands/DiscreteIO/TCPBinaryCMD_DiscreteIO.h"
+#include "Devices/RemoteController/TCPRemoteController.h"
+#include "Devices/RemoteController/TCPConsoleCommands/TCPConsoleCommands.h"
+
+#include "Devices/RemoteController/TCPRemoteControllerBinary.h"
+#include "Devices/RemoteController/TCPBinaryCommands/TCPBinaryCommands.h"
+#include "Devices/RemoteController/TCPBinaryCommands/ALTOAmp/TCPBinaryCMD_ALTOAmp.h"
+#include "Devices/RemoteController/TCPBinaryCommands/ALTOMultinet/TCPBinaryCMD_ALTOMultinet.h"
+#include "Devices/RemoteController/TCPBinaryCommands/RAWCharacteristicData/TCPBinaryCMD_RAWCharacteristicData.h"
+#include "Devices/RemoteController/TCPBinaryCommands/DiscreteIO/TCPBinaryCMD_DiscreteIO.h"
 
 
 

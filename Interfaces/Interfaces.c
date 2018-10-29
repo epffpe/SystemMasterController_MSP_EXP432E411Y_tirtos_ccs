@@ -40,6 +40,7 @@ int xIF_control(IF_Handle handle, unsigned int cmd, void* arg)
 
 void vIF_init(void)
 {
+    Display_printf(g_SMCDisplay, 0, 0, "Initializing Interfaces\n");
     if (IF_count == -1) {
         /* Call each driver's init function */
         for (IF_count = 0; IF_config[IF_count].fxnTablePtr != NULL; IF_count++) {

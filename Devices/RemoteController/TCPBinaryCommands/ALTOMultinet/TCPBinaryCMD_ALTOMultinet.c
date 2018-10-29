@@ -4,11 +4,27 @@
  *  Created on: Jun 1, 2018
  *      Author: epenate
  */
-
-
 #define __TCPBINARYCOMMANDS_ALTOMULTINET_GLOBAL
 #include "includes.h"
+#undef htonl
+#undef htons
+#undef ntohl
+#undef ntohs
 
+
+
+
+/* BSD support */
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+
+#include <ti/net/slnetutils.h>
+
+extern void fdOpenSession();
+extern void fdCloseSession();
+extern void *TaskSelf();
 
 void vTCPRCBin_ALTOMultinet_remoteGetRelay(char_data_t *pCharData);
 void vTCPRCBin_ALTOMultinet_remoteSetInput(char_data_t *pCharData);

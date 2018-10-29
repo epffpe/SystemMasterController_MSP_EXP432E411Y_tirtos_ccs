@@ -5,6 +5,18 @@
  *      Author: epf
  */
 
+/* BSD support */
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+
+#include <ti/net/slnetutils.h>
+
+extern void fdOpenSession();
+extern void fdCloseSession();
+extern void *TaskSelf();
+
 
 #define UDPSERVER_GLOBALS
 #include "includes.h"
