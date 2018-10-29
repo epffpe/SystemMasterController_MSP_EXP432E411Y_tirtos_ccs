@@ -1,0 +1,75 @@
+/*
+ * TCPRemoteControllerBinary.h
+ *
+ *  Created on: May 4, 2018
+ *      Author: epenate
+ */
+
+#ifndef DEVICES_REMOTECONTROLLER_TCPREMOTECONTROLLERBINARY_H_
+#define DEVICES_REMOTECONTROLLER_TCPREMOTECONTROLLERBINARY_H_
+
+#define TCPRCBINDEVICE_TASK_STACK_SIZE         2048
+#define TCPRCBINDEVICE_TASK_PRIORITY           5
+#define TCPRCBINDEVICE_ID                      2
+
+
+#define TCPRCBINDEVICE_CLOCK_TIMEOUT       10
+#define TCPRCBINDEVICE_CLOCK_PERIOD        10
+
+#define TCPBINDEVICE_PACKETSIZE            256
+#define TCPBINDEVICE_NUMTCPWORKERS         3
+
+#define TCPBIN_SERVER_HANDLER_STACK        1024
+#define TCPBIN_SERVER_TASK_PRIORITY        2
+#define TCPBIN_SERVER_PORT                 1002
+
+
+#define TCPBIN_WORKER_HANDLER_STACK        2048
+#define TCPBIN_WORKER_TASK_PRIORITY        2
+
+
+
+
+typedef enum
+{
+    SERVICE_TCPBIN_REMOTECONTROL_AMPLIFIER_CLASS_RETURN_UUID = 0x0001,
+    SERVICE_TCPBIN_REMOTECONTROL_ALTOMULTINET_CLASS_RETURN_UUID,
+    SERVICE_TCPBIN_REMOTECONTROL_RAWCHARACTERISTICDATA_CLASS_RETURN_UUID,
+    SERVICE_TCPBIN_REMOTECONTROL_DISCRETEIO_CLASS_RETURN_UUID,
+} TCPRCBIN_service_UUID_t;
+
+
+
+typedef struct {
+    uint32_t type;
+    uint32_t retDeviceID;
+    uint16_t retSvcUUID; // UUID of the service
+    uint16_t retParamID; // characteristic ID
+    char payload[];
+}TCPBin_CMD_retFrame_t;
+
+
+#ifdef __cplusplus
+extern "C"  {
+#endif
+
+
+#ifdef  __DEVICES_TCPRCBINDEVICE_ALTOMULTINETDEVICE_GLOBAL
+    #define __DEVICES_TCPRCBINDEVICE_ALTOMULTINETDEVICE_EXT
+#else
+    #define __DEVICES_TCPRCBINDEVICE_ALTOMULTINETDEVICE_EXT  extern
+#endif
+
+
+__DEVICES_TCPRCBINDEVICE_ALTOMULTINETDEVICE_EXT void vTCPRCBinDevice_Params_init(Device_Params *params, uint32_t address);
+
+
+
+#ifdef __cplusplus
+}
+#endif
+
+
+
+
+#endif /* DEVICES_REMOTECONTROLLER_TCPREMOTECONTROLLERBINARY_H_ */

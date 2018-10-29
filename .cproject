@@ -110,7 +110,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="cangpiotxrx.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="NDK/tcpEcho.c|Devices/RemoteController|NDK/UDPServer.c|NDK/udpEcho.c|Deprecated/ALTO/ForteManager/ComputerBridge.cpp|Deprecated/BSPSerial.cpp|Deprecated/AVDS/AVDSClient.c|Deprecated/ALTO/ALTOMultinet/TempControllerWorker.c|Deprecated/ALTO/ALTOMultinet/RelayControllerWorker.c|Deprecated/ALTO/ALTOMultinet/ALTOMultinet.c|cangpiotxrx.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

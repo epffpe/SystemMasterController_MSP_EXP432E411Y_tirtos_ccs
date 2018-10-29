@@ -1059,14 +1059,92 @@ const UARTMSP432E4_HWAttrs uartMSP432E4HWAttrs[MSP_EXP432E401Y_UARTCOUNT] = {
         .errorFxn = NULL
     },
     {
+        .baseAddr = UART1_BASE,
+        .intNum = INT_UART1,
+        .intPriority = (~0),
+        .flowControl = UARTMSP432E4_FLOWCTRL_NONE,
+        .ringBufPtr  = uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART1],
+        .ringBufSize = sizeof(uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART1]),
+        .rxPin = UARTMSP432E4_PQ4_U1RX,
+        .txPin = UARTMSP432E4_PQ5_U1TX,
+        .ctsPin = UARTMSP432E4_PIN_UNASSIGNED,
+        .rtsPin = UARTMSP432E4_PIN_UNASSIGNED,
+        .errorFxn = NULL
+    },
+    {
         .baseAddr = UART2_BASE,
         .intNum = INT_UART2,
         .intPriority = (~0),
         .flowControl = UARTMSP432E4_FLOWCTRL_NONE,
         .ringBufPtr  = uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART2],
         .ringBufSize = sizeof(uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART2]),
-        .rxPin = UARTMSP432E4_PD4_U2RX,
-        .txPin = UARTMSP432E4_PD5_U2TX,
+        .rxPin = UARTMSP432E4_PA6_U2RX,
+        .txPin = UARTMSP432E4_PA7_U2TX,
+        .ctsPin = UARTMSP432E4_PIN_UNASSIGNED,
+        .rtsPin = UARTMSP432E4_PIN_UNASSIGNED,
+        .errorFxn = NULL
+    },
+    {
+        .baseAddr = UART3_BASE,
+        .intNum = INT_UART3,
+        .intPriority = (~0),
+        .flowControl = UARTMSP432E4_FLOWCTRL_NONE,
+        .ringBufPtr  = uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART3],
+        .ringBufSize = sizeof(uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART3]),
+        .rxPin = UARTMSP432E4_PJ0_U3RX,
+        .txPin = UARTMSP432E4_PJ1_U3TX,
+        .ctsPin = UARTMSP432E4_PIN_UNASSIGNED,
+        .rtsPin = UARTMSP432E4_PIN_UNASSIGNED,
+        .errorFxn = NULL
+    },
+    {
+        .baseAddr = UART4_BASE,
+        .intNum = INT_UART4,
+        .intPriority = (~0),
+        .flowControl = UARTMSP432E4_FLOWCTRL_NONE,
+        .ringBufPtr  = uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART4],
+        .ringBufSize = sizeof(uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART4]),
+        .rxPin = UARTMSP432E4_PR1_U4RX,
+        .txPin = UARTMSP432E4_PR0_U4TX,
+        .ctsPin = UARTMSP432E4_PIN_UNASSIGNED,
+        .rtsPin = UARTMSP432E4_PIN_UNASSIGNED,
+        .errorFxn = NULL
+    },
+    {
+        .baseAddr = UART5_BASE,
+        .intNum = INT_UART5,
+        .intPriority = (~0),
+        .flowControl = UARTMSP432E4_FLOWCTRL_NONE,
+        .ringBufPtr  = uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART5],
+        .ringBufSize = sizeof(uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART5]),
+        .rxPin = UARTMSP432E4_PC6_U5RX,
+        .txPin = UARTMSP432E4_PC7_U5TX,
+        .ctsPin = UARTMSP432E4_PIN_UNASSIGNED,
+        .rtsPin = UARTMSP432E4_PIN_UNASSIGNED,
+        .errorFxn = NULL
+    },
+    {
+        .baseAddr = UART6_BASE,
+        .intNum = INT_UART6,
+        .intPriority = (~0),
+        .flowControl = UARTMSP432E4_FLOWCTRL_NONE,
+        .ringBufPtr  = uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART6],
+        .ringBufSize = sizeof(uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART6]),
+        .rxPin = UARTMSP432E4_PP0_U6RX,
+        .txPin = UARTMSP432E4_PP1_U6TX,
+        .ctsPin = UARTMSP432E4_PIN_UNASSIGNED,
+        .rtsPin = UARTMSP432E4_PIN_UNASSIGNED,
+        .errorFxn = NULL
+    },
+    {
+        .baseAddr = UART7_BASE,
+        .intNum = INT_UART7,
+        .intPriority = (~0),
+        .flowControl = UARTMSP432E4_FLOWCTRL_NONE,
+        .ringBufPtr  = uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART7],
+        .ringBufSize = sizeof(uartMSP432E4RingBuffer[MSP_EXP432E401Y_UART7]),
+        .rxPin = UARTMSP432E4_PH6_U7RX,
+        .txPin = UARTMSP432E4_PH7_U7TX,
         .ctsPin = UARTMSP432E4_PIN_UNASSIGNED,
         .rtsPin = UARTMSP432E4_PIN_UNASSIGNED,
         .errorFxn = NULL
@@ -1081,8 +1159,38 @@ const UART_Config UART_config[MSP_EXP432E401Y_UARTCOUNT] = {
     },
     {
         .fxnTablePtr = &UARTMSP432E4_fxnTable,
+        .object = &uartMSP432E4Objects[MSP_EXP432E401Y_UART1],
+        .hwAttrs = &uartMSP432E4HWAttrs[MSP_EXP432E401Y_UART1]
+    },
+    {
+        .fxnTablePtr = &UARTMSP432E4_fxnTable,
         .object = &uartMSP432E4Objects[MSP_EXP432E401Y_UART2],
         .hwAttrs = &uartMSP432E4HWAttrs[MSP_EXP432E401Y_UART2]
+    },
+    {
+        .fxnTablePtr = &UARTMSP432E4_fxnTable,
+        .object = &uartMSP432E4Objects[MSP_EXP432E401Y_UART3],
+        .hwAttrs = &uartMSP432E4HWAttrs[MSP_EXP432E401Y_UART3]
+    },
+    {
+        .fxnTablePtr = &UARTMSP432E4_fxnTable,
+        .object = &uartMSP432E4Objects[MSP_EXP432E401Y_UART4],
+        .hwAttrs = &uartMSP432E4HWAttrs[MSP_EXP432E401Y_UART4]
+    },
+    {
+        .fxnTablePtr = &UARTMSP432E4_fxnTable,
+        .object = &uartMSP432E4Objects[MSP_EXP432E401Y_UART5],
+        .hwAttrs = &uartMSP432E4HWAttrs[MSP_EXP432E401Y_UART5]
+    },
+    {
+        .fxnTablePtr = &UARTMSP432E4_fxnTable,
+        .object = &uartMSP432E4Objects[MSP_EXP432E401Y_UART6],
+        .hwAttrs = &uartMSP432E4HWAttrs[MSP_EXP432E401Y_UART6]
+    },
+    {
+        .fxnTablePtr = &UARTMSP432E4_fxnTable,
+        .object = &uartMSP432E4Objects[MSP_EXP432E401Y_UART7],
+        .hwAttrs = &uartMSP432E4HWAttrs[MSP_EXP432E401Y_UART7]
     }
 };
 

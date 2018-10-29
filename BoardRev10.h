@@ -64,6 +64,10 @@ extern "C" {
 #define Board_GPIO_BUTTON0          MSP_EXP432E401Y_GPIO_USR_SW1
 #define Board_GPIO_BUTTON1          MSP_EXP432E401Y_GPIO_USR_SW2
 
+#define Board_LED3                  SMC_LED_D6
+#define Board_LED4                  SMC_LED_D20
+
+
 #define Board_I2C0                  MSP_EXP432E401Y_I2C0
 #define Board_I2C_TMP               MSP_EXP432E401Y_I2C0
 #define Board_I2C_TPL0401           MSP_EXP432E401Y_I2C7
@@ -88,8 +92,23 @@ extern "C" {
 #define Board_TIMER1                MSP_EXP432E401Y_TIMER1
 #define Board_TIMER2                MSP_EXP432E401Y_TIMER2
 
-#define Board_UART0                 MSP_EXP432E401Y_UART0
-#define Board_UART2                 MSP_EXP432E401Y_UART2
+/*
+ * Serial Ports
+ */
+#define Board_Serial0               MSP_EXP432E401Y_UART3
+#define Board_Serial1               MSP_EXP432E401Y_UART6
+#define Board_Serial2               MSP_EXP432E401Y_UART4
+#define Board_Serial3               MSP_EXP432E401Y_UART0
+#define Board_Serial4               MSP_EXP432E401Y_UART2
+#define Board_Serial5               MSP_EXP432E401Y_UART1
+#define Board_Serial6               MSP_EXP432E401Y_UART5
+#define Board_Serial7               MSP_EXP432E401Y_UART7
+
+#define Board_SerialMultinet        Board_Serial6
+
+#define Board_SerialCount           MSP_EXP432E401Y_UARTCOUNT
+
+
 
 #define Board_WATCHDOG0             MSP_EXP432E401Y_WATCHDOG0
 

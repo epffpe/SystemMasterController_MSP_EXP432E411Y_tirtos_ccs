@@ -22,6 +22,18 @@
 /* POSIX Header files */
 #include <pthread.h>
 
+///* BSD support */
+#include <netinet/in.h>
+//#include <arpa/inet.h>
+//#include <sys/socket.h>
+//
+//#include <ti/net/slnetutils.h>
+
+//#include <ti/ndk/inc/netmain.h>
+//
+//#include <ti/ndk/slnetif/slnetifndk.h>
+//#include <ti/net/slnetif.h>
+
 /* XDCtools Header files */
 #include <xdc/std.h>
 #include <xdc/runtime/Error.h>
@@ -163,46 +175,46 @@
 #include "DISPLAY/SMCDisplay.h"
 
 
-//#include "DiscreteIO/DIO.h"
+#include "DiscreteIO/DIO.h"
 //#include "USB/USBCDCD.h"
 //#include "USB/DFU.h"
 //#include "USB/USBTTYbin.h"
 //#include "USB/packettype.h"
-//#include "UDPServer.h"
-//#include <Deprecated/BSPSerial.h>
-//#include <Deprecated/ALTO/ALTOInterface.h>
-//#include <Deprecated/ALTO/ForteManager/ComputerBridge.h>
-//#include <Deprecated/ALTO/ALTOMultinet/RelayControllerWorker.h>
-//#include <Deprecated/ALTO/ALTOMultinet/TempControllerWorker.h>
-//#include <Deprecated/ALTO/ALTOMultinet/ALTOMultinet.h>
-//#include <Deprecated/AVDS/AVDSClient.h>
-//#include "Deprecated/RosenDVD/Rosen.h"
-//#include "Deprecated/RosenDVD/RosenBlueRayDVD.h"
+//#include "NDK/UDPServer.h"
+#include <Deprecated/BSPSerial.h>
+#include <Deprecated/ALTO/ALTOInterface.h>
+#include <Deprecated/ALTO/ForteManager/ComputerBridge.h>
+#include <Deprecated/ALTO/ALTOMultinet/RelayControllerWorker.h>
+#include <Deprecated/ALTO/ALTOMultinet/TempControllerWorker.h>
+#include <Deprecated/ALTO/ALTOMultinet/ALTOMultinet.h>
+#include <Deprecated/AVDS/AVDSClient.h>
+#include "Deprecated/RosenDVD/Rosen.h"
+#include "Deprecated/RosenDVD/RosenBlueRayDVD.h"
 //#include "mx66l51235f.h"
 //
 //#include "TrashCollection/TrashCollection.h"
 //
-//#include "Interfaces/Interfaces.h"
-//#include "Interfaces/IFUART.h"
-//
-//#include "Interfaces/SMC_Interfaces.h"
-//
-//
-//#include "Devices/ServiceDefinition.h"
-//#include "Devices/Devices.h"
-//#include "Devices/Utils/cmdline.h"
-//
-//#include "Devices/GenericDevice/GenericDevice.h"
-//#include "Devices/CANBus/CANTest.h"
-//#include "Devices/TestDevice/TestDevice.h"
-//#include "Devices/ALTOAmp/ALTOAmpDevice.h"
-//#include "Devices/ALTOMultinetDevice/RelayController/ALTOMultinetDeviceRelayControllerWorker.h"
-//#include "Devices/ForteManager/ForteManagerDevice.h"
-//
-//
-//
-//
-//
+#include "Interfaces/Interfaces.h"
+#include "Interfaces/IFUART.h"
+
+#include "Interfaces/SMC_Interfaces.h"
+
+
+#include "Devices/ServiceDefinition.h"
+#include "Devices/Devices.h"
+#include "Devices/Utils/cmdline.h"
+
+#include "Devices/GenericDevice/GenericDevice.h"
+#include "Devices/CANBus/CANTest.h"
+#include "Devices/TestDevice/TestDevice.h"
+#include "Devices/ALTOAmp/ALTOAmpDevice.h"
+#include "Devices/ALTOMultinetDevice/RelayController/ALTOMultinetDeviceRelayControllerWorker.h"
+#include "Devices/ForteManager/ForteManagerDevice.h"
+
+
+
+
+
 //#include "Devices/RemoteController/TCPRemoteController.h"
 //#include "Devices/RemoteController/TCPConsoleCommands/TCPConsoleCommands.h"
 //
