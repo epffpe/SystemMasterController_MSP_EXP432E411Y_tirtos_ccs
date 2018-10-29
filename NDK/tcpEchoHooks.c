@@ -68,86 +68,86 @@ extern Display_Handle g_SMCDisplay;
  */
 void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
 {
-//    pthread_t           thread;
-//    pthread_attr_t      attrs;
-//    struct sched_param  priParam;
-//    int                 retc;
-//    int                 detachState;
-//    static uint16_t arg0 = TCPPORT;
-//    static bool createTask = true;
-//    int32_t status = 0;
-//
-//    status = SlNetSock_init(0);
-//    if (status != 0) {
-//        Display_printf(g_SMCDisplay, 0, 0, "SlNetSock_init fail (%d)\n",
-//            status);
-//    }
-//
-//    status = SlNetIf_init(0);
-//    if (status != 0) {
-//        Display_printf(g_SMCDisplay, 0, 0, "SlNetIf_init fail (%d)\n",
-//            status);
-//    }
-//
-//    status = SlNetIf_add(SLNETIF_ID_2, "eth0",
-//            (const SlNetIf_Config_t *)&SlNetIfConfigNDK, IFPRI);
-//    if (status != 0) {
-//        Display_printf(g_SMCDisplay, 0, 0, "SlNetIf_add fail (%d)\n",
-//            status);
-//    }
-//
-//    if (fAdd && createTask) {
-//        /*
-//         *  Create the Task that farms out incoming TCP connections.
-//         *  arg0 will be the port that this task listens to.
-//         */
-//
-//        /* Set priority and stack size attributes */
-//        pthread_attr_init(&attrs);
-//        priParam.sched_priority = 1;
-//
-//        detachState = PTHREAD_CREATE_DETACHED;
-//        retc = pthread_attr_setdetachstate(&attrs, detachState);
-//        if (retc != 0) {
-//            Display_printf(g_SMCDisplay, 0, 0,
-//                    "netIPAddrHook: pthread_attr_setdetachstate() failed\n");
-//            while (1);
-//        }
-//
+    pthread_t           thread;
+    pthread_attr_t      attrs;
+    struct sched_param  priParam;
+    int                 retc;
+    int                 detachState;
+    static uint16_t arg0 = TCPPORT;
+    static bool createTask = true;
+    int32_t status = 0;
+
+    status = SlNetSock_init(0);
+    if (status != 0) {
+        Display_printf(g_SMCDisplay, 0, 0, "SlNetSock_init fail (%d)\n",
+            status);
+    }
+
+    status = SlNetIf_init(0);
+    if (status != 0) {
+        Display_printf(g_SMCDisplay, 0, 0, "SlNetIf_init fail (%d)\n",
+            status);
+    }
+
+    status = SlNetIf_add(SLNETIF_ID_2, "eth0",
+            (const SlNetIf_Config_t *)&SlNetIfConfigNDK, IFPRI);
+    if (status != 0) {
+        Display_printf(g_SMCDisplay, 0, 0, "SlNetIf_add fail (%d)\n",
+            status);
+    }
+
+    if (fAdd && createTask) {
+        /*
+         *  Create the Task that farms out incoming TCP connections.
+         *  arg0 will be the port that this task listens to.
+         */
+
+        /* Set priority and stack size attributes */
+        pthread_attr_init(&attrs);
+        priParam.sched_priority = 1;
+
+        detachState = PTHREAD_CREATE_DETACHED;
+        retc = pthread_attr_setdetachstate(&attrs, detachState);
+        if (retc != 0) {
+            Display_printf(g_SMCDisplay, 0, 0,
+                    "netIPAddrHook: pthread_attr_setdetachstate() failed\n");
+            while (1);
+        }
+
+        pthread_attr_setschedparam(&attrs, &priParam);
+
+        retc |= pthread_attr_setstacksize(&attrs, TCPHANDLERSTACK);
+        if (retc != 0) {
+            Display_printf(g_SMCDisplay, 0, 0,
+                    "netIPAddrHook: pthread_attr_setstacksize() failed\n");
+            while (1);
+        }
+
+        retc = pthread_create(&thread, &attrs, tcpHandler, (void *)&arg0);
+        if (retc != 0) {
+            Display_printf(g_SMCDisplay, 0, 0,
+                    "netIPAddrHook: pthread_create() failed\n");
+            while (1);
+        }
+
 //        pthread_attr_setschedparam(&attrs, &priParam);
 //
-//        retc |= pthread_attr_setstacksize(&attrs, TCPHANDLERSTACK);
+//        retc |= pthread_attr_setstacksize(&attrs, UDPHANDLERSTACK);
 //        if (retc != 0) {
 //            Display_printf(g_SMCDisplay, 0, 0,
-//                    "netIPAddrHook: pthread_attr_setstacksize() failed\n");
+//                           "netIPAddrHook: pthread_attr_setstacksize() failed\n");
 //            while (1);
 //        }
 //
-//        retc = pthread_create(&thread, &attrs, tcpHandler, (void *)&arg0);
+//        retc = pthread_create(&thread, &attrs, echoFxn, (void *)&arg0);
 //        if (retc != 0) {
 //            Display_printf(g_SMCDisplay, 0, 0,
-//                    "netIPAddrHook: pthread_create() failed\n");
+//                           "netIPAddrHook: pthread_create() failed\n");
 //            while (1);
 //        }
-//
-////        pthread_attr_setschedparam(&attrs, &priParam);
-////
-////        retc |= pthread_attr_setstacksize(&attrs, UDPHANDLERSTACK);
-////        if (retc != 0) {
-////            Display_printf(g_SMCDisplay, 0, 0,
-////                           "netIPAddrHook: pthread_attr_setstacksize() failed\n");
-////            while (1);
-////        }
-////
-////        retc = pthread_create(&thread, &attrs, echoFxn, (void *)&arg0);
-////        if (retc != 0) {
-////            Display_printf(g_SMCDisplay, 0, 0,
-////                           "netIPAddrHook: pthread_create() failed\n");
-////            while (1);
-////        }
-//
-//        createTask = false;
-//    }
+
+        createTask = false;
+    }
 }
 
 
