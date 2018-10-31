@@ -41,6 +41,8 @@ const IF_FxnTable IFUART_fxnTable =
  bIFUART_transfer
 };
 
+const char g_aIFUART_SerialMap[] = {3, 5, 4, 0, 2, 6, 1, 7};
+
 void vIFUART_close(IF_Handle handle)
 {
 
@@ -60,7 +62,7 @@ void vIFUART_init(IF_Handle handle)
 
     Error_init(&eb);
 
-    Display_printf(g_SMCDisplay, 0, 0, (char *)"Initializing Uart Port (%d)\n", hwAttrs->uartIndex);
+    Display_printf(g_SMCDisplay, 0, 0, (char *)"Initializing Serial Port (%d)\n", g_aIFUART_SerialMap[hwAttrs->uartIndex]);
 
     object->state.opened = false;
 
@@ -152,10 +154,10 @@ IF_Handle hIFUART_open(IF_Handle handle, IF_Params *params)
         Semaphore_post(object->hBSPSerial_semRxSerial);
         object->state.opened = true;
 
-        Display_printf(g_SMCDisplay, 0, 0, (char *)"Uart Port (%d) oppened\n", hwAttrs->uartIndex);
+        Display_printf(g_SMCDisplay, 0, 0, (char *)"Serial Port (%d) oppened\n", g_aIFUART_SerialMap[hwAttrs->uartIndex]);
 
         /* Clock to disable driverEnablePin */
-        if (hwAttrs->driverEnablePin && (hwAttrs->driverEnablePin < Board_SerialCount)) {
+        if (hwAttrs->driverEnablePin && (hwAttrs->driverEnablePin < Board_GPIOCount)) {
             Clock_Params_init(&paramsUnion.clockParams);
             paramsUnion.clockParams.period = 0;
             paramsUnion.clockParams.startFlag = FALSE;
@@ -286,14 +288,14 @@ unsigned int xIFUART_sendData(IF_Handle handle, const char *pStr, unsigned int l
 
     if (object->state.opened) {
         if (Semaphore_pend(object->hBSPSerial_semTxSerial, timeout)) {
-            if (hwAttrs->driverEnablePin && (hwAttrs->driverEnablePin < Board_SerialCount)) {
+            if (hwAttrs->driverEnablePin && (hwAttrs->driverEnablePin < Board_GPIOCount)) {
                 GPIO_write(hwAttrs->driverEnablePin, IF_UART_SERIAL_DRIVER_ENABLE);
             }
 
             ui32retValue = UART_write(object->hBSPSerial_uart, pStr, length);
 
             Semaphore_post(object->hBSPSerial_semTxSerial);
-            if (hwAttrs->driverEnablePin && (hwAttrs->driverEnablePin < Board_SerialCount)) {
+            if (hwAttrs->driverEnablePin && (hwAttrs->driverEnablePin < Board_GPIOCount)) {
                 Clock_start(object->timeoutClk);
 //                Clock_start(Clock_handle(&object->timeoutClk));
                 //            Clock_stop(Clock_handle(&object->timeoutClk));
@@ -319,11 +321,11 @@ int xIFUART_receiveDataSimple(IF_Handle handle, char *pStr, unsigned int length,
 
     if (object->state.opened) {
         if (Semaphore_pend(object->hBSPSerial_semRxSerial, timeout)) {
-            if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_SerialCount)) {
+            if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_GPIOCount)) {
                 GPIO_write(hwAttrs->receiverEnablePin, IF_UART_SERIAL_RECEIVER_ENABLE);
             }
             i32retValue = UART_read(object->hBSPSerial_uart, pStr, length);
-            if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_SerialCount)) {
+            if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_GPIOCount)) {
                 GPIO_write(hwAttrs->receiverEnablePin, IF_UART_SERIAL_RECEIVER_DISABLE);
             }
             Semaphore_post(object->hBSPSerial_semRxSerial);
@@ -350,7 +352,7 @@ int xIFUART_receiveData(IF_Handle handle, char *pStr, unsigned int length, unsig
 
     if (object->state.opened) {
         if (Semaphore_pend(object->hBSPSerial_semRxSerial, timeout)) {
-            if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_SerialCount)) {
+            if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_GPIOCount)) {
                 GPIO_write(hwAttrs->receiverEnablePin, IF_UART_SERIAL_RECEIVER_ENABLE);
             }
             do {
@@ -368,7 +370,7 @@ int xIFUART_receiveData(IF_Handle handle, char *pStr, unsigned int length, unsig
                     if (timeout) timeout--;
                 }
             }while(timeout && (i32CounterRead < length));
-            if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_SerialCount)) {
+            if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_GPIOCount)) {
                 GPIO_write(hwAttrs->receiverEnablePin, IF_UART_SERIAL_RECEIVER_DISABLE);
             }
             Semaphore_post(object->hBSPSerial_semRxSerial);
@@ -490,7 +492,7 @@ int xIFUART_receiveALTOFrame(IF_Handle handle, char *p64Buffer, unsigned int tim
 
     if (object->state.opened) {
         if (Semaphore_pend(object->hBSPSerial_semRxSerial, timeout)) {
-            if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_SerialCount)) {
+            if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_GPIOCount)) {
                 GPIO_write(hwAttrs->receiverEnablePin, IF_UART_SERIAL_RECEIVER_ENABLE);
             }
             do {
@@ -558,7 +560,7 @@ int xIFUART_receiveALTOFrame(IF_Handle handle, char *p64Buffer, unsigned int tim
                     if (timeout && (timeout != BIOS_WAIT_FOREVER)) timeout--;
                 }
             }while(timeout && !bIsFrame);
-            if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_SerialCount)) {
+            if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_GPIOCount)) {
                 GPIO_write(hwAttrs->receiverEnablePin, IF_UART_SERIAL_RECEIVER_DISABLE);
             }
             Semaphore_post(object->hBSPSerial_semRxSerial);
@@ -580,7 +582,7 @@ static Void vDriverEnableTimeout(UArg arg)
 {
     IFUART_HWAttrs *hwAttrs = (IFUART_HWAttrs *)((UART_Handle)arg)->hwAttrs;
 
-    if (hwAttrs->driverEnablePin && (hwAttrs->driverEnablePin < Board_SerialCount)) {
+    if (hwAttrs->driverEnablePin && (hwAttrs->driverEnablePin < Board_GPIOCount)) {
         GPIO_write(hwAttrs->driverEnablePin, IF_UART_SERIAL_DRIVER_DISABLE);
     }
 }

@@ -72,6 +72,7 @@ Void vALTOAmpDeviceFxn(UArg arg0, UArg arg1)
     clockHandle = devHandle->clockHandle;
     myDeviceID = devHandle->deviceID;
 
+    Display_printf(g_SMCDisplay, 0, 0, "ALTO Amplifier Device (%d) Started\n", myDeviceID);
     /*
      * Initialize interface
      */
@@ -681,6 +682,8 @@ DeviceList_Handler hALTOAmpDevice_open(DeviceList_Handler handle, void *params)
     if (handle->clockHandle == NULL) {
         System_abort("Clock create failed");
     }
+
+    Display_printf(g_SMCDisplay, 0, 0, "Opening ALTO Amplifier Device (%d) \n", handle->deviceID);
 
     Task_Params_init(&paramsUnion.taskParams);
     paramsUnion.taskParams.stackSize = ALTOAMPDEVICE_TASK_STACK_SIZE;

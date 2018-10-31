@@ -269,6 +269,7 @@ const uint_least8_t CAN_count = MSP_EXP432E401Y_CANCOUNT;
 #include <ti/display/Display.h>
 #include <ti/display/DisplayUart.h>
 #include <ti/display/DisplaySharp.h>
+#include "BoardRev10.h"
 #define MAXPRINTLEN 1024
 
 /* This value can be changed to 96 for use with the 430BOOST-SHARP96 BoosterPack. */
@@ -282,7 +283,7 @@ static uint_least8_t sharpDisplayBuf[BOARD_DISPLAY_SHARP_SIZE * BOARD_DISPLAY_SH
 
 
 const DisplayUart_HWAttrs displayUartHWAttrs = {
-    .uartIdx = MSP_EXP432E401Y_UART3,
+    .uartIdx = Board_Serial0,
     .baudRate = 115200,
     .mutexTimeout = (unsigned int)(-1),
     .strBuf = displayBuf,

@@ -260,6 +260,7 @@ void DIO_init(void)
     Task_Params taskParams;
     Error_Block eb;
 
+    Display_printf(g_SMCDisplay, 0, 0, "Initializing Discrete IO module\n");
     /* Make sure Error_Block is initialized */
     Error_init(&eb);
 
@@ -313,6 +314,7 @@ void DIO_init(void)
 #endif
     DIO_InitIO();
 
+    Display_printf(g_SMCDisplay, 0, 0, "Creating DIOTask\n");
     /*
      *  Create the Task that farms out incoming TCP connections.
      *  arg0 will be the port that this task listens to.
@@ -325,9 +327,10 @@ void DIO_init(void)
     taskHandle = Task_create((Task_FuncPtr)DIOTask, &taskParams, &eb);
     if (taskHandle == NULL) {
         System_printf("Failed to create DIOTask Task\n");
+        System_flush();
+        Display_printf(g_SMCDisplay, 0, 0, "Failed to create DIOTask Task\n");
     }
 
-    System_flush();
 }
 
 
@@ -342,7 +345,7 @@ Void DIOTask(UArg arg0, UArg arg1)
 {
     arg0 = arg0;
     arg1 = arg1;
-
+    Display_printf(g_SMCDisplay, 0, 0, "DIOTask Started\n");
     for(;;) {
         Task_sleep(DIO_TASK_DLY_TICKS);
         DIRd();

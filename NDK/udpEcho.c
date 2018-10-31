@@ -75,6 +75,8 @@ void *echoFxn(void *arg0)
     socklen_t          addrlen;
     char               buffer[UDPPACKETSIZE];
     uint16_t           portNumber = *(uint16_t *)arg0;
+    uint32_t IPTmp;
+    char response[] = "System Master Controller ID: 0123456789";
 
     fdOpenSession(TaskSelf());
 
@@ -112,15 +114,28 @@ void *echoFxn(void *arg0)
             if (FD_ISSET(server, &readSet)) {
                 bytesRcvd = recvfrom(server, buffer, UDPPACKETSIZE, 0,
                         (struct sockaddr *)&clientAddr, &addrlen);
-
+                buffer[bytesRcvd] = 0;
                 if (bytesRcvd > 0) {
-                    bytesSent = sendto(server, buffer, bytesRcvd, 0,
-                            (struct sockaddr *)&clientAddr, addrlen);
-                    if (bytesSent < 0 || bytesSent != bytesRcvd) {
-                        Display_printf(g_SMCDisplay, 0, 0,
-                                "Error: sendto failed.\n");
-                        goto shutdown;
+                    IPTmp = ntohl(clientAddr.sin_addr.s_addr);
+                    Display_printf(g_SMCDisplay, 0, 0, "remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
+                                   (uint8_t)(IPTmp>>16)&0xFF,
+                                   (uint8_t)(IPTmp>>8)&0xFF,
+                                   (uint8_t)IPTmp&0xFF,
+                                   clientAddr.sin_port
+                    );
+                    bytesSent = sendto(server, response, sizeof(response), 0,
+                                                (struct sockaddr *)&clientAddr, addrlen);
+                    if(bytesSent != sizeof(response)){
+                        Display_printf(g_SMCDisplay, 0, 0, "Error: sendto failed.\n");
+
                     }
+//                    bytesSent = sendto(server, buffer, bytesRcvd, 0,
+//                            (struct sockaddr *)&clientAddr, addrlen);
+//                    if (bytesSent < 0 || bytesSent != bytesRcvd) {
+//                        Display_printf(g_SMCDisplay, 0, 0,
+//                                "Error: sendto failed.\n");
+//                        goto shutdown;
+//                    }
                 }
             }
         }

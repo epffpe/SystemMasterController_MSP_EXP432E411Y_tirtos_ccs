@@ -46,6 +46,8 @@ Void udpHandlerFxn(UArg arg0, UArg arg1)
     // Open the file session
     fdOpenSession((void *)Task_self());
 
+    Display_printf(g_SMCDisplay, 0, 0, "UDP Server Started on Port %d\n", (uint16_t)arg0);
+
     server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (server == -1) {
         System_printf("Error: socket not created.\n");
@@ -74,10 +76,12 @@ Void udpHandlerFxn(UArg arg0, UArg arg1)
         addrlen = sizeof(clientAddr);
         System_printf("Waiting for UDP broadcast message\n");
         System_flush();
+        Display_printf(g_SMCDisplay, 0, 0, "udpHandlerFxn: Waiting for UDP broadcast message\n");
         /* Wait forever for the reply */
         status = select(server + 1, &readSet, NULL, NULL, NULL);
 
         System_printf("Status: 0x%x\n", status);
+        Display_printf(g_SMCDisplay, 0, 0, "udpHandlerFxn: Status: 0x%x\n", status);
         System_flush();
         if (status > 0) {
             if (FD_ISSET(server, &readSet)) {
@@ -85,6 +89,7 @@ Void udpHandlerFxn(UArg arg0, UArg arg1)
                         (struct sockaddr *)&clientAddr, &addrlen);
                 buffer[bytesRcvd] = 0;
                 System_printf("UDP -> %s\n", buffer);
+                Display_printf(g_SMCDisplay, 0, 0, "UDP -> %s\n", buffer);
 //                System_flush();
                 if (bytesRcvd > 0) {
 //                    clientAddr.sin_port = htons(1234);
@@ -95,6 +100,12 @@ Void udpHandlerFxn(UArg arg0, UArg arg1)
                                   (uint8_t)IPTmp&0xFF,
                                   clientAddr.sin_port
                                   );
+                    Display_printf(g_SMCDisplay, 0, 0, "remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
+                                   (uint8_t)(IPTmp>>16)&0xFF,
+                                   (uint8_t)(IPTmp>>8)&0xFF,
+                                   (uint8_t)IPTmp&0xFF,
+                                   clientAddr.sin_port
+                                   );
 
                     bytesSent = sendto(server, response, sizeof(response), 0,
                             (struct sockaddr *)&clientAddr, addrlen);

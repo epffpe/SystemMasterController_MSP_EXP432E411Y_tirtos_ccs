@@ -92,6 +92,12 @@ extern "C" {
 #define Board_TIMER1                MSP_EXP432E401Y_TIMER1
 #define Board_TIMER2                MSP_EXP432E401Y_TIMER2
 
+
+
+
+#define Board_GPIOCount             MSP_EXP432E401Y_GPIOCOUNT
+
+
 /*
  * Serial Ports
  */
@@ -108,6 +114,13 @@ extern "C" {
 #define Board_SerialDebug           Board_Serial5
 
 #define Board_SerialCount           MSP_EXP432E401Y_UARTCOUNT
+
+
+
+
+
+
+
 
 
 

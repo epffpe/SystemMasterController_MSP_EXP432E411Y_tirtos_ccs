@@ -99,6 +99,7 @@ Void vALTOMultinetDeviceFxn(UArg arg0, UArg arg1)
     clockHandle = devHandle->clockHandle;
     myDeviceID = devHandle->deviceID;
 
+    Display_printf(g_SMCDisplay, 0, 0, "ALTO Multinet Device (%d) Started\n", myDeviceID);
     /* Make sure Error_Block is initialized */
     Error_init(&eb);
 
@@ -132,98 +133,12 @@ Void vALTOMultinetDeviceFxn(UArg arg0, UArg arg1)
     taskParams.arg0 = (UArg)&discoveryArgs;
     tasMultinetDiscoverykHandle = Task_create((Task_FuncPtr)vALTOMultinetDeviceDiscovery, &taskParams, &eb);
 
-    /*
-     * Fill the tx frame
-     */
-    //    vALTOFrame_Params_init(&tFrameTx);
-    //    tFrameTx.classID = ALTO_Class_Diagnostic;
-    //    tFrameTx.operationID = ALTO_Operation_Get;
-    //    tFrameTx.functionID = ALTO_Function_ManufacturingInformation;
-    //    tFrameTx.length = 0x00;
-    //    tFrameTx.uin4unitType = ALTO_Multinet_RelayBox;
-    //    tFrameTx.ui4address = 1 & 0x1F;
-    //    vALTOFrame_BCC_fill(&tFrameTx);
-    //    vALTOFrame_create_ASCII(txbuff, &tFrameTx);
-
-    /*
-     * Prepare the transfer
-     */
-    //    memset(&ifTransaction, 0, sizeof(IF_Transaction));
-    //    ifTransaction.readCount = sizeof(rxbuff);
-    //    ifTransaction.readBuf = rxbuff;
-    //    ifTransaction.readTimeout = 30;
-    //    ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_ALTO_MULTINET;
-    //    ifTransaction.writeBuf = txbuff;
-    //    ifTransaction.writeCount = sizeof(txbuff);
-    //    ifTransaction.writeTimeout = BIOS_WAIT_FOREVER;
-    //    ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
-
 
     while(1) {
         events = Event_pend(eventHandle, Event_Id_NONE, DEVICE_ALL_EVENTS, 100); //BIOS_WAIT_FOREVER
 
         if (events & DEVICE_PERIODIC_EVT) {
             events &= ~DEVICE_PERIODIC_EVT;
-
-            //            char i8address;
-            //
-            //            tFrameTx.uin4unitType = ALTO_Multinet_RelayBox;
-            //            for (i8address = 0; i8address < ALTOMULTINET_NUM_RELAYS_DEVICES; i8address++) {
-            //                tFrameTx.ui4address = i8address & 0x1F;
-            //                vALTOFrame_BCC_fill(&tFrameTx);
-            //                vALTOFrame_create_ASCII(txbuff, &tFrameTx);
-            //
-            //                ifTransaction.readCount = 64;
-            //                ifTransaction.writeCount = sizeof(txbuff);
-            //                transferOk = bIF_transfer(ifHandle, &ifTransaction);
-            //                if (transferOk) {
-            //                    xALTOFrame_convert_ASCII_to_binary(rxbuff, &tFrameRx);
-            //                    i8bcc = cALTOFrame_BCC_check(&tFrameRx);
-            //                    if (!i8bcc) {
-            //                        i8bcc = sizeof(ALTOMultinetDeviceRelay_detailedStatus);
-            //                        ALTOMultinetDeviceManufacturingInformation *pManufacturingInformation = (ALTOMultinetDeviceManufacturingInformation *)tFrameRx.data;
-            //                        workerParams.ui8VersionMajor = pManufacturingInformation->SwVersionMajor;
-            //                        workerParams.ui8VersionMinor = pManufacturingInformation->SwVersionMinor;
-            //                        workerParams.ui8MultinetAddress = tFrameRx.ui8MultinetAddress;
-            //
-            //                        if (!ptALTOMultinet_findControllerWorkerInList(hControllersListQueue, workerParams.ui8MultinetAddress)) {
-            //                            pWorker = ptALTOMultinet_addControllerWorkerToList(hControllersListQueue,
-            //                                                                               myDeviceID,
-            //                                                                               &workerParams);
-            //                        }
-            //                    }
-            //                }
-            //
-            //            }
-            //
-            //
-            //            tFrameTx.uin4unitType = ALTO_Multinet_TemperatureBox;
-            //            for (i8address = 0; i8address < ALTOMULTINET_NUM_RELAYS_DEVICES; i8address++) {
-            //                tFrameTx.ui4address = i8address & 0x1F;
-            //                vALTOFrame_BCC_fill(&tFrameTx);
-            //                vALTOFrame_create_ASCII(txbuff, &tFrameTx);
-            //
-            //                ifTransaction.readCount = 64;
-            //                ifTransaction.writeCount = sizeof(txbuff);
-            //                transferOk = bIF_transfer(ifHandle, &ifTransaction);
-            //                if (transferOk) {
-            //                    xALTOFrame_convert_ASCII_to_binary(rxbuff, &tFrameRx);
-            //                    i8bcc = cALTOFrame_BCC_check(&tFrameRx);
-            //                    if (!i8bcc) {
-            //                        ALTOMultinetDeviceManufacturingInformation *pManufacturingInformation = (ALTOMultinetDeviceManufacturingInformation *)tFrameRx.data;
-            //                        workerParams.ui8VersionMajor = pManufacturingInformation->SwVersionMajor;
-            //                        workerParams.ui8VersionMinor = pManufacturingInformation->SwVersionMinor;
-            //                        workerParams.ui8MultinetAddress = tFrameRx.ui8MultinetAddress;
-            //
-            //                        if (!ptALTOMultinet_findControllerWorkerInList(hControllersListQueue, workerParams.ui8MultinetAddress)) {
-            ////                            pWorker = ptALTOMultinet_addControllerWorkerToList(hControllersListQueue,
-            ////                                                                               myDeviceID,
-            ////                                                                               &workerParams);
-            //                        }
-            //                    }
-            //                }
-            //
-            //            }
         }
 
         if (events & DEVICE_APP_KILL_EVT) {
@@ -907,6 +822,7 @@ Void vALTOMultinetDeviceDiscovery(UArg arg0, UArg arg1)
     ALTOMultinetDeviceControllerWorker_Params workerParams;
     Queue_Handle hControllersListQueue;
 
+    Display_printf(g_SMCDisplay, 0, 0, "ALTO Multinet Discovery Started\n");
     /*
      * Initialize interface
      */
@@ -971,6 +887,7 @@ Void vALTOMultinetDeviceDiscovery(UArg arg0, UArg arg1)
                     workerParams.ui8MultinetAddress = tFrameRx.ui8MultinetAddress;
 
                     if (!ptALTOMultinet_findControllerWorkerInList(hControllersListQueue, workerParams.ui8MultinetAddress)) {
+                        Display_printf(g_SMCDisplay, 0, 0, "Found ALTO Multinet Relay Box (%d)\n", workerParams.ui4address);
                         pWorker = ptALTOMultinet_addControllerWorkerToList(hControllersListQueue,
                                                                            myDeviceID,
                                                                            &workerParams);
@@ -1001,6 +918,7 @@ Void vALTOMultinetDeviceDiscovery(UArg arg0, UArg arg1)
                     workerParams.ui8MultinetAddress = tFrameRx.ui8MultinetAddress;
 
                     if (!ptALTOMultinet_findControllerWorkerInList(hControllersListQueue, workerParams.ui8MultinetAddress)) {
+                        // TODO: Add control for temp controller
                         //                            pWorker = ptALTOMultinet_addControllerWorkerToList(hControllersListQueue,
                         //                                                                               myDeviceID,
                         //                                                                               &workerParams);
@@ -1072,6 +990,7 @@ DeviceList_Handler hALTOMultinetDevice_open(DeviceList_Handler handle, void *par
     if(handle->state.opened == true) {
         Hwi_restore(key);
         Log_warning1("Device:(%p) already in use.", handle->deviceID);
+        Display_printf(g_SMCDisplay, 0, 0, "Device:(%p) already in use.", handle->deviceID);
         return handle;
     }
     handle->state.opened = true;
@@ -1098,6 +1017,8 @@ DeviceList_Handler hALTOMultinetDevice_open(DeviceList_Handler handle, void *par
     if (handle->clockHandle == NULL) {
         System_abort("Clock create failed");
     }
+
+    Display_printf(g_SMCDisplay, 0, 0, "Opening ALTO Multinet Device (%d) \n", handle->deviceID);
 
     Task_Params_init(&paramsUnion.taskParams);
     paramsUnion.taskParams.stackSize = ALTOMULTINETDEVICE_TASK_STACK_SIZE;

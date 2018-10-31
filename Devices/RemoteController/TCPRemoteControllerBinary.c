@@ -5,7 +5,12 @@
  *      Author: epenate
  */
 
-
+#define __DEVICES_TCPRCBINDEVICE_ALTOMULTINETDEVICE_GLOBAL
+#include "includes.h"
+#undef htonl
+#undef htons
+#undef ntohl
+#undef ntohs
 
 /* BSD support */
 #include <netinet/in.h>
@@ -14,8 +19,6 @@
 #include <sys/select.h>
 
 #include <ti/net/slnetutils.h>
-#define __DEVICES_TCPRCBINDEVICE_ALTOMULTINETDEVICE_GLOBAL
-#include "includes.h"
 
 extern void fdOpenSession();
 extern void fdCloseSession();
@@ -43,7 +46,7 @@ const Device_FxnTable g_TCPRCBinDevice_fxnTable =
 Void vTCPRCBinDeviceFxn(UArg arg0, UArg arg1)
 {
     uint32_t events;
-//    uint32_t myDeviceID;
+    uint32_t myDeviceID;
     DeviceList_Handler devHandle;
     Event_Handle eventHandle;
     Queue_Handle msgQHandle;
@@ -67,9 +70,9 @@ Void vTCPRCBinDeviceFxn(UArg arg0, UArg arg1)
     eventHandle = devHandle->eventHandle;
     msgQHandle = devHandle->msgQHandle;
     clockHandle = devHandle->clockHandle;
-//    myDeviceID = devHandle->deviceID;
+    myDeviceID = devHandle->deviceID;
 
-
+    Display_printf(g_SMCDisplay, 0, 0, "TCP Server Device %d started\n", myDeviceID);
 
     /* Make sure Error_Block is initialized */
     Error_init(&eb);
@@ -160,11 +163,13 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
         return;
     }
 
+    Display_printf(g_SMCDisplay, 0, 0, "TCP Server started on port %d\n", (uint32_t)arg0);
 
     server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (server == -1) {
         System_printf("Error: socket not created.\n");
         System_flush();
+        Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: socket failed\n");
         goto shutdown;
     }
 
@@ -178,6 +183,7 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
     if (status == -1) {
         System_printf("Error: bind failed.\n");
         System_flush();
+        Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: bind failed\n");
         goto shutdown;
     }
 
@@ -185,13 +191,17 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
     if (status == -1) {
         System_printf("Error: listen failed.\n");
         System_flush();
+        Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: listen failed\n");
         goto shutdown;
     }
 
     optval = 1;
-    if (setsockopt(server, SOL_SOCKET, SO_KEEPALIVE, &optval, optlen) < 0) {
+    status = setsockopt(server, SOL_SOCKET, SO_KEEPALIVE, &optval, optlen);
+    if (status == -1) {
+//    if (setsockopt(server, SOL_SOCKET, SO_KEEPALIVE, &optval, optlen) < 0) {
         System_printf("Error: setsockopt failed\n");
         System_flush();
+        Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: setsockopt failed\n");
         goto shutdown;
     }
 
@@ -201,6 +211,8 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
 
         System_printf("vTCPRCBinServerFxn: Creating thread clientfd = %d\n", clientfd);
         System_flush();
+        Display_printf(g_SMCDisplay, 0, 0,
+                        "vTCPRCBinServerFxn: Creating thread clientfd = %d\n", clientfd);
         /* Init the Error_Block */
         Error_init(&eb);
 
@@ -222,8 +234,9 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
 
     System_printf("Error: accept failed.\n");
     System_flush();
+    Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: accept failed.\n");
     shutdown:
-    if (server > 0) {
+    if (server != -1) {
         close(server);
     }
     // Close the file session
@@ -245,6 +258,7 @@ Void vTCPRCBinWorker(UArg arg0, UArg arg1)
 
     System_printf("vTCPRCBinWorker: start clientfd = 0x%x\n", clientfd);
     System_flush();
+    Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinWorker: start clientfd = 0x%x\n", clientfd);
 
     // Open the file session
     fdOpenSession((void *)Task_self());
@@ -257,6 +271,8 @@ Void vTCPRCBinWorker(UArg arg0, UArg arg1)
 
     System_printf("vTCPRCBinWorker stop clientfd = 0x%x\n", clientfd);
     System_flush();
+
+    Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinWorker stop clientfd = 0x%x\n", clientfd);
 
     close(clientfd);
 
