@@ -100,6 +100,7 @@
 //#include <ti/drivers/emac/EMACMSP432E4.h>
 
 #include <ti/drivers/GPIO.h>
+#include <ti/drivers/ADCBuf.h>
 // #include <ti/drivers/I2C.h>
 // #include <ti/drivers/SDSPI.h>
  #include <ti/drivers/SPI.h>
@@ -155,7 +156,7 @@
 /* DriverLib Includes */
 #include "ti/devices/msp432e4/driverlib/driverlib.h"
 
-
+#include <semaphore.h>
 
 /* Board Header file */
 #include "BoardRev10.h"

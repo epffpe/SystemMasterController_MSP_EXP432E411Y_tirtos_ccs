@@ -105,7 +105,16 @@ ADCBufMSP432E4_Object adcbufMSP432E4Objects[MSP_EXP432E401Y_ADCBUFCOUNT];
 
 ADCBufMSP432E4_Channels adcBuf0MSP432E4Channels[MSP_EXP432E401Y_ADCBUF0CHANNELCOUNT] = {
     {
-        .adcPin = ADCBufMSP432E4_PE_3_A0,
+        .adcPin = ADCBufMSP432E4_PIN_NONE,
+        .adcSequence = ADCBufMSP432E4_Seq_0,
+        .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
+        .adcDifferentialPin = ADCBufMSP432E4_PIN_NONE,
+        .adcInternalSource = ADCBufMSP432E4_TEMPERATURE_MODE,
+        .refVoltage = 3300000
+    },
+    {
+//        .adcPin = ADCBufMSP432E4_PD_5_A6,
+        .adcPin = ADCBufMSP432E4_PD_4_A7,
         .adcSequence = ADCBufMSP432E4_Seq_0,
         .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
         .adcDifferentialPin = ADCBufMSP432E4_PIN_NONE,
@@ -118,14 +127,6 @@ ADCBufMSP432E4_Channels adcBuf0MSP432E4Channels[MSP_EXP432E401Y_ADCBUF0CHANNELCO
         .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
         .adcDifferentialPin = ADCBufMSP432E4_PIN_NONE,
         .adcInternalSource = ADCBufMSP432E4_INTERNAL_SOURCE_MODE_OFF,
-        .refVoltage = 3300000
-    },
-    {
-        .adcPin = ADCBufMSP432E4_PIN_NONE,
-        .adcSequence = ADCBufMSP432E4_Seq_0,
-        .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
-        .adcDifferentialPin = ADCBufMSP432E4_PIN_NONE,
-        .adcInternalSource = ADCBufMSP432E4_TEMPERATURE_MODE,
         .refVoltage = 3300000
     },
     {

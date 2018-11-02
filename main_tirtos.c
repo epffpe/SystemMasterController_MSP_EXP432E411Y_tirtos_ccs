@@ -67,6 +67,17 @@ void NDK_hookInit(int32_t id) {}
 
 extern void ti_ndk_config_Global_startupFxn();
 
+
+void programEMACAddress()
+{
+    uint32_t ulUser0, ulUser1;
+
+    ulUser0 = 0x00B61A00;
+    ulUser1 = 0x0055BF03;
+    FlashUserSet(ulUser0, ulUser1);
+    FlashUserSave();
+}
+
 /*
  *  ======== main ========
  */
@@ -79,6 +90,9 @@ int main(void)
 
     /* Call driver init functions */
     Board_initGeneral();
+
+//    programEMACAddress();
+
 
     /* Initialize the attributes structure with default values */
     pthread_attr_init(&attrs);

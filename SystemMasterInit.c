@@ -40,8 +40,9 @@
 /* Example/Board Header files */
 
 void vDiscreteIO_init();
-void test();
 void vHeartBeat_init();
+void test();
+void test2();
 
 //*****************************************************************************
 //
@@ -67,6 +68,7 @@ void *mainThread(void *arg0)
     Device_Params deviceParams;
 
     /* Call driver init functions */
+    ADCBuf_init();
     GPIO_init();
     PWM_init();
     // I2C_init();
@@ -111,7 +113,7 @@ void *mainThread(void *arg0)
     vForteManagerDevice_Params_init(&deviceParams, 35, IF_SERIAL_0);
 //    xDevice_add(&deviceParams, &eb);
 
-    test();
+    test2();
     return 0;
 }
 
@@ -156,6 +158,51 @@ void vDiscreteIO_init()
     DOSet(DIO_UART_DEBUG, DO_ON);
 
 }
+
+/*
+ *  ======== heartBeatFxn ========
+ *  Toggle the Board_LED0. The Task_sleep is determined by arg0 which
+ *  is configured for the heartBeat Task instance.
+ */
+Void heartBeatFxn(UArg arg0, UArg arg1)
+{
+    Display_printf(g_SMCDisplay, 0, 0, "Heartbeat task started\n");
+    while (1) {
+//        GPIO_write(SMC_BLE_2OE, 1);
+//        GPIO_write(Board_LED3,0);
+        DOSet(DIO_LED_D6, DO_ON);
+        Task_sleep((unsigned int)50);
+//        GPIO_write(Board_LED3,1);
+        DOSet(DIO_LED_D6, DO_OFF);
+        Task_sleep((unsigned int)50);
+//        GPIO_write(Board_LED3,0);
+        DOSet(DIO_LED_D6, DO_ON);
+        Task_sleep((unsigned int)50);
+//        GPIO_write(Board_LED3,1);
+        DOSet(DIO_LED_D6, DO_OFF);
+//        GPIO_write(SMC_BLE_2OE, 0);
+        Task_sleep((unsigned int)850);
+    }
+}
+
+
+
+void vHeartBeat_init()
+{
+    Task_Params taskParams;
+//    Task_Handle taskHandle;
+    Error_Block eb;
+    /* Make sure Error_Block is initialized */
+    Error_init(&eb);
+    Display_printf(g_SMCDisplay, 0, 0, "Initializing heartbeat\n");
+    /* Construct heartBeat Task  thread */
+    Task_Params_init(&taskParams);
+    taskParams.arg0 = 1000;
+    taskParams.stackSize = 512;
+    Task_create((Task_FuncPtr)heartBeatFxn, &taskParams, NULL);
+}
+
+
 
 
 void test()
@@ -203,45 +250,114 @@ void test()
     }
 }
 
+
+#define ADCBUFFERSIZE    (100)
+
+uint16_t sampleBufferOne[ADCBUFFERSIZE];
+float CBuffer[ADCBUFFERSIZE];
+float avgTemperature;
+
+/* Driver handles shared between the task and the callback function */
+ADCBuf_Handle adcBuf;
+ADCBuf_Conversion continuousConversion[2];
+
+
+/* ADCBuf semaphore */
+sem_t adcbufSem;
+
+
 /*
- *  ======== heartBeatFxn ========
- *  Toggle the Board_LED0. The Task_sleep is determined by arg0 which
- *  is configured for the heartBeat Task instance.
+ * This function is called whenever a buffer is full.
+ * The content of the buffer is then averaged and converted into degrees Celsius format
+ * and sent to the PC via the UART.
  */
-Void heartBeatFxn(UArg arg0, UArg arg1)
-{
-    Display_printf(g_SMCDisplay, 0, 0, "Heartbeat task started\n");
-    while (1) {
-//        GPIO_write(SMC_BLE_2OE, 1);
-//        GPIO_write(Board_LED3,0);
-        DOSet(DIO_LED_D6, DO_ON);
-        Task_sleep((unsigned int)50);
-//        GPIO_write(Board_LED3,1);
-        DOSet(DIO_LED_D6, DO_OFF);
-        Task_sleep((unsigned int)50);
-//        GPIO_write(Board_LED3,0);
-        DOSet(DIO_LED_D6, DO_ON);
-        Task_sleep((unsigned int)50);
-//        GPIO_write(Board_LED3,1);
-        DOSet(DIO_LED_D6, DO_OFF);
-//        GPIO_write(SMC_BLE_2OE, 0);
-        Task_sleep((unsigned int)850);
+void adcBufCallback(ADCBuf_Handle handle, ADCBuf_Conversion *conversion,
+    void *completedADCBuffer, uint32_t completedChannel) {
+    uint_fast16_t i;
+    uint16_t *rawTemperatureBuf = (uint16_t *) completedADCBuffer;
+
+    avgTemperature = 0;
+
+    /* Calculate average temperature */
+    for (i = 0; i < ADCBUFFERSIZE; i++) {
+        avgTemperature += rawTemperatureBuf[i];
     }
+    avgTemperature = avgTemperature/ADCBUFFERSIZE;
+
+    /* Convert ADC value to Celsius */
+//    avgTemperature = (1475*4096 - (75 * 33 * avgTemperature))/ 40960;
+//    avgTemperature = 36.3 * (avgTemperature / 4096);
+//    avgTemperature = (660 * avgTemperature) / 4096; // (3.3 * avgTemperature) / 4096 / 50 * 10
+    avgTemperature = (330 * avgTemperature) / 4096; // (3.3 * avgTemperature) / 4096 / 100 * 10
+
+    /* post adcbuf semaphore */
+    sem_post(&adcbufSem);
 }
 
 
-
-void vHeartBeat_init()
+void test2()
 {
-    Task_Params taskParams;
-//    Task_Handle taskHandle;
-    Error_Block eb;
-    /* Make sure Error_Block is initialized */
-    Error_init(&eb);
-    Display_printf(g_SMCDisplay, 0, 0, "Initializing heartbeat\n");
-    /* Construct heartBeat Task  thread */
-    Task_Params_init(&taskParams);
-    taskParams.arg0 = 1000;
-    taskParams.stackSize = 512;
-    Task_create((Task_FuncPtr)heartBeatFxn, &taskParams, NULL);
+    ADCBuf_Params adcBufParams;
+
+    /* Call driver init functions */
+    ADCBuf_init();
+    GPIO_init();
+    Display_init();
+    int32_t         status;
+
+
+    status = sem_init(&adcbufSem, 0, 0);
+    if (status != 0) {
+        Display_printf(g_SMCDisplay, 0, 0, "Error creating adcbufSem\n");
+        while(1);
+    }
+
+    Display_printf(g_SMCDisplay, 0, 0, "Starting the ADCBuf temperature example");
+
+    /* Set up an ADCBuf peripheral in ADCBuf_RECURRENCE_MODE_CONTINUOUS */
+    ADCBuf_Params_init(&adcBufParams);
+    adcBufParams.callbackFxn = adcBufCallback;
+    adcBufParams.recurrenceMode = ADCBuf_RECURRENCE_MODE_ONE_SHOT;
+    adcBufParams.returnMode = ADCBuf_RETURN_MODE_CALLBACK;
+    adcBufParams.samplingFrequency = 1000;
+
+    adcBuf = ADCBuf_open(Board_ADCBUF0, &adcBufParams);
+
+    if (!adcBuf){
+        /* AdcBuf did not open correctly. */
+        while(1);
+    }
+
+    /* Configure the conversion struct */
+    continuousConversion[0].arg = NULL;
+    continuousConversion[0].adcChannel = Board_ADCBUF0CHANNEL0;
+    continuousConversion[0].sampleBuffer = sampleBufferOne;
+    continuousConversion[0].sampleBufferTwo = sampleBufferOne;
+    continuousConversion[0].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /* Configure the conversion struct */
+    continuousConversion[1].arg = NULL;
+    continuousConversion[1].adcChannel = Board_ADCBUF0CHANNEL1;
+    continuousConversion[1].sampleBuffer = sampleBufferOne;
+    continuousConversion[1].sampleBufferTwo = sampleBufferOne;
+    continuousConversion[1].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /*
+     * Go to sleep in the foreground thread forever. The data will be collected
+     * and transfered in the background thread
+     */
+    while(1) {
+        sleep(1);
+        /* Start converting. */
+        if (ADCBuf_convert(adcBuf, &continuousConversion[1], 1) !=
+            ADCBuf_STATUS_SUCCESS) {
+            /* Did not start conversion process correctly. */
+            while(1);
+        }
+        /* Wait for semaphore and print average temperature */
+        sem_wait(&adcbufSem);
+        /* Print a message with average temperature */
+        Display_printf(g_SMCDisplay, 0, 0, "The average temperature is %.3fC",
+                       avgTemperature);
+    }
 }

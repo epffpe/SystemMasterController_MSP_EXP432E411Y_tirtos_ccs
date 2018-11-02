@@ -63,7 +63,7 @@ extern Display_Handle g_SMCDisplay;
  *  Echoes UDP messages.
  *
  */
-void *echoFxn(void *arg0)
+void *UDPFinder_task(void *arg0)
 {
     int                bytesRcvd;
     int                bytesSent;
