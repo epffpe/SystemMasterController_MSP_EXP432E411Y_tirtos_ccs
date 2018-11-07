@@ -105,6 +105,7 @@ ADCBufMSP432E4_Object adcbufMSP432E4Objects[MSP_EXP432E401Y_ADCBUFCOUNT];
 
 ADCBufMSP432E4_Channels adcBuf0MSP432E4Channels[MSP_EXP432E401Y_ADCBUF0CHANNELCOUNT] = {
     {
+         // Internal Temp sensor
         .adcPin = ADCBufMSP432E4_PIN_NONE,
         .adcSequence = ADCBufMSP432E4_Seq_0,
         .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
@@ -113,7 +114,7 @@ ADCBufMSP432E4_Channels adcBuf0MSP432E4Channels[MSP_EXP432E401Y_ADCBUF0CHANNELCO
         .refVoltage = 3300000
     },
     {
-//        .adcPin = ADCBufMSP432E4_PD_5_A6,
+         // LOGICCur
         .adcPin = ADCBufMSP432E4_PD_4_A7,
         .adcSequence = ADCBufMSP432E4_Seq_0,
         .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
@@ -122,7 +123,8 @@ ADCBufMSP432E4_Channels adcBuf0MSP432E4Channels[MSP_EXP432E401Y_ADCBUF0CHANNELCO
         .refVoltage = 3300000
     },
     {
-        .adcPin = ADCBufMSP432E4_PE_2_A1,
+         // PERCur
+        .adcPin = ADCBufMSP432E4_PD_5_A6,
         .adcSequence = ADCBufMSP432E4_Seq_1,
         .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
         .adcDifferentialPin = ADCBufMSP432E4_PIN_NONE,
@@ -130,15 +132,26 @@ ADCBufMSP432E4_Channels adcBuf0MSP432E4Channels[MSP_EXP432E401Y_ADCBUF0CHANNELCO
         .refVoltage = 3300000
     },
     {
-        .adcPin = ADCBufMSP432E4_PE_3_A0,
+        // +5V Main Monitor
+        .adcPin = ADCBufMSP432E4_PP_6_A22,
         .adcSequence = ADCBufMSP432E4_Seq_0,
-        .adcInputMode = ADCBufMSP432E4_DIFFERENTIAL,
-        .adcDifferentialPin = ADCBufMSP432E4_PE_2_A1,
+        .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
+        .adcDifferentialPin = ADCBufMSP432E4_PIN_NONE,
         .adcInternalSource = ADCBufMSP432E4_INTERNAL_SOURCE_MODE_OFF,
         .refVoltage = 3300000
     },
     {
-        .adcPin = ADCBufMSP432E4_PE_2_A1,
+         // +5V Peripheral Monitor
+        .adcPin = ADCBufMSP432E4_PP_7_A23,
+        .adcSequence = ADCBufMSP432E4_Seq_0,
+        .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
+        .adcDifferentialPin = ADCBufMSP432E4_PIN_NONE,
+        .adcInternalSource = ADCBufMSP432E4_INTERNAL_SOURCE_MODE_OFF,
+        .refVoltage = 3300000
+    },
+    {
+         // +28V Monitor
+        .adcPin = ADCBufMSP432E4_PE_1_A2,
         .adcSequence = ADCBufMSP432E4_Seq_0,
         .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
         .adcDifferentialPin = ADCBufMSP432E4_PIN_NONE,

@@ -43,6 +43,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <sys/_timeval.h>
 
 #include <ti/net/slnetutils.h>
 
@@ -114,6 +115,7 @@ void *tcpHandler(void *arg0)
     int                optlen = sizeof(optval);
     socklen_t          addrlen = sizeof(clientAddr);
     uint16_t           portNumber = *(uint16_t *)arg0;
+    struct timeval      socketTimeout;
 
     fdOpenSession(TaskSelf());
 
@@ -148,6 +150,26 @@ void *tcpHandler(void *arg0)
         Display_printf(g_SMCDisplay, 0, 0, "tcpHandler: setsockopt failed\n");
         goto shutdown;
     }
+
+    optval = 30;
+    status = setsockopt(server, SOL_SOCKET, SO_KEEPALIVETIME, &optval, optlen);
+    if (status == -1) {
+        Display_printf(g_SMCDisplay, 0, 0, "tcpHandler: setsockopt failed\n");
+        goto shutdown;
+    }
+    // Socket timeouts configuration
+    socketTimeout.tv_sec = 3;
+    socketTimeout.tv_usec = 0;
+    status = setsockopt(server, SOL_SOCKET, SO_RCVTIMEO, &socketTimeout, sizeof(socketTimeout));
+    if (status == -1) {
+        Display_printf(g_SMCDisplay, 0, 0, "tcpHandler: setsockopt failed\n");
+        goto shutdown;
+    }
+//    status = setsockopt(server, SOL_SOCKET, SO_SNDTIMEO, &socketTimeout, sizeof(socketTimeout));
+//    if (status == -1) {
+//        Display_printf(g_SMCDisplay, 0, 0, "tcpHandler: setsockopt failed\n");
+//        goto shutdown;
+//    }
 
     while ((clientfd =
             accept(server, (struct sockaddr *)&clientAddr, &addrlen)) != -1) {

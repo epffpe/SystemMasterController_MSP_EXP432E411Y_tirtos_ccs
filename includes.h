@@ -230,7 +230,7 @@
 #include "Devices/RemoteController/TCPBinaryCommands/DiscreteIO/TCPBinaryCMD_DiscreteIO.h"
 
 
-
+#include "System/SystemAnalogMonitor.h"
 
 
 
