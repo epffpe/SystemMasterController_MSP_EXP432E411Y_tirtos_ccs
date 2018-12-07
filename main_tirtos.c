@@ -47,9 +47,10 @@
 #include "includes.h"
 
 extern void *mainThread(void *arg0);
+extern void *SMC_initThread(void *arg0);
 
 /* Stack size in bytes */
-#define THREADSTACKSIZE    1024
+#define THREADSTACKSIZE    2048
 
 /*
  * The following (weak) function definition is needed in applications
@@ -78,6 +79,25 @@ void programEMACAddress()
     FlashUserSave();
 }
 
+//Void inittask(UArg arg0, UArg arg1)
+//{
+//    SMC_initThread(NULL);
+//}
+//
+//void loadInitialization()
+//{
+//    Task_Params taskParams;
+//    Error_Block eb;
+//    /* Make sure Error_Block is initialized */
+//    Error_init(&eb);
+//
+//    Task_Params_init(&taskParams);
+//    taskParams.stackSize = THREADSTACKSIZE;
+//    taskParams.priority = 9;
+//    Task_create((Task_FuncPtr)inittask, &taskParams, &eb);
+//
+//}
+
 /*
  *  ======== main ========
  */
@@ -93,12 +113,14 @@ int main(void)
 
 //    programEMACAddress();
 
+    INFO_init();
+
 
     /* Initialize the attributes structure with default values */
     pthread_attr_init(&attrs);
 
     /* Set priority, detach state, and stack size attributes */
-    priParam.sched_priority = 1;
+    priParam.sched_priority = 9;
     retc = pthread_attr_setschedparam(&attrs, &priParam);
     retc |= pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED);
     retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
@@ -107,7 +129,9 @@ int main(void)
         while (1) {}
     }
 
-    retc = pthread_create(&thread, &attrs, mainThread, NULL);
+//    loadInitialization();
+//    retc = pthread_create(&thread, &attrs, mainThread, NULL);
+    retc = pthread_create(&thread, &attrs, SMC_initThread, NULL);
     if (retc != 0) {
         /* pthread_create() failed */
         while (1) {}

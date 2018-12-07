@@ -689,10 +689,12 @@ GPIO_PinConfig gpioPinConfigs[] = {
     GPIOMSP432E4_PR5 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
     /* SMC_BLE_2OE */
     GPIOMSP432E4_PR2 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
+    /* SMC_FLASH_CS */
+    GPIOMSP432E4_PQ1 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
     /* SMC_FLASH_WP */
-    GPIOMSP432E4_PR2 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
+    GPIOMSP432E4_PF4 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
     /* SMC_FLASH_RESET */
-    GPIOMSP432E4_PR2 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_HIGH,
+    GPIOMSP432E4_PF5 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
 
 };
 
@@ -837,20 +839,55 @@ static char flashBuf[REGIONSIZE];
 
 #endif
 
-NVSMSP432E4_Object nvsMSP432E4Objects[MSP_EXP432E401Y_NVSCOUNT];
+//NVSMSP432E4_Object nvsMSP432E4Objects[MSP_EXP432E401Y_NVSCOUNT];
+NVSMSP432E4_Object nvsMSP432E4Objects[1];
 
-const NVSMSP432E4_HWAttrs nvsMSP432E4HWAttrs[MSP_EXP432E401Y_NVSCOUNT] = {
+//const NVSMSP432E4_HWAttrs nvsMSP432E4HWAttrs[MSP_EXP432E401Y_NVSCOUNT] = {
+const NVSMSP432E4_HWAttrs nvsMSP432E4HWAttrs[1] = {
     {
         .regionBase = (void *) flashBuf,
         .regionSize = REGIONSIZE,
     },
 };
 
+
+#include <ti/drivers/nvs/NVSSPI25X.h>
+
+NVSSPI25X_Object nvsSPI25XMSP432E4Objects[1];
+
+uint8_t verifyBuf[256];
+
+const NVSSPI25X_HWAttrs nvsSPI25XMSP432E4HWAttrs[1] = {
+   //
+   // region 0 is 1 flash sector in length.
+   //
+   {
+       .regionBaseOffset = 0,
+//       .regionSize = 4096 * 128,
+//       .regionSize = 4096 * 16383,
+       .regionSize = 4096 * 256,
+       .sectorSize = 4096,
+       .verifyBuf = verifyBuf,
+       .verifyBufSize = 256,
+       .spiHandle = NULL,
+       .spiIndex = MSP_EXP432E401Y_SPI3,
+       .spiBitRate = 40000000,
+       .spiCsnGpioIndex = SMC_FLASH_CS,
+   },
+};
+
+
+
 const NVS_Config NVS_config[MSP_EXP432E401Y_NVSCOUNT] = {
     {
         .fxnTablePtr = &NVSMSP432E4_fxnTable,
         .object = &nvsMSP432E4Objects[MSP_EXP432E401Y_NVSMSP432E40],
         .hwAttrs = &nvsMSP432E4HWAttrs[MSP_EXP432E401Y_NVSMSP432E40],
+    },
+    {
+        .fxnTablePtr = &NVSSPI25X_fxnTable,
+        .object = &nvsSPI25XMSP432E4Objects[0],
+        .hwAttrs = &nvsSPI25XMSP432E4HWAttrs[0],
     },
 };
 
@@ -951,6 +988,15 @@ const uint_least8_t SD_count = MSP_EXP432E401Y_SDCOUNT;
 
 SPIMSP432E4DMA_Object spiMSP432E4DMAObjects[MSP_EXP432E401Y_SPICOUNT];
 
+#if defined(__TI_COMPILER_VERSION__)
+#pragma DATA_ALIGN(spiMSP432E4DMAscratchBuf, 32)
+#elif defined(__IAR_SYSTEMS_ICC__)
+#pragma data_alignment=32
+#elif defined(__GNUC__)
+__attribute__ ((aligned (32)))
+#endif
+uint16_t spiMSP432E4DMAscratchBuf[MSP_EXP432E401Y_SPICOUNT];
+
 /*
  * NOTE: The SPI instances below can be used by the SD driver to communicate
  * with a SD card via SPI.  The 'defaultTxBufValue' fields below are set to
@@ -961,6 +1007,7 @@ const SPIMSP432E4DMA_HWAttrs spiMSP432E4DMAHWAttrs[MSP_EXP432E401Y_SPICOUNT] = {
         .baseAddr = SSI2_BASE,
         .intNum = INT_SSI2,
         .intPriority = (~0),
+        .scratchBufPtr = &spiMSP432E4DMAscratchBuf[MSP_EXP432E401Y_SPI2],
         .defaultTxBufValue = (~0),
         .rxDmaChannel = UDMA_CH12_SSI2RX,
         .txDmaChannel = UDMA_CH13_SSI2TX,
@@ -974,8 +1021,9 @@ const SPIMSP432E4DMA_HWAttrs spiMSP432E4DMAHWAttrs[MSP_EXP432E401Y_SPICOUNT] = {
         .baseAddr = SSI3_BASE,
         .intNum = INT_SSI3,
         .intPriority = (~0),
+        .scratchBufPtr = &spiMSP432E4DMAscratchBuf[MSP_EXP432E401Y_SPI3],
         .defaultTxBufValue = (~0),
-        .minDmaTransferSize = 10,
+        .minDmaTransferSize = 4096,
         .rxDmaChannel = UDMA_CH14_SSI3RX,
         .txDmaChannel = UDMA_CH15_SSI3TX,
         .clkPinMask = SPIMSP432E4_PQ0_SSI3CLK,

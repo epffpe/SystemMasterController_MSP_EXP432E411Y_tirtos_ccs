@@ -72,7 +72,7 @@ Void vTCPRCBinDeviceFxn(UArg arg0, UArg arg1)
     clockHandle = devHandle->clockHandle;
     myDeviceID = devHandle->deviceID;
 
-    Display_printf(g_SMCDisplay, 0, 0, "TCP Server Device %d started\n", myDeviceID);
+    Display_printf(g_SMCDisplay, 0, 0, "TCP Server DeviceId (%d) started\n", myDeviceID);
 
     /* Make sure Error_Block is initialized */
     Error_init(&eb);
@@ -163,7 +163,7 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
         return;
     }
 
-    Display_printf(g_SMCDisplay, 0, 0, "TCP Server started on port %d\n", (uint32_t)arg0);
+    Display_printf(g_SMCDisplay, 0, 0, "TCP Server started on Port (%d)\n", (uint32_t)arg0);
 
     server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (server == -1) {

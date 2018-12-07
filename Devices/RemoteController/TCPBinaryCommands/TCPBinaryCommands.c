@@ -76,6 +76,7 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_ALTOMultinet_getGate] = TCPBin_ALTOMultinetGetGate,
  [TCP_CMD_ALTOMultinet_setGate] = TCPBin_ALTOMultinetSetGate,
 
+ [TCP_CMD_System_getMonitorStatus] = vTCPRCBin_SystemControl_getOverAllStatus,
 
  [TCP_CMD_DiscreteIO_get5VOutputPowerStatus] = vTCPRCBin_DiscreteIO_get5VOutputPowerStatus,
  [TCP_CMD_DiscreteIO_turnOn5VOutputPower] = vTCPRCBin_DiscreteIO_turnOn5VOutputPower,

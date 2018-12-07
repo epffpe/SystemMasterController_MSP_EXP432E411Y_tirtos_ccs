@@ -145,6 +145,8 @@ typedef enum
     DEVICE_TYPE_TCP_REMOTE_CONTROLLER_BINARY,
     DEVICE_TYPE_TCP_REMOTE_CONTROLLER_ASCII,
     DEVICE_TYPE_GENERIC,
+
+    DEVICE_TYPE_COUNT
 } device_types_t;
 
 typedef struct Device_Params {
@@ -181,6 +183,7 @@ typedef struct DevicesList_t{
 #endif
 
 __DEVICES_EXT Queue_Handle g_hDevicesListQ;
+extern const char *g_Device_nameByType[DEVICE_TYPE_COUNT];
 
 __DEVICES_EXT
 void vDevice_init();

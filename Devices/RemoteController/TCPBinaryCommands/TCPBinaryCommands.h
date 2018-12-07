@@ -125,7 +125,14 @@ typedef enum {
     TCP_CMD_ALTOMultinet_getPot = 180,
     TCP_CMD_ALTOMultinet_getPotResponse,
 
-    TCP_CMD_DiscreteIO_get5VOutputPowerStatus = 200,
+
+//System Control
+    TCP_CMD_System_getMonitorStatus = 200,
+    TCP_CMD_System_getMonitorStatusResponse,
+
+
+//DiscreteIO
+    TCP_CMD_DiscreteIO_get5VOutputPowerStatus = 220,
     TCP_CMD_DiscreteIO_get5VOutputPowerStatusResponse,
     TCP_CMD_DiscreteIO_turnOn5VOutputPower,
     TCP_CMD_DiscreteIO_turnOn5VOutputPowerResponse,
@@ -133,6 +140,10 @@ typedef enum {
     TCP_CMD_DiscreteIO_turnOff5VOutputPowerResponse,
     TCP_CMD_DiscreteIO_set5VOutputPower,
     TCP_CMD_DiscreteIO_set5VOutputPowerResponse,
+
+//Panasonic PCU
+    TCP_CMD_Panasonic_getMonitorStatus = 240,
+    TCP_CMD_Panasonic_getMonitorStatusResponse,
 
     TCP_CMD_COUNT
 } TCPBin_CMD_types_te;

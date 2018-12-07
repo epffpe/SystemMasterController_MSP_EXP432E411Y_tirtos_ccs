@@ -21,6 +21,8 @@
 
 /* POSIX Header files */
 #include <pthread.h>
+#include <semaphore.h>
+
 
 ///* BSD support */
 //#include <netinet/in.h>
@@ -156,7 +158,8 @@
 /* DriverLib Includes */
 #include "ti/devices/msp432e4/driverlib/driverlib.h"
 
-#include <semaphore.h>
+#include <third_party/spiffs/spiffs.h>
+#include <third_party/spiffs/SPIFFSNVS.h>
 
 /* Board Header file */
 #include "BoardRev10.h"
@@ -194,6 +197,7 @@
 #include <Deprecated/AVDS/AVDSClient.h>
 #include "Deprecated/RosenDVD/Rosen.h"
 #include "Deprecated/RosenDVD/RosenBlueRayDVD.h"
+#include "Deprecated/Panasonic/PassengerControlUnit.h"
 //#include "mx66l51235f.h"
 //
 //#include "TrashCollection/TrashCollection.h"
@@ -216,6 +220,10 @@
 #include "Devices/ForteManager/ForteManagerDevice.h"
 
 
+#include "System/AnalogMonitor/SystemAnalogMonitor.h"
+#include "System/InternalFlashStorage/InternalFlashStorage.h"
+#include "System/ExternalFlashStorage/ExternalFlashStorage.h"
+#include "System/EEPROM/EEPROMStorage.h"
 
 
 
@@ -228,9 +236,8 @@
 #include "Devices/RemoteController/TCPBinaryCommands/ALTOMultinet/TCPBinaryCMD_ALTOMultinet.h"
 #include "Devices/RemoteController/TCPBinaryCommands/RAWCharacteristicData/TCPBinaryCMD_RAWCharacteristicData.h"
 #include "Devices/RemoteController/TCPBinaryCommands/DiscreteIO/TCPBinaryCMD_DiscreteIO.h"
+#include "Devices/RemoteController/TCPBinaryCommands/SystemControl/TCPBinaryCMD_SystemControl.h"
 
-
-#include "System/SystemAnalogMonitor.h"
 
 
 

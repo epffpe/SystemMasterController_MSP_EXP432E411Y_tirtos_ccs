@@ -62,6 +62,7 @@ Void vALTOMultinetDeviceFxn(UArg arg0, UArg arg1)
     Queue_Handle msgQHandle;
     Clock_Handle clockHandle;
     device_msg_t *pMsg;
+    volatile tEEPROM_Data *psEEPROMData;
 
     IF_Handle ifHandle;
     IF_Params params;
@@ -79,6 +80,7 @@ Void vALTOMultinetDeviceFxn(UArg arg0, UArg arg1)
     //    ALTOMultinetDeviceControllerWorker_Params workerParams;
     ALTOMultinetDeviceDiscovery_Args discoveryArgs;
 
+    psEEPROMData = INFO_get();
 
     Error_Block eb;
 
@@ -116,8 +118,10 @@ Void vALTOMultinetDeviceFxn(UArg arg0, UArg arg1)
     params.uartParams.readDataMode = UART_DATA_BINARY;
     params.uartParams.readReturnMode = UART_RETURN_FULL;
     params.uartParams.readEcho = UART_ECHO_OFF;
-    params.uartParams.baudRate = (unsigned int)115200;
-    ifHandle = hIF_open(IF_SERIAL_6, &params);
+//    params.uartParams.baudRate = (unsigned int)115200;
+//    ifHandle = hIF_open(IF_SERIAL_6, &params);
+    params.uartParams.baudRate = (uint32_t)arg0 < 8 ? psEEPROMData->serialBaudRate[(uint32_t)arg0] : DEFAULT_EEPROM_SERIAL_BAUDRATE;
+    ifHandle = hIF_open((uint32_t)arg0, &params);
 
     //    vALTOMultinet_relayControllerWorker_Params_init(&workerParams);
     //    workerParams.hControllersListQueue = hControllersListQueue;
@@ -807,6 +811,7 @@ Void vALTOMultinetDeviceDiscovery(UArg arg0, UArg arg1)
     char i8address;
     uint32_t myDeviceID;
 //    DeviceList_Handler devHandle;
+    volatile tEEPROM_Data *psEEPROMData;
 
     IF_Handle ifHandle;
     IF_Params params;
@@ -823,6 +828,9 @@ Void vALTOMultinetDeviceDiscovery(UArg arg0, UArg arg1)
     Queue_Handle hControllersListQueue;
 
     Display_printf(g_SMCDisplay, 0, 0, "ALTO Multinet Discovery Started\n");
+    ALTOMultinetDeviceDiscovery_Args *args = (ALTOMultinetDeviceDiscovery_Args *)arg0;
+    psEEPROMData = INFO_get();
+
     /*
      * Initialize interface
      */
@@ -831,10 +839,9 @@ Void vALTOMultinetDeviceDiscovery(UArg arg0, UArg arg1)
     params.uartParams.readDataMode = UART_DATA_BINARY;
     params.uartParams.readReturnMode = UART_RETURN_FULL;
     params.uartParams.readEcho = UART_ECHO_OFF;
-    params.uartParams.baudRate = (unsigned int)115200;
-    ifHandle = hIF_open(IF_SERIAL_6, &params);
+    params.uartParams.baudRate = args->ui32InterfaceIndex < 8 ? psEEPROMData->serialBaudRate[args->ui32InterfaceIndex] : DEFAULT_EEPROM_SERIAL_BAUDRATE;
+    ifHandle = hIF_open(args->ui32InterfaceIndex, &params);
 
-    ALTOMultinetDeviceDiscovery_Args *args = (ALTOMultinetDeviceDiscovery_Args *)arg0;
 
     vALTOMultinet_relayControllerWorker_Params_init(&workerParams);
     workerParams.hControllersListQueue = args->hControllersListQueue;
@@ -1023,7 +1030,7 @@ DeviceList_Handler hALTOMultinetDevice_open(DeviceList_Handler handle, void *par
     Task_Params_init(&paramsUnion.taskParams);
     paramsUnion.taskParams.stackSize = ALTOMULTINETDEVICE_TASK_STACK_SIZE;
     paramsUnion.taskParams.priority = ALTOMULTINETDEVICE_TASK_PRIORITY;
-    paramsUnion.taskParams.arg0 = (UArg)handle->deviceID;
+    paramsUnion.taskParams.arg0 = (UArg)deviceParams->arg0;
     paramsUnion.taskParams.arg1 = (UArg)handle;
     handle->taskHandle = Task_create((Task_FuncPtr)vALTOMultinetDeviceFxn, &paramsUnion.taskParams, &eb);
 

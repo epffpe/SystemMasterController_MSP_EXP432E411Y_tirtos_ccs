@@ -42,8 +42,11 @@
 void vDiscreteIO_init();
 void vHeartBeat_init();
 void test();
+
+extern void pvPPPCU_inputLineIntHandler(uint_least8_t index);
 extern void test2();
 extern void test3();
+extern void *EFS_mainThread(void *arg0);
 
 //*****************************************************************************
 //
@@ -74,7 +77,7 @@ void *mainThread(void *arg0)
     PWM_init();
     // I2C_init();
     // SDSPI_init();
-    // SPI_init();
+//    SPI_init();
     UART_init();
     // Watchdog_init();
 
@@ -82,6 +85,8 @@ void *mainThread(void *arg0)
     GPIO_write(SMC_SERIAL0_DE, 1);
     Display_printf(g_SMCDisplay, 0, 0, "Starting the System Master Controller\n"
                    "-- Compiled: "__DATE__" "__TIME__" --\n");
+
+    EFS_mainThread(NULL);
 
     vDiscreteIO_init();
     vHeartBeat_init();
@@ -114,9 +119,61 @@ void *mainThread(void *arg0)
     vForteManagerDevice_Params_init(&deviceParams, 35, IF_SERIAL_0);
 //    xDevice_add(&deviceParams, &eb);
 
+
+
     test3();
     return 0;
 }
+
+
+
+void *SMC_initThread(void *arg0)
+{
+    /* Call driver init functions */
+//    ADCBuf_init();
+    GPIO_init();
+    PWM_init();
+    // I2C_init();
+    // SDSPI_init();
+//    SPI_init();
+    UART_init();
+    // Watchdog_init();
+
+    SMCDisplay_init();
+    GPIO_write(SMC_SERIAL0_DE, 1);
+    Display_printf(g_SMCDisplay, 0, 0, "Starting the System Master Controller\n"
+                   "-- Compiled: "__DATE__" "__TIME__" --\n");
+
+    vDiscreteIO_init();
+    vHeartBeat_init();
+
+    //disconnect Diode D20 and SMC_GPI_0
+//    vPPPCU_init();
+
+
+//    Types_FreqHz freq1; /* Timestamp frequency */
+//    Types_FreqHz freq2; /* BIOS frequency */
+//    Float factor; /* Clock ratio cpu/timestamp */
+//    Timestamp_getFreq(&freq1);
+//    BIOS_getCpuFreq(&freq2);
+//    factor = (Float)freq2.lo / freq1.lo;
+
+    /*
+     * Initialize interfaces
+     */
+    vIF_init();
+    /*
+     * Initialize Devices
+     */
+    vDevice_init();
+
+    vIFS_loadStartUpConfiguration(NULL);
+
+
+//    test3();
+    return 0;
+}
+
 
 
 void vDiscreteIO_init()

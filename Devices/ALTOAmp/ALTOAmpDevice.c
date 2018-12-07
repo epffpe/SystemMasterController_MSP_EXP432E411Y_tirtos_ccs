@@ -51,6 +51,7 @@ Void vALTOAmpDeviceFxn(UArg arg0, UArg arg1)
     Queue_Handle msgQHandle;
     Clock_Handle clockHandle;
     device_msg_t *pMsg;
+    volatile tEEPROM_Data *psEEPROMData;
 
     IF_Handle ifHandle;
     IF_Params params;
@@ -73,6 +74,7 @@ Void vALTOAmpDeviceFxn(UArg arg0, UArg arg1)
     myDeviceID = devHandle->deviceID;
 
     Display_printf(g_SMCDisplay, 0, 0, "ALTO Amplifier Device (%d) Started\n", myDeviceID);
+    psEEPROMData = INFO_get();
     /*
      * Initialize interface
      */
@@ -81,7 +83,7 @@ Void vALTOAmpDeviceFxn(UArg arg0, UArg arg1)
     params.uartParams.readDataMode = UART_DATA_BINARY;
     params.uartParams.readReturnMode = UART_RETURN_FULL;
     params.uartParams.readEcho = UART_ECHO_OFF;
-    params.uartParams.baudRate = (unsigned int)115200;
+    params.uartParams.baudRate = (uint32_t)arg0 < 8 ? psEEPROMData->serialBaudRate[(uint32_t)arg0] : DEFAULT_EEPROM_SERIAL_BAUDRATE;
 //    ifHandle = hIF_open(IF_SERIAL_4, &params);
     ifHandle = hIF_open((uint32_t)arg0, &params);
 
