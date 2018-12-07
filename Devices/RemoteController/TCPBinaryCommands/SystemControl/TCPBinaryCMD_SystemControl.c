@@ -30,9 +30,12 @@ extern void *TaskSelf();
 void vTCPRCBin_SystemControl_getOverAllStatus(int clientfd, char *payload, int32_t size)
 {
     int bytesSent;
+    Memory_Stats memStats;
     char buffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(TCPBin_CMD_SystemControl_monitorStatus_payload_t)];
 
     TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+
+    Memory_getStats(NULL, &memStats);
 
     pFrame->type = TCP_CMD_System_getMonitorStatusResponse | 0x80000000;
     pFrame->retDeviceID = TCPRCBINDEVICE_ID;
@@ -54,7 +57,9 @@ void vTCPRCBin_SystemControl_getOverAllStatus(int clientfd, char *payload, int32
     pFramePayload->fADCCH[2] = 0.0;
     pFramePayload->fMCUTemp = 0.0;
     pFramePayload->fBoardTemp = 0.0;
-    pFramePayload->ui32HeapMemUsage = 0;
+    pFramePayload->ui32HeapTotalSize = memStats.totalSize;
+    pFramePayload->ui32HeapTotalFreeSize = memStats.totalFreeSize;
+    pFramePayload->ui32HeapLargestFreeSize = memStats.largestFreeSize;
 
     pFramePayload->bGpio0 = DIGet(DIO_GPI_0);
     pFramePayload->bGpio1 = DIGet(DIO_GPI_1);
@@ -77,7 +82,7 @@ void vTCPRCBin_SystemControl_getOverAllStatus(int clientfd, char *payload, int32
     pFramePayload->bSWStatus = DIGet(DIO_INTERNAL_5V_SW_STATUS);
     pFramePayload->bDebugMode = DOGet(DIO_UART_DEBUG);
     pFramePayload->bSerial5Enabled = DOGet(DIO_SERIAL5_EN_);
-    pFramePayload->bPowerPeripheralEnabled = DOGet(DIO_PWR_PERIPHERAL_EN);
+    pFramePayload->bPowerPeripheralEnabled = DOGet(DIO_PWR_PERIPHERAL_EN) ? 0:1;
 
 
     bytesSent = send(clientfd, buffer, sizeof(buffer), 0);

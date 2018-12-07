@@ -40,7 +40,9 @@ typedef struct {
     float fADCCH[3];
     float fMCUTemp;
     float fBoardTemp;
-    uint32_t ui32HeapMemUsage;
+    uint32_t ui32HeapTotalSize;
+    uint32_t ui32HeapTotalFreeSize;
+    uint32_t ui32HeapLargestFreeSize;
     union {
         uint32_t ui32Status;
         struct {
