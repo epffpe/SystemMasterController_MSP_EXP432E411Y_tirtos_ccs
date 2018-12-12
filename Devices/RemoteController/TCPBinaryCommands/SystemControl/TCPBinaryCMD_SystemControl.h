@@ -29,7 +29,7 @@ typedef struct {
 
 typedef struct {
     uint32_t deviceID;
-    device_types_t deviceType;
+    uint32_t deviceType;
     char fileName[IFS_FILE_NAME_LENGTH];
     char description[IFS_FILE_DESCRIPTION_LENGTH];
 }TCPBin_CMD_SystemControl_devicesList_t;

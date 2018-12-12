@@ -431,7 +431,7 @@ void vIFS_getFlashDeviceListEthernet(int clientfd)
     uint32_t bufferSize;
     int res;
     uint32_t counter = 0;
-    spiffs_DIR d;
+    spiffs_DIR d, d2;
     struct spiffs_dirent e, e2;
     struct spiffs_dirent *pe = &e, *pe2 = &e2;
     Error_Block eb;
@@ -460,7 +460,8 @@ void vIFS_getFlashDeviceListEthernet(int clientfd)
                 }
             }
             SPIFFS_closedir(&d);
-            SPIFFS_unmount(&g_IFSfs);
+
+//            SPIFFS_unmount(&g_IFSfs);
 //        }
 //
 //        status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
@@ -488,8 +489,8 @@ void vIFS_getFlashDeviceListEthernet(int clientfd)
                  * Fill information
                  */
 
-                SPIFFS_opendir(&g_IFSfs, "/", &d);
-                while ((pe2 = SPIFFS_readdir(&d, pe2))) {
+                SPIFFS_opendir(&g_IFSfs, "/", &d2);
+                while ((pe2 = SPIFFS_readdir(&d2, pe2))) {
                     //                Display_printf(g_SMCDisplay, 0, 0, "%s [%04x] size:%i", pe->name, pe->obj_id, pe->size);
 
                     if (0 == strncmp(IFS_DEVICES_FOLDER_NAME, (char *)pe2->name, sizeof(IFS_DEVICES_FOLDER_NAME) - 1)) {
@@ -502,8 +503,8 @@ void vIFS_getFlashDeviceListEthernet(int clientfd)
 
 
                             fd = SPIFFS_open_by_dirent(&g_IFSfs, pe2, SPIFFS_RDWR, 0);
-                            if (fd == 0) {
-                                if (SPIFFS_read(&g_IFSfs, fd, (void *)&devInfo, sizeof(IFS_deviceInfoFile_t)) == 0) {
+                            if (fd >= 0) {
+                                if (SPIFFS_read(&g_IFSfs, fd, (void *)&devInfo, sizeof(IFS_deviceInfoFile_t)) >= 0) {
                                     res = SPIFFS_close(&g_IFSfs, fd);
                                     if (res == 0) {
                                         pDeviceListElem->deviceID = devInfo.params.deviceID;
@@ -521,7 +522,7 @@ void vIFS_getFlashDeviceListEthernet(int clientfd)
 
 
                 }
-                SPIFFS_closedir(&d);
+                SPIFFS_closedir(&d2);
 
                 send(clientfd, pBuffer, bufferSize, 0);
 
