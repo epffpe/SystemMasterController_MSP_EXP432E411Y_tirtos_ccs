@@ -45,6 +45,8 @@ static uint8_t g_IFSspiffsFileDescriptorCache[IFS_SPIFFS_FILE_DESCRIPTOR_SIZE * 
 /* The array below will be used by SPIFFS as a read/write cache. */
 static uint8_t g_IFSspiffsReadWriteCache[IFS_SPIFFS_LOGICAL_PAGE_SIZE * 2];
 
+spiffs_config  g_fsConfig;
+
 #define IFS_MESSAGE_LENGTH    (22)
 const char g_IFSmessage[IFS_MESSAGE_LENGTH] = "Hello from SPIFFS2!!\n";
 char g_IFSreadBuffer[IFS_MESSAGE_LENGTH];
@@ -58,7 +60,7 @@ int xIFS_findDevicesAtStartUp();
 void vIFS_loadStartUpConfiguration(void *arg0)
 {
     spiffs_file    fd;
-    spiffs_config  fsConfig;
+//    spiffs_config  fsConfig;
     int32_t        status;
 
 //    spiffs_DIR d;
@@ -75,7 +77,7 @@ void vIFS_loadStartUpConfiguration(void *arg0)
     Display_printf(g_SMCDisplay, 0, 0, "Loading Initial Configuration");
 
     /* Initialize spiffs, spiffs_config & spiffsnvsdata structures Board_NVSINTERNAL, Board_NVSEXTERNAL*/
-    status = SPIFFSNVS_config(&g_IFSspiffsnvsData, Board_NVSINTERNAL, &g_IFSfs, &fsConfig,
+    status = SPIFFSNVS_config(&g_IFSspiffsnvsData, Board_NVSINTERNAL, &g_IFSfs, &g_fsConfig,
         IFS_SPIFFS_LOGICAL_BLOCK_SIZE, IFS_SPIFFS_LOGICAL_PAGE_SIZE);
     if (status != SPIFFSNVS_STATUS_SUCCESS) {
         Display_printf(g_SMCDisplay, 0, 0,
@@ -86,7 +88,7 @@ void vIFS_loadStartUpConfiguration(void *arg0)
 
     Display_printf(g_SMCDisplay, 0, 0, "Mounting Internal Flash file system...");
 
-    status = SPIFFS_mount(&g_IFSfs, &fsConfig, g_IFSspiffsWorkBuffer,
+    status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
         g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
         g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
 //    status = SPIFFS_ERR_NOT_A_FS;
@@ -108,7 +110,7 @@ void vIFS_loadStartUpConfiguration(void *arg0)
                 while (1);
             }
 
-            status = SPIFFS_mount(&g_IFSfs, &fsConfig, g_IFSspiffsWorkBuffer,
+            status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
                 g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
                 g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
             if (status != SPIFFS_OK) {
@@ -424,14 +426,14 @@ int xIFS_findDevicesAtStartUp()
 void vIFS_getFlashDeviceListEthernet(int clientfd)
 {
     spiffs_file    fd;
-    spiffs_config  fsConfig;
+//    spiffs_config  fsConfig;
     int32_t        status;
     uint32_t bufferSize;
     int res;
     uint32_t counter = 0;
     spiffs_DIR d;
-    struct spiffs_dirent e;
-    struct spiffs_dirent *pe = &e;
+    struct spiffs_dirent e, e2;
+    struct spiffs_dirent *pe = &e, *pe2 = &e2;
     Error_Block eb;
     IFS_deviceInfoFile_t devInfo;
 
@@ -440,11 +442,11 @@ void vIFS_getFlashDeviceListEthernet(int clientfd)
 
     Error_init(&eb);
 
-    /* Initialize spiffs, spiffs_config & spiffsnvsdata structures Board_NVSINTERNAL, Board_NVSEXTERNAL*/
-    status = SPIFFSNVS_config(&g_IFSspiffsnvsData, Board_NVSINTERNAL, &g_IFSfs, &fsConfig,
-        IFS_SPIFFS_LOGICAL_BLOCK_SIZE, IFS_SPIFFS_LOGICAL_PAGE_SIZE);
-    if (status == SPIFFSNVS_STATUS_SUCCESS) {
-        status = SPIFFS_mount(&g_IFSfs, &fsConfig, g_IFSspiffsWorkBuffer,
+//    /* Initialize spiffs, spiffs_config & spiffsnvsdata structures Board_NVSINTERNAL, Board_NVSEXTERNAL*/
+//    status = SPIFFSNVS_config(&g_IFSspiffsnvsData, Board_NVSINTERNAL, &g_IFSfs, &fsConfig,
+//        IFS_SPIFFS_LOGICAL_BLOCK_SIZE, IFS_SPIFFS_LOGICAL_PAGE_SIZE);
+//    if (status == SPIFFSNVS_STATUS_SUCCESS) {
+        status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
                               g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
                               g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
         if (status == SPIFFS_OK) {
@@ -458,14 +460,20 @@ void vIFS_getFlashDeviceListEthernet(int clientfd)
                 }
             }
             SPIFFS_closedir(&d);
-
+            SPIFFS_unmount(&g_IFSfs);
+//        }
+//
+//        status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
+//                              g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
+//                              g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
+//        if (status == SPIFFS_OK) {
             bufferSize = sizeof(TCPBin_CMD_retFrame_t) + sizeof(TCPBin_CMD_SystemControl_RAM_deviceList_payload_t) + counter * sizeof(TCPBin_CMD_SystemControl_devicesList_t);
             char *pBuffer = Memory_alloc(NULL, bufferSize, 0, &eb);
 
             if (pBuffer !=NULL) {
 
                 TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)pBuffer;
-                pFrame->type = TCP_CMD_DiscreteIO_set5VOutputPowerResponse | 0x80000000;
+                pFrame->type = TCP_CMD_System_getFlashDeviceListResponse | 0x80000000;
                 pFrame->retDeviceID = TCPRCBINDEVICE_ID;
                 pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_DISCRETEIO_CLASS_RETURN_UUID;
                 pFrame->retParamID = 4;
@@ -481,11 +489,11 @@ void vIFS_getFlashDeviceListEthernet(int clientfd)
                  */
 
                 SPIFFS_opendir(&g_IFSfs, "/", &d);
-                while ((pe = SPIFFS_readdir(&d, pe))) {
+                while ((pe2 = SPIFFS_readdir(&d, pe2))) {
                     //                Display_printf(g_SMCDisplay, 0, 0, "%s [%04x] size:%i", pe->name, pe->obj_id, pe->size);
 
-                    if (0 == strncmp(IFS_DEVICES_FOLDER_NAME, (char *)pe->name, sizeof(IFS_DEVICES_FOLDER_NAME) - 1)) {
-                        if (pe->size >= sizeof(IFS_deviceInfoFile_t)) {
+                    if (0 == strncmp(IFS_DEVICES_FOLDER_NAME, (char *)pe2->name, sizeof(IFS_DEVICES_FOLDER_NAME) - 1)) {
+                        if (pe2->size >= sizeof(IFS_deviceInfoFile_t)) {
                             /*********************************************************************/
                             /* Do note that if the any file is modified (except for fully removing)
                              * within the dirent iterator, the iterator may become invalid.
@@ -493,13 +501,14 @@ void vIFS_getFlashDeviceListEthernet(int clientfd)
                             /*********************************************************************/
 
 
-                            fd = SPIFFS_open_by_dirent(&g_IFSfs, pe, SPIFFS_RDWR, 0);
+                            fd = SPIFFS_open_by_dirent(&g_IFSfs, pe2, SPIFFS_RDWR, 0);
                             if (fd == 0) {
                                 if (SPIFFS_read(&g_IFSfs, fd, (void *)&devInfo, sizeof(IFS_deviceInfoFile_t)) == 0) {
                                     res = SPIFFS_close(&g_IFSfs, fd);
                                     if (res == 0) {
                                         pDeviceListElem->deviceID = devInfo.params.deviceID;
                                         pDeviceListElem->deviceType = devInfo.params.deviceType;
+                                        memcpy(pDeviceListElem->fileName, (char *)pe2->name, IFS_FILE_NAME_LENGTH);
                                         memcpy(pDeviceListElem->description, devInfo.description, IFS_FILE_DESCRIPTION_LENGTH);
 
                                     }
@@ -522,7 +531,7 @@ void vIFS_getFlashDeviceListEthernet(int clientfd)
             SPIFFS_unmount(&g_IFSfs);
         }
 
-    }
+//    }
 
 }
 

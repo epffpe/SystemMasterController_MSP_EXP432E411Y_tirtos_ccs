@@ -40,6 +40,8 @@ extern "C" {
 __SYSTEM_INTERNALFLASHSTORAGE_EXT
 void vIFS_loadStartUpConfiguration(void *arg0);
 
+__SYSTEM_INTERNALFLASHSTORAGE_EXT
+void vIFS_getFlashDeviceListEthernet(int clientfd);
 
 
 #ifdef __cplusplus

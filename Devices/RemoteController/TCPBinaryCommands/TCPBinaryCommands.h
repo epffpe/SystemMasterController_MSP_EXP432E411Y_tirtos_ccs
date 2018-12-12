@@ -12,10 +12,13 @@
 
 typedef enum {
     TCP_CMD_doNothing = 0,
+
     TCP_CMD_error = 1,
     TCP_CMD_RAW_CharDataMsg,
     TCP_CMD_RAW_CharDataMsg_Response,
+
     TCP_CMD_getHeartbeat = 10,
+    TCP_CMD_getHeartbeatResponse,
 
     TCP_CMD_getInputsNames = 20,
     TCP_CMD_getRelayOutputNames,
@@ -129,6 +132,12 @@ typedef enum {
 //System Control
     TCP_CMD_System_getMonitorStatus = 200,
     TCP_CMD_System_getMonitorStatusResponse,
+    TCP_CMD_System_getCompiledTime,
+    TCP_CMD_System_getCompiledTimeResponse,
+    TCP_CMD_System_getRAMDeviceList,
+    TCP_CMD_System_getRAMDeviceListResponse,
+    TCP_CMD_System_getFlashDeviceList,
+    TCP_CMD_System_getFlashDeviceListResponse,
 
 
 //DiscreteIO

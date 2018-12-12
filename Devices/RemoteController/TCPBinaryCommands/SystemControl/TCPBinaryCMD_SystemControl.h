@@ -13,6 +13,10 @@
 #define IFS_FILE_DESCRIPTION_LENGTH          (64)
 #endif
 
+#ifndef IFS_FILE_NAME_LENGTH
+#define IFS_FILE_NAME_LENGTH          SPIFFS_OBJ_NAME_LEN
+#endif
+
 
 //typedef enum {
 //
@@ -26,6 +30,7 @@ typedef struct {
 typedef struct {
     uint32_t deviceID;
     device_types_t deviceType;
+    char fileName[IFS_FILE_NAME_LENGTH];
     char description[IFS_FILE_DESCRIPTION_LENGTH];
 }TCPBin_CMD_SystemControl_devicesList_t;
 
@@ -93,6 +98,9 @@ void vTCPRCBin_SystemControl_getRAMDeviceList(int clientfd, char *payload, int32
 
 __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_EXT
 void vTCPRCBin_SystemControl_getFlashDeviceList(int clientfd, char *payload, int32_t size);
+
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_EXT
+void vTCPRCBin_SystemControl_getCompiledTime(int clientfd, char *payload, int32_t size);
 
 #ifdef __cplusplus
 }

@@ -22,6 +22,11 @@
 
 #include <ti/net/slnetutils.h>
 
+
+#define TCPRCBIN_COMPILED_TIME_MSG      "-- Compiled: "__DATE__" "__TIME__" --"
+
+
+
 extern void fdOpenSession();
 extern void fdCloseSession();
 extern void *TaskSelf();
@@ -116,7 +121,7 @@ void vTCPRCBin_SystemControl_getRAMDeviceList(int clientfd, char *payload, int32
     if (pBuffer !=NULL) {
 
         TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)pBuffer;
-        pFrame->type = TCP_CMD_DiscreteIO_set5VOutputPowerResponse | 0x80000000;
+        pFrame->type = TCP_CMD_System_getRAMDeviceListResponse | 0x80000000;
         pFrame->retDeviceID = TCPRCBINDEVICE_ID;
         pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
         pFrame->retParamID = 4;
@@ -142,7 +147,31 @@ void vTCPRCBin_SystemControl_getRAMDeviceList(int clientfd, char *payload, int32
 
 void vTCPRCBin_SystemControl_getFlashDeviceList(int clientfd, char *payload, int32_t size)
 {
-
+    vIFS_getFlashDeviceListEthernet(clientfd);
 }
 
+void vTCPRCBin_SystemControl_getCompiledTime(int clientfd, char *payload, int32_t size)
+{
+    int bytesSent;
+    uint32_t bufferSize;
+    char *pBuffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(TCPRCBIN_COMPILED_TIME_MSG)];
+
+    bufferSize = sizeof(TCPBin_CMD_retFrame_t) + sizeof(TCPRCBIN_COMPILED_TIME_MSG);
+
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)pBuffer;
+    pFrame->type = TCP_CMD_System_getCompiledTimeResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
+    pFrame->retParamID = 4;
+
+
+    memcpy(pFrame->payload, TCPRCBIN_COMPILED_TIME_MSG, sizeof(TCPRCBIN_COMPILED_TIME_MSG));
+
+
+    bytesSent = send(clientfd, pBuffer, bufferSize, 0);
+    bytesSent = bytesSent;
+
+
+}
 
