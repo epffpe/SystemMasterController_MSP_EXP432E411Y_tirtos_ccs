@@ -537,3 +537,81 @@ void vIFS_getFlashDeviceListEthernet(int clientfd)
 }
 
 
+void vIFS_getFlashReadFileNameEthernet(int clientfd, char *fileName)
+{
+    spiffs_file    fd;
+//    spiffs_config  fsConfig;
+    int32_t        status;
+    uint32_t bufferSize;
+    int res;
+    spiffs_stat s;
+    Error_Block eb;
+
+
+//    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
+
+    Error_init(&eb);
+
+
+    status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
+                          g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
+                          g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
+    if (status == SPIFFS_OK) {
+
+//        Display_printf(g_SMCDisplay, 0, 0, "SPIFFS_stat... %s", fileName);
+
+        res = SPIFFS_stat(&g_IFSfs, fileName, &s);
+        if (res >= 0) {
+            Display_printf(g_SMCDisplay, 0, 0, "%s [%04x] size:%i\n", s.name, s.obj_id, s.size);
+
+            bufferSize = sizeof(TCPBin_CMD_retFrame_t) + sizeof(TCPBin_CMD_SystemControl_FlashFileData_payload_t) + s.size;
+            char *pBuffer = Memory_alloc(NULL, bufferSize, 0, &eb);
+
+            if (pBuffer !=NULL) {
+
+                TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)pBuffer;
+                pFrame->type = TCP_CMD_System_getFlashFileDataResponse | 0x80000000;
+                pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+                pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_DISCRETEIO_CLASS_RETURN_UUID;
+                pFrame->retParamID = 4;
+
+                TCPBin_CMD_SystemControl_FlashFileData_payload_t *pFramePayload = (TCPBin_CMD_SystemControl_FlashFileData_payload_t *)pFrame->payload;
+                pFramePayload->fileSize = s.size;
+                if (strlen((const char *)s.name) < IFS_FILE_NAME_LENGTH) {
+                    strcpy((char *)pFramePayload->fileName, (char *)s.name);
+                }else {
+                    memcpy(pFramePayload->fileName, s.name, IFS_FILE_NAME_LENGTH);
+                }
+                /*
+                 * Fill information
+                 */
+
+                fd = SPIFFS_open(&g_IFSfs, fileName, SPIFFS_RDONLY, 0);
+                if (fd >= 0) {
+//                    Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", fileName);
+
+                    /* spiffsFile exists; read its contents & delete the file */
+                    if (SPIFFS_read(&g_IFSfs, fd, pFramePayload->payload, s.size) > 0) {
+//                        Display_printf(g_SMCDisplay, 0, 0, "--> %s", pFramePayload->payload);
+                    }
+
+//                    Display_printf(g_SMCDisplay, 0, 0, "closing %s...", fileName);
+                    SPIFFS_close(&g_IFSfs, fd);
+
+                    send(clientfd, pBuffer, bufferSize, 0);
+                }
+
+
+                Memory_free(NULL, pBuffer, bufferSize);
+
+            }
+        }else{
+            Display_printf(g_SMCDisplay, 0, 0, "**Error reading file: %s**\n", fileName);
+        }
+        SPIFFS_unmount(&g_IFSfs);
+    }
+
+
+}
+
+

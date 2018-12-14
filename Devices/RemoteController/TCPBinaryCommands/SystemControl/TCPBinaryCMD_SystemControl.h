@@ -35,6 +35,17 @@ typedef struct {
 }TCPBin_CMD_SystemControl_devicesList_t;
 
 typedef struct {
+    uint32_t size;
+    char fileName[IFS_FILE_NAME_LENGTH];
+}TCPBin_CMD_SystemControl_FlashFileName_payload_t;
+
+typedef struct {
+    uint32_t fileSize;
+    char fileName[IFS_FILE_NAME_LENGTH];
+    char payload[];
+}TCPBin_CMD_SystemControl_FlashFileData_payload_t;
+
+typedef struct {
     float f28Voltage;
     float f5MainVoltage;
     float f5PerVoltage;
@@ -102,6 +113,8 @@ void vTCPRCBin_SystemControl_getFlashDeviceList(int clientfd, char *payload, int
 __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_EXT
 void vTCPRCBin_SystemControl_getCompiledTime(int clientfd, char *payload, int32_t size);
 
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_EXT
+void vTCPRCBin_SystemControl_getFlashDataForFileName(int clientfd, char *payload, int32_t size);
 #ifdef __cplusplus
 }
 #endif

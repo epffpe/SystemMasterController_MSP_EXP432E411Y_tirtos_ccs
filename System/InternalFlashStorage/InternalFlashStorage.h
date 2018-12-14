@@ -43,6 +43,9 @@ void vIFS_loadStartUpConfiguration(void *arg0);
 __SYSTEM_INTERNALFLASHSTORAGE_EXT
 void vIFS_getFlashDeviceListEthernet(int clientfd);
 
+__SYSTEM_INTERNALFLASHSTORAGE_EXT
+void vIFS_getFlashReadFileNameEthernet(int clientfd, char *fileName);
+
 
 #ifdef __cplusplus
 }
