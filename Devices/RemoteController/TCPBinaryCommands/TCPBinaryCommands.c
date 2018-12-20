@@ -81,6 +81,7 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_System_getRAMDeviceList] = vTCPRCBin_SystemControl_getRAMDeviceList,
  [TCP_CMD_System_getFlashDeviceList] = vTCPRCBin_SystemControl_getFlashDeviceList,
  [TCP_CMD_System_getFlashFileData] = vTCPRCBin_SystemControl_getFlashDataForFileName,
+ [TCP_CMD_System_setFlashFileData] = vTCPRCBin_SystemControl_setFlashDataForFileName,
 
  [TCP_CMD_DiscreteIO_get5VOutputPowerStatus] = vTCPRCBin_DiscreteIO_get5VOutputPowerStatus,
  [TCP_CMD_DiscreteIO_turnOn5VOutputPower] = vTCPRCBin_DiscreteIO_turnOn5VOutputPower,

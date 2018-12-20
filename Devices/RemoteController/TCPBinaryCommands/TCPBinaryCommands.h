@@ -140,6 +140,8 @@ typedef enum {
     TCP_CMD_System_getFlashDeviceListResponse,
     TCP_CMD_System_getFlashFileData,
     TCP_CMD_System_getFlashFileDataResponse,
+    TCP_CMD_System_setFlashFileData,
+    TCP_CMD_System_setFlashFileDataResponse,
 
 
 //DiscreteIO

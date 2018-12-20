@@ -615,3 +615,57 @@ void vIFS_getFlashReadFileNameEthernet(int clientfd, char *fileName)
 }
 
 
+
+void vIFS_setFlashReadFileNameEthernet(int clientfd, char *payload)
+{
+    spiffs_file    fd;
+//    spiffs_config  fsConfig;
+    int32_t        status;
+    uint32_t bufferSize;
+    int res;
+    char *fileName;
+    spiffs_stat s;
+    IFS_deviceInfoFile_t devInfo;
+    Error_Block eb;
+
+
+//    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
+    fileName = payload;
+
+    Error_init(&eb);
+
+
+    status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
+                          g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
+                          g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
+    if (status == SPIFFS_OK) {
+
+        fd = SPIFFS_open(&g_IFSfs, fileName, SPIFFS_RDONLY, 0);
+        if (fd >= 0) {
+
+            devInfo.params.deviceType = DEVICE_TYPE_ALTO_AMP;
+            devInfo.params.deviceID = 33;
+            devInfo.params.arg0 = (void *)IF_SERIAL_3;
+            strcpy (devInfo.description, "ALTO Amp 1");
+
+            if (SPIFFS_write(&g_IFSfs, fd, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t)) < 0) {
+                Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_STARTUP_DEVICE_1_FILE_NAME);
+
+                return;
+            }
+
+            SPIFFS_close(&g_IFSfs, fd);
+
+            send(clientfd, pBuffer, bufferSize, 0);
+
+
+        }
+
+
+        SPIFFS_unmount(&g_IFSfs);
+    }
+
+
+}
+
+

@@ -115,6 +115,12 @@ void vTCPRCBin_SystemControl_getCompiledTime(int clientfd, char *payload, int32_
 
 __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_EXT
 void vTCPRCBin_SystemControl_getFlashDataForFileName(int clientfd, char *payload, int32_t size);
+
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_EXT
+void vTCPRCBin_SystemControl_setFlashDataForFileName(int clientfd, char *payload, int32_t size);
+
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -46,6 +46,9 @@ void vIFS_getFlashDeviceListEthernet(int clientfd);
 __SYSTEM_INTERNALFLASHSTORAGE_EXT
 void vIFS_getFlashReadFileNameEthernet(int clientfd, char *fileName);
 
+__SYSTEM_INTERNALFLASHSTORAGE_EXT
+void vIFS_setFlashReadFileNameEthernet(int clientfd, char *payload);
+
 
 #ifdef __cplusplus
 }
