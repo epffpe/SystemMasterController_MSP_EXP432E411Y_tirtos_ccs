@@ -621,48 +621,46 @@ void vIFS_setFlashReadFileNameEthernet(int clientfd, char *payload)
     spiffs_file    fd;
 //    spiffs_config  fsConfig;
     int32_t        status;
-    uint32_t bufferSize;
-    int res;
+//    uint32_t bufferSize;
     char *fileName;
-    spiffs_stat s;
-    IFS_deviceInfoFile_t devInfo;
+//    IFS_deviceInfoFile_t devInfo;
     Error_Block eb;
 
 
-//    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
-    fileName = payload;
+    TCPBin_CMD_SystemControl_FlashFileData_payload_t *pFPayload = (TCPBin_CMD_SystemControl_FlashFileData_payload_t *)payload;
+    IFS_deviceInfoFile_t *pDeviceInfo = (IFS_deviceInfoFile_t *)pFPayload->payload;
+    fileName = pFPayload->fileName;
+    fileName[IFS_FILE_NAME_LENGTH - 1] = 0;
 
     Error_init(&eb);
 
+    if (pFPayload->fileSize == sizeof(IFS_deviceInfoFile_t)) {
+        if (0 == strncmp(IFS_DEVICES_FOLDER_NAME, fileName, sizeof(IFS_DEVICES_FOLDER_NAME) - 1)) {
+            status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
+                                  g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
+                                  g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
+            if (status == SPIFFS_OK) {
 
-    status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
-                          g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
-                          g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
-    if (status == SPIFFS_OK) {
+                fd = SPIFFS_open(&g_IFSfs, fileName, SPIFFS_RDWR, 0);
+                if (fd >= 0) {
 
-        fd = SPIFFS_open(&g_IFSfs, fileName, SPIFFS_RDONLY, 0);
-        if (fd >= 0) {
 
-            devInfo.params.deviceType = DEVICE_TYPE_ALTO_AMP;
-            devInfo.params.deviceID = 33;
-            devInfo.params.arg0 = (void *)IF_SERIAL_3;
-            strcpy (devInfo.description, "ALTO Amp 1");
+                    if (SPIFFS_write(&g_IFSfs, fd, (void *) pDeviceInfo, sizeof(IFS_deviceInfoFile_t)) < 0) {
+                        Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_STARTUP_DEVICE_1_FILE_NAME);
 
-            if (SPIFFS_write(&g_IFSfs, fd, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t)) < 0) {
-                Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_STARTUP_DEVICE_1_FILE_NAME);
+                        //                return;
+                    }
 
-                return;
+                    SPIFFS_close(&g_IFSfs, fd);
+
+                    //                send(clientfd, pBuffer, bufferSize, 0);
+
+                }
+
+
+                SPIFFS_unmount(&g_IFSfs);
             }
-
-            SPIFFS_close(&g_IFSfs, fd);
-
-            send(clientfd, pBuffer, bufferSize, 0);
-
-
         }
-
-
-        SPIFFS_unmount(&g_IFSfs);
     }
 
 
