@@ -193,8 +193,12 @@ void vTCPRCBin_SystemControl_getFlashDataForFileName(int clientfd, char *payload
 
 void vTCPRCBin_SystemControl_setFlashDataForFileName(int clientfd, char *payload, int32_t size)
 {
-    vIFS_setFlashReadFileNameEthernet(clientfd, payload);
+    vIFS_setFlashDataFileNameEthernet(clientfd, payload);
 }
 
+void vTCPRCBin_SystemControl_deleteFlashDataForFileName(int clientfd, char *payload, int32_t size)
+{
+    vIFS_removeFileNameEthernet(clientfd, payload);
+}
 
 

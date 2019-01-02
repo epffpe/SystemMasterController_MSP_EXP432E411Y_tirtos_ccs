@@ -616,7 +616,7 @@ void vIFS_getFlashReadFileNameEthernet(int clientfd, char *fileName)
 
 
 
-void vIFS_setFlashReadFileNameEthernet(int clientfd, char *payload)
+void vIFS_setFlashDataFileNameEthernet(int clientfd, char *payload)
 {
     spiffs_file    fd;
 //    spiffs_config  fsConfig;
@@ -634,14 +634,14 @@ void vIFS_setFlashReadFileNameEthernet(int clientfd, char *payload)
 
     Error_init(&eb);
 
-    if (pFPayload->fileSize == sizeof(IFS_deviceInfoFile_t)) {
+    if (pFPayload->fileSize >= sizeof(IFS_deviceInfoFile_t)) {
         if (0 == strncmp(IFS_DEVICES_FOLDER_NAME, fileName, sizeof(IFS_DEVICES_FOLDER_NAME) - 1)) {
             status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
                                   g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
                                   g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
             if (status == SPIFFS_OK) {
 
-                fd = SPIFFS_open(&g_IFSfs, fileName, SPIFFS_RDWR, 0);
+                fd = SPIFFS_open(&g_IFSfs, fileName, SPIFFS_CREAT | SPIFFS_RDWR, 0);
                 if (fd >= 0) {
 
 
@@ -657,6 +657,47 @@ void vIFS_setFlashReadFileNameEthernet(int clientfd, char *payload)
 
                 }
 
+
+                SPIFFS_unmount(&g_IFSfs);
+            }
+        }
+    }
+
+
+}
+
+
+
+void vIFS_removeFileNameEthernet(int clientfd, char *payload)
+{
+//    spiffs_config  fsConfig;
+    int32_t        status;
+    int res;
+//    uint32_t bufferSize;
+    char *fileName;
+//    IFS_deviceInfoFile_t devInfo;
+    Error_Block eb;
+
+
+    TCPBin_CMD_SystemControl_FlashFileData_payload_t *pFPayload = (TCPBin_CMD_SystemControl_FlashFileData_payload_t *)payload;
+    fileName = pFPayload->fileName;
+    fileName[IFS_FILE_NAME_LENGTH - 1] = 0;
+
+    Error_init(&eb);
+
+    if (pFPayload->fileSize == 0) {
+        if (0 == strncmp(IFS_DEVICES_FOLDER_NAME, fileName, sizeof(IFS_DEVICES_FOLDER_NAME) - 1)) {
+            status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
+                                  g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
+                                  g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
+            if (status == SPIFFS_OK) {
+
+                res = SPIFFS_remove(&g_IFSfs, fileName);
+                if (res < 0) {
+                    Display_printf(g_SMCDisplay, 0, 0, "errno %i\n", SPIFFS_errno(&g_IFSfs));
+                }else {
+                    //                send(clientfd, pBuffer, bufferSize, 0);
+                }
 
                 SPIFFS_unmount(&g_IFSfs);
             }
