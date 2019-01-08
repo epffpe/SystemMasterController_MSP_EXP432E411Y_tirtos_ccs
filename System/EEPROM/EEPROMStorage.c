@@ -35,6 +35,16 @@ const tEEPROM_Data g_sDefaultEEPROMData =
  .mpRevision = DEFAULT_MP_REVISION,
 };
 
+const tEEPROM_DIOCfgData g_sDefaultEEPROMDIOCfgData =
+{
+ .dioCfg[0] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
+ .dioCfg[1] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
+ .dioCfg[2] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
+ .dioCfg[3] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
+ .dioCfg[4] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
+ .dioCfg[5] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
+};
+
 
 volatile tEEPROM_Data *INFO_get()
 {
@@ -80,10 +90,14 @@ void INFO_init()
     ui32EEPROMSize = EEPROMSizeGet();
 
     EEPROMRead((uint32_t *)&g_sEEPROMData, DEFAULT_EEPROM_ADDRESS, sizeof(tEEPROM_Data));
+    EEPROMRead((uint32_t *)&g_sEEPROMDIOCfgData, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
 
     if (g_sEEPROMData.eepromCheck != DEFAULT_EEPROM_CHECK) {
         g_sEEPROMData = g_sDefaultEEPROMData;
         EEPROMProgram((uint32_t *)&g_sEEPROMData, DEFAULT_EEPROM_ADDRESS, sizeof(tEEPROM_Data));
+
+        g_sEEPROMDIOCfgData = g_sDefaultEEPROMDIOCfgData;
+        EEPROMProgram((uint32_t *)&g_sEEPROMDIOCfgData, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
     }
 }
 

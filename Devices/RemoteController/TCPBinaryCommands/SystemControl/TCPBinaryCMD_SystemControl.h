@@ -89,6 +89,15 @@ typedef struct {
 }TCPBin_CMD_SystemControl_monitorStatus_payload_t;
 
 
+typedef struct {
+    tEEPROM_Data eepromData;
+    uint32_t softwarePN;
+    uint8_t unitTypeCode;
+    uint8_t fwVersionMajor;
+    uint8_t fwVersionMinor;
+}TCPBin_CMD_SystemControl_ManufacturerInformation_payload_t;
+
+
 #ifdef  __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_GLOBAL
     #define __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_EXT
 #else
@@ -121,6 +130,12 @@ void vTCPRCBin_SystemControl_setFlashDataForFileName(int clientfd, char *payload
 
 __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_EXT
 void vTCPRCBin_SystemControl_deleteFlashDataForFileName(int clientfd, char *payload, int32_t size);
+
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_EXT
+void vTCPRCBin_SystemControl_getManufacturerInformationData(int clientfd, char *payload, int32_t size);
+
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_EXT
+void vTCPRCBin_SystemControl_setManufacturerInformationData(int clientfd, char *payload, int32_t size);
 
 
 #ifdef __cplusplus

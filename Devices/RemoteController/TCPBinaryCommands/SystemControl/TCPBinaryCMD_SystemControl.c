@@ -150,12 +150,12 @@ void vTCPRCBin_SystemControl_getCompiledTime(int clientfd, char *payload, int32_
 {
     int bytesSent;
     uint32_t bufferSize;
-    char *pBuffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(TCPRCBIN_COMPILED_TIME_MSG)];
+    char buffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(TCPRCBIN_COMPILED_TIME_MSG)];
 
     bufferSize = sizeof(TCPBin_CMD_retFrame_t) + sizeof(TCPRCBIN_COMPILED_TIME_MSG);
 
 
-    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)pBuffer;
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
     pFrame->type = TCP_CMD_System_getCompiledTimeResponse | 0x80000000;
     pFrame->retDeviceID = TCPRCBINDEVICE_ID;
     pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
@@ -165,7 +165,7 @@ void vTCPRCBin_SystemControl_getCompiledTime(int clientfd, char *payload, int32_
     memcpy(pFrame->payload, TCPRCBIN_COMPILED_TIME_MSG, sizeof(TCPRCBIN_COMPILED_TIME_MSG));
 
 
-    bytesSent = send(clientfd, pBuffer, bufferSize, 0);
+    bytesSent = send(clientfd, buffer, bufferSize, 0);
     bytesSent = bytesSent;
 
 
@@ -200,5 +200,53 @@ void vTCPRCBin_SystemControl_deleteFlashDataForFileName(int clientfd, char *payl
 {
     vIFS_removeFileNameEthernet(clientfd, payload);
 }
+
+
+void vTCPRCBin_SystemControl_getManufacturerInformationData(int clientfd, char *payload, int32_t size)
+{
+    volatile tEEPROM_Data *infoResponse;
+
+    int bytesSent;
+    uint32_t bufferSize;
+    char buffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(TCPBin_CMD_SystemControl_ManufacturerInformation_payload_t)];
+
+    bufferSize = sizeof(TCPBin_CMD_retFrame_t) + sizeof(TCPBin_CMD_SystemControl_ManufacturerInformation_payload_t);
+
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+    pFrame->type = TCP_CMD_System_getManufacturerInformationDataResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
+    pFrame->retParamID = 4;
+
+    infoResponse = (tEEPROM_Data *)INFO_get();
+
+    TCPBin_CMD_SystemControl_ManufacturerInformation_payload_t *pPayload = (TCPBin_CMD_SystemControl_ManufacturerInformation_payload_t *)pFrame->payload;
+
+    pPayload->eepromData = *infoResponse;
+    pPayload->softwarePN = SOFTWARE_PN;
+    pPayload->unitTypeCode = UNIT_TYPE_CODE;
+    pPayload->fwVersionMajor = FIRMWARE_VERSION_MAJOR;
+    pPayload->fwVersionMinor = FIRMWARE_VERSION_MINOR;
+
+    bytesSent = send(clientfd, buffer, bufferSize, 0);
+    bytesSent = bytesSent;
+}
+
+
+void vTCPRCBin_SystemControl_setManufacturerInformationData(int clientfd, char *payload, int32_t size)
+{
+    tEEPROM_Data *infoResponse = (tEEPROM_Data *)payload;
+
+    if (size == sizeof(tEEPROM_Data)) {
+        infoResponse->eepromCheck = DEFAULT_EEPROM_CHECK;
+        INFO_set(infoResponse);
+    }
+
+//    bytesSent = send(clientfd, buffer, bufferSize, 0);
+
+}
+
+
 
 

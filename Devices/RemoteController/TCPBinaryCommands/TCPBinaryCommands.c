@@ -84,6 +84,11 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_System_setFlashFileData] = vTCPRCBin_SystemControl_setFlashDataForFileName,
  [TCP_CMD_System_deleteFlashFileData] = vTCPRCBin_SystemControl_deleteFlashDataForFileName,
 
+ [TCP_CMD_System_getManufacturerInformationData] = vTCPRCBin_SystemControl_getManufacturerInformationData,
+ [TCP_CMD_System_setManufacturerInformationData] = vTCPRCBin_SystemControl_setManufacturerInformationData,
+
+
+
  [TCP_CMD_DiscreteIO_get5VOutputPowerStatus] = vTCPRCBin_DiscreteIO_get5VOutputPowerStatus,
  [TCP_CMD_DiscreteIO_turnOn5VOutputPower] = vTCPRCBin_DiscreteIO_turnOn5VOutputPower,
  [TCP_CMD_DiscreteIO_turnOff5VOutputPower] = vTCPRCBin_DiscreteIO_turnOff5VOutputPower,

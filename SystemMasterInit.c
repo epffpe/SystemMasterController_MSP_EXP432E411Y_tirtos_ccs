@@ -184,11 +184,23 @@ void vDiscreteIO_init()
     DICfgMode(DIO_INTERNAL_5V_SW_STATUS, DI_MODE_INV);
     DICfgMode(DIO_IRDA_RX, DI_MODE_DIRECT);
     DICfgMode(DIO_TEMP_ALERT, DI_MODE_DIRECT);
+
+    GPIO_setConfig(Board_GPI_0, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
     DICfgMode(DIO_GPI_0, DI_MODE_DIRECT);
+
+    GPIO_setConfig(Board_GPI_1, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
     DICfgMode(DIO_GPI_1, DI_MODE_DIRECT);
+
+    GPIO_setConfig(Board_GPI_2, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
     DICfgMode(DIO_GPI_2, DI_MODE_DIRECT);
+
+    GPIO_setConfig(Board_GPI_3, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
     DICfgMode(DIO_GPI_3, DI_MODE_DIRECT);
+
+    GPIO_setConfig(Board_GPI_4, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
     DICfgMode(DIO_GPI_4, DI_MODE_DIRECT);
+
+    GPIO_setConfig(Board_GPI_5, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
     DICfgMode(DIO_GPI_5, DI_MODE_DIRECT);
 
     DOCfgMode (DIO_5V_OUT_EN, DO_MODE_DIRECT, false);
@@ -200,12 +212,26 @@ void vDiscreteIO_init()
     DOCfgMode (DIO_LED_D6, DO_MODE_DIRECT, true);
     DOCfgMode (DIO_LED_D20, DO_MODE_DIRECT, true);
     DOCfgMode (DIO_USB0EPEN, DO_MODE_DIRECT, false);
+
+    GPIO_setConfig(Board_GPO_0, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
     DOCfgMode (DIO_GPO_0, DO_MODE_DIRECT, false);
+
+    GPIO_setConfig(Board_GPO_1, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
     DOCfgMode (DIO_GPO_1, DO_MODE_DIRECT, false);
+
+    GPIO_setConfig(Board_GPO_2, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
     DOCfgMode (DIO_GPO_2, DO_MODE_DIRECT, false);
+
+    GPIO_setConfig(Board_GPO_3, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
     DOCfgMode (DIO_GPO_3, DO_MODE_DIRECT, false);
+
+    GPIO_setConfig(Board_GPO_4, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
     DOCfgMode (DIO_GPO_4, DO_MODE_DIRECT, false);
+
+    GPIO_setConfig(Board_GPO_5, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
     DOCfgMode (DIO_GPO_5, DO_MODE_DIRECT, false);
+
+
     DOCfgMode (DIO_IRDA_TX, DO_MODE_DIRECT, false);
 
     Display_printf(g_SMCDisplay, 0, 0, "Setting 5V Out to ON\n");
@@ -214,6 +240,12 @@ void vDiscreteIO_init()
     DOSet(DIO_PWR_PERIPHERAL_EN, DO_ON);
     Display_printf(g_SMCDisplay, 0, 0, "Setting UART Debug ON\n");
     DOSet(DIO_UART_DEBUG, DO_ON);
+
+
+//    GPIO_setConfig(Board_GPIO_LED1, GPIO_CFG_OUT_STD | GPIO_CFG_OUT_LOW);
+//    GPIO_setConfig(Board_GPIO_LED1, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
+//    GPIO_setConfig(Board_GPIO_BUTTON0, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_FALLING);
+
 
 }
 

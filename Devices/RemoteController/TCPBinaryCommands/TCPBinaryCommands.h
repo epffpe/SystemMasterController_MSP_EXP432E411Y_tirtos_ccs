@@ -145,9 +145,13 @@ typedef enum {
     TCP_CMD_System_deleteFlashFileData,
     TCP_CMD_System_deleteFlashFileDataResponse,
 
+    TCP_CMD_System_getManufacturerInformationData,
+    TCP_CMD_System_getManufacturerInformationDataResponse,
+    TCP_CMD_System_setManufacturerInformationData,
+    TCP_CMD_System_setManufacturerInformationDataResponse,
 
 //DiscreteIO
-    TCP_CMD_DiscreteIO_get5VOutputPowerStatus = 220,
+    TCP_CMD_DiscreteIO_get5VOutputPowerStatus = 320,
     TCP_CMD_DiscreteIO_get5VOutputPowerStatusResponse,
     TCP_CMD_DiscreteIO_turnOn5VOutputPower,
     TCP_CMD_DiscreteIO_turnOn5VOutputPowerResponse,
@@ -157,7 +161,7 @@ typedef enum {
     TCP_CMD_DiscreteIO_set5VOutputPowerResponse,
 
 //Panasonic PCU
-    TCP_CMD_Panasonic_getMonitorStatus = 240,
+    TCP_CMD_Panasonic_getMonitorStatus = 340,
     TCP_CMD_Panasonic_getMonitorStatusResponse,
 
     TCP_CMD_COUNT
