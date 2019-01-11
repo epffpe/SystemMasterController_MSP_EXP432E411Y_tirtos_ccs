@@ -35,14 +35,236 @@ const tEEPROM_Data g_sDefaultEEPROMData =
  .mpRevision = DEFAULT_MP_REVISION,
 };
 
+// .dioCfg[0] = GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES,
+// .dioCfg[0] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
 const tEEPROM_DIOCfgData g_sDefaultEEPROMDIOCfgData =
 {
- .dioCfg[0] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
- .dioCfg[1] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
- .dioCfg[2] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
- .dioCfg[3] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
- .dioCfg[4] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
- .dioCfg[5] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
+ .dioCfg[0] = GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES,
+ .dioCfg[1] = GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES,
+ .dioCfg[2] = GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES,
+ .dioCfg[3] = GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES,
+ .dioCfg[4] = GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES,
+ .dioCfg[5] = GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES,
+ .diConfig[0] =
+         {
+          .DIDebounceDly = 50,
+          .DIRptStartDly = 500,
+          .DIRptDly = 200,
+          .DIBypassEn = 0,
+          .DIModeSel = DI_MODE_DIRECT,
+          .DIDebounceEn = 0,
+         },
+ .diConfig[1] =
+         {
+          .DIDebounceDly = 50,
+          .DIRptStartDly = 500,
+          .DIRptDly = 200,
+          .DIBypassEn = 0,
+          .DIModeSel = DI_MODE_DIRECT,
+          .DIDebounceEn = 0,
+         },
+ .diConfig[2] =
+         {
+          .DIDebounceDly = 50,
+          .DIRptStartDly = 500,
+          .DIRptDly = 200,
+          .DIBypassEn = 0,
+          .DIModeSel = DI_MODE_DIRECT,
+          .DIDebounceEn = 0,
+         },
+ .diConfig[3] =
+         {
+          .DIDebounceDly = 50,
+          .DIRptStartDly = 500,
+          .DIRptDly = 200,
+          .DIBypassEn = 0,
+          .DIModeSel = DI_MODE_DIRECT,
+          .DIDebounceEn = 0,
+         },
+ .diConfig[4] =
+         {
+          .DIDebounceDly = 50,
+          .DIRptStartDly = 500,
+          .DIRptDly = 200,
+          .DIBypassEn = 0,
+          .DIModeSel = DI_MODE_DIRECT,
+          .DIDebounceEn = 0,
+         },
+ .diConfig[5] =
+         {
+          .DIDebounceDly = 50,
+          .DIRptStartDly = 500,
+          .DIRptDly = 200,
+          .DIBypassEn = 0,
+          .DIModeSel = DI_MODE_DIRECT,
+          .DIDebounceEn = 0,
+         },
+ .di5VOutStatus =
+         {
+          .DIDebounceDly = 50,
+          .DIRptStartDly = 500,
+          .DIRptDly = 200,
+          .DIBypassEn = 0,
+          .DIModeSel = DI_MODE_INV,
+          .DIDebounceEn = 0,
+         },
+ .diInternal5VSwStatus =
+         {
+          .DIDebounceDly = 50,
+          .DIRptStartDly = 500,
+          .DIRptDly = 200,
+          .DIBypassEn = 0,
+          .DIModeSel = DI_MODE_INV,
+          .DIDebounceEn = 0,
+         },
+ .diIRDARx =
+         {
+          .DIDebounceDly = 50,
+          .DIRptStartDly = 500,
+          .DIRptDly = 200,
+          .DIBypassEn = 0,
+          .DIModeSel = DI_MODE_DIRECT,
+          .DIDebounceEn = 0,
+         },
+ .diTempAlert =
+         {
+          .DIDebounceDly = 50,
+          .DIRptStartDly = 500,
+          .DIRptDly = 200,
+          .DIBypassEn = 0,
+          .DIModeSel = DI_MODE_DIRECT,
+          .DIDebounceEn = 0,
+         },
+ .doConfig[0] =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = false
+         },
+ .doConfig[1] =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = false
+         },
+ .doConfig[2] =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = false
+         },
+ .doConfig[3] =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = false
+         },
+ .doConfig[4] =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = false
+         },
+ .doConfig[5] =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = false
+         },
+ .do5VOutEn =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = false
+         },
+ .doPWRPeripheralEn =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = true
+         },
+ .doUARTDebug =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = true
+         },
+ .doSerial5En =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = true
+         },
+ .doLEDD6 =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = true
+         },
+ .doLEDD20 =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = true
+         },
+ .doUSB0EPEn =
+         {
+          .DOA = 100,
+          .DOB = 200,
+          .DOBCtr = 300,
+          .DOBypassEn = 0,
+          .DOModeSel = DO_MODE_DIRECT,
+          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOInv = false
+         },
 };
 
 
@@ -55,6 +277,19 @@ void INFO_set(tEEPROM_Data *info)
 {
     EEPROMProgram((uint32_t *)info, DEFAULT_EEPROM_ADDRESS, sizeof(tEEPROM_Data));
     g_sEEPROMData = *info;
+}
+
+
+volatile tEEPROM_DIOCfgData *psEEPDIOConfg_get()
+{
+    return &g_sEEPROMDIOCfgData;
+}
+
+void vEEPDIOConfg_set(tEEPROM_DIOCfgData *info)
+{
+//    EEPROMProgram((uint32_t *)info, DEFAULT_EEPROM_ADDRESS, sizeof(tEEPROM_Data));
+    EEPROMProgram((uint32_t *)&info, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
+    g_sEEPROMDIOCfgData = *info;
 }
 
 

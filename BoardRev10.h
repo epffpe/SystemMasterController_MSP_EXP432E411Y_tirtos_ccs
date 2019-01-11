@@ -99,11 +99,11 @@ extern "C" {
 
 
 #define Board_GPI_0                 SMC_GPI_0
-#define Board_GPI_1                 SMC_GPI_0
-#define Board_GPI_2                 SMC_GPI_0
-#define Board_GPI_3                 SMC_GPI_0
-#define Board_GPI_4                 SMC_GPI_0
-#define Board_GPI_5                 SMC_GPI_0
+#define Board_GPI_1                 SMC_GPI_1
+#define Board_GPI_2                 SMC_GPI_2
+#define Board_GPI_3                 SMC_GPI_3
+#define Board_GPI_4                 SMC_GPI_4
+#define Board_GPI_5                 SMC_GPI_5
 
 
 #define Board_GPO_0                 SMC_GPO_0

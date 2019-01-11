@@ -94,6 +94,14 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_DiscreteIO_turnOff5VOutputPower] = vTCPRCBin_DiscreteIO_turnOff5VOutputPower,
  [TCP_CMD_DiscreteIO_set5VOutputPower] = vTCPRCBin_DiscreteIO_set5VOutputPower,
 
+
+
+ [TCP_CMD_DiscreteIO_getDIOConfiguration] = vTCPRCBin_DiscreteIO_getDIOConfiguration,
+ [TCP_CMD_DiscreteIO_setDIOConfiguration] = vTCPRCBin_DiscreteIO_setDIOConfiguration,
+// [TCP_CMD_DiscreteIO_setDIConfiguration] = vTCPRCBin_DiscreteIO_setDIConfiguration,
+// [TCP_CMD_DiscreteIO_setDOConfiguration] = vTCPRCBin_DiscreteIO_setDOConfiguration,
+
+
 // ALTO Temp boxes
  [TCP_CMD_ALTOMultinet_getPot] = TCPBin_ALTOMultinetPotGet,
 

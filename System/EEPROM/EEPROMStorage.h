@@ -60,7 +60,40 @@ typedef struct {
 }tEEPROM_Data;
 
 typedef struct {
-    uint32_t dioCfg[6];
+    uint32_t    DIDebounceDly;
+    uint32_t    DIRptStartDly;
+    uint32_t    DIRptDly;
+    uint8_t     DIBypassEn;               /* Bypass enable switch (Bypass when TRUE) */
+    uint8_t     DIModeSel;                /* Discrete input channel mode selector */
+    uint8_t     DIDebounceEn;
+}tEEPROM_DIConfigData;
+
+typedef struct {
+    uint32_t    DOA;
+    uint32_t    DOB;
+    uint32_t    DOBCtr;
+    uint8_t     DOBypassEn;
+    uint8_t     DOModeSel;
+    uint8_t     DOBlinkEnSel;
+    uint8_t     DOInv;
+}tEEPROM_DOConfigData;
+
+typedef struct {
+    uint32_t                dioCfg[6];
+    tEEPROM_DIConfigData    diConfig[6];
+    tEEPROM_DIConfigData    di5VOutStatus;
+    tEEPROM_DIConfigData    diInternal5VSwStatus;
+    tEEPROM_DIConfigData    diIRDARx;
+    tEEPROM_DIConfigData    diTempAlert;
+    tEEPROM_DOConfigData    doConfig[6];
+    tEEPROM_DOConfigData    do5VOutEn;
+    tEEPROM_DOConfigData    doPWRPeripheralEn;
+    tEEPROM_DOConfigData    doUARTDebug;
+    tEEPROM_DOConfigData    doSerial5En;
+    tEEPROM_DOConfigData    doLEDD6;
+    tEEPROM_DOConfigData    doLEDD20;
+    tEEPROM_DOConfigData    doUSB0EPEn;
+
 }tEEPROM_DIOCfgData;
 
 #define EEPROM_DATA_PAYLOAD_SIZE      (sizeof(tEEPROM_Data) + 2 )
@@ -79,6 +112,10 @@ extern "C"  {
 EEPROMSTORAGE_EXT volatile tEEPROM_Data *INFO_get();
 EEPROMSTORAGE_EXT void INFO_set(tEEPROM_Data *info);
 EEPROMSTORAGE_EXT void INFO_init();
+EEPROMSTORAGE_EXT volatile tEEPROM_DIOCfgData *psEEPDIOConfg_get();
+EEPROMSTORAGE_EXT void vEEPDIOConfg_set(tEEPROM_DIOCfgData *info);
+
+
 EEPROMSTORAGE_EXT volatile tEEPROM_Data g_sEEPROMData;
 EEPROMSTORAGE_EXT volatile tEEPROM_DIOCfgData g_sEEPROMDIOCfgData;
 EEPROMSTORAGE_EXT volatile uint32_t g_ui32EEPROMInit;
