@@ -707,4 +707,147 @@ void vIFS_removeFileNameEthernet(int clientfd, char *payload)
 
 }
 
+void vIFS_getFlashConfigurationFileEthernet(int clientfd)
+{
+    spiffs_file    fd;
+//    spiffs_config  fsConfig;
+    int32_t        status;
+    uint32_t bufferSize;
+    int res;
+    uint32_t counter = 0, index;
+    spiffs_DIR d, d2;
+    struct spiffs_dirent e, e2;
+    struct spiffs_dirent *pe = &e, *pe2 = &e2;
+    Error_Block eb;
+    IFS_deviceInfoFile_t devInfo;
+
+
+    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
+
+    Error_init(&eb);
+
+
+    status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
+                          g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
+                          g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
+    if (status == SPIFFS_OK) {
+
+        SPIFFS_opendir(&g_IFSfs, "/", &d);
+        while ((pe = SPIFFS_readdir(&d, pe))) {
+            if (0 == strncmp(IFS_DEVICES_FOLDER_NAME, (char *)pe->name, sizeof(IFS_DEVICES_FOLDER_NAME) - 1)) {
+                if (pe->size >= sizeof(IFS_deviceInfoFile_t)) {
+                    counter++;
+                }
+            }
+        }
+        SPIFFS_closedir(&d);
+
+        bufferSize = sizeof(TCPBin_CMD_retFrame_t) +
+                sizeof(TCPBin_CMD_SystemControl_ConfigurationFileFixed_payload_t) +
+                sizeof(TCPBin_CMD_SystemControl_RAM_deviceList_payload_t) +
+                counter * sizeof(TCPBin_CMD_SystemControl_devicesList_t);
+
+        char *pBuffer = Memory_alloc(NULL, bufferSize, 0, &eb);
+
+        if (pBuffer !=NULL) {
+            TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)pBuffer;
+            pFrame->type = TCP_CMD_System_getFlashDeviceListResponse | 0x80000000;
+            pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+            pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_DISCRETEIO_CLASS_RETURN_UUID;
+            pFrame->retParamID = 4;
+
+            TCPBin_CMD_SystemControl_ConfigurationFileFixed_payload_t *pFramePayload = (TCPBin_CMD_SystemControl_ConfigurationFileFixed_payload_t *)pFrame->payload;
+
+            for (index = 0; index < IFS_NUMBER_OF_CONFIG_GPIO; index++) {
+                pFramePayload->gpioConfig[index].index = index;
+                pFramePayload->gpioConfig[index].pinConfig = g_sEEPROMDIOCfgData.dioCfg[index];
+                switch (pFramePayload->gpioConfig[index].pinConfig & GPIO_CFG_IO_MASK) {
+                case GPIO_CFG_IN_NOPULL:
+                case GPIO_CFG_IN_PU:
+                case GPIO_CFG_IN_PD:
+                    pFramePayload->gpioConfig[index].DIVal = DITbl[g_TCPRCBin_DiscreteIO_DIMapTable[index]].DIVal;
+                    pFramePayload->gpioConfig[index].DIDebounceDly = DITbl[g_TCPRCBin_DiscreteIO_DIMapTable[index]].DIDebounceDly;
+                    pFramePayload->gpioConfig[index].DIRptStartDly = DITbl[g_TCPRCBin_DiscreteIO_DIMapTable[index]].DIRptStartDly;
+                    pFramePayload->gpioConfig[index].DIRptDly = DITbl[g_TCPRCBin_DiscreteIO_DIMapTable[index]].DIRptDly;
+                    pFramePayload->gpioConfig[index].DIIn = DITbl[g_TCPRCBin_DiscreteIO_DIMapTable[index]].DIIn;
+                    pFramePayload->gpioConfig[index].DIBypassEn = DITbl[g_TCPRCBin_DiscreteIO_DIMapTable[index]].DIBypassEn;
+                    pFramePayload->gpioConfig[index].DIModeSel = DITbl[g_TCPRCBin_DiscreteIO_DIMapTable[index]].DIModeSel;
+                    pFramePayload->gpioConfig[index].DIDebounceEn = DITbl[g_TCPRCBin_DiscreteIO_DIMapTable[index]].DIDebounceEn;
+                    break;
+                case GPIO_CFG_OUT_STD:
+                case GPIO_CFG_OUT_OD_NOPULL:
+                case GPIO_CFG_OUT_OD_PU:
+                case GPIO_CFG_OUT_OD_PD:
+                    pFramePayload->gpioConfig[index].DOA = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOA;
+                    pFramePayload->gpioConfig[index].DOB = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOB;
+                    pFramePayload->gpioConfig[index].DOBCtr = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOBCtr;
+                    pFramePayload->gpioConfig[index].DOOut = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOOut;
+                    pFramePayload->gpioConfig[index].DOCtrl = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOCtrl;
+                    pFramePayload->gpioConfig[index].DOBypass = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOBypass;
+                    pFramePayload->gpioConfig[index].DOBypassEn = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOBypassEn;
+                    pFramePayload->gpioConfig[index].DOModeSel = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOModeSel;
+                    pFramePayload->gpioConfig[index].DOBlinkEnSel = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOBlinkEnSel;
+                    pFramePayload->gpioConfig[index].DOInv = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOInv;
+                    break;
+                default:
+                    break;
+                }
+            }
+
+
+            TCPBin_CMD_SystemControl_RAM_deviceList_payload_t *pDynamicFramePayload = (TCPBin_CMD_SystemControl_RAM_deviceList_payload_t *)pFramePayload->dynamicPayload;
+            pDynamicFramePayload->numbOfDevices = counter;
+
+            TCPBin_CMD_SystemControl_devicesList_t *pDeviceListElem = (TCPBin_CMD_SystemControl_devicesList_t *)pDynamicFramePayload->payload;
+
+
+            /*
+             * Fill information
+             */
+
+            SPIFFS_opendir(&g_IFSfs, "/", &d2);
+            while ((pe2 = SPIFFS_readdir(&d2, pe2))) {
+                //                Display_printf(g_SMCDisplay, 0, 0, "%s [%04x] size:%i", pe->name, pe->obj_id, pe->size);
+
+                if (0 == strncmp(IFS_DEVICES_FOLDER_NAME, (char *)pe2->name, sizeof(IFS_DEVICES_FOLDER_NAME) - 1)) {
+                    if (pe2->size >= sizeof(IFS_deviceInfoFile_t)) {
+                        /*********************************************************************/
+                        /* Do note that if the any file is modified (except for fully removing)
+                         * within the dirent iterator, the iterator may become invalid.
+                         */
+                        /*********************************************************************/
+
+
+                        fd = SPIFFS_open_by_dirent(&g_IFSfs, pe2, SPIFFS_RDWR, 0);
+                        if (fd >= 0) {
+                            if (SPIFFS_read(&g_IFSfs, fd, (void *)&devInfo, sizeof(IFS_deviceInfoFile_t)) >= 0) {
+                                res = SPIFFS_close(&g_IFSfs, fd);
+                                if (res == 0) {
+                                    pDeviceListElem->deviceID = devInfo.params.deviceID;
+                                    pDeviceListElem->deviceType = devInfo.params.deviceType;
+                                    memcpy(pDeviceListElem->fileName, (char *)pe2->name, IFS_FILE_NAME_LENGTH);
+                                    memcpy(pDeviceListElem->description, devInfo.description, IFS_FILE_DESCRIPTION_LENGTH);
+
+                                }
+                            }
+                        }
+                        pDeviceListElem++;
+
+                    }
+                }
+
+
+            }
+            SPIFFS_closedir(&d2);
+
+            send(clientfd, pBuffer, bufferSize, 0);
+
+            Memory_free(NULL, pBuffer, bufferSize);
+
+        }
+        SPIFFS_unmount(&g_IFSfs);
+    }
+
+}
+
 

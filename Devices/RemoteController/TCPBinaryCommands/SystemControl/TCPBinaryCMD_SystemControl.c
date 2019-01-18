@@ -248,5 +248,9 @@ void vTCPRCBin_SystemControl_setManufacturerInformationData(int clientfd, char *
 }
 
 
+void vTCPRCBin_SystemControl_getConfigurationFile(int clientfd, char *payload, int32_t size)
+{
+    vIFS_getFlashConfigurationFileEthernet(clientfd);
+}
 
 

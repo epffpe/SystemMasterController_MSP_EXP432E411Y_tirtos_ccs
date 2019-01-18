@@ -18,6 +18,8 @@
 #endif
 
 
+#define IFS_NUMBER_OF_CONFIG_GPIO           (6)
+
 //typedef enum {
 //
 //}TCPBin_CMD_SystemControl_CharacteristicID;
@@ -96,6 +98,14 @@ typedef struct {
     uint8_t fwVersionMajor;
     uint8_t fwVersionMinor;
 }TCPBin_CMD_SystemControl_ManufacturerInformation_payload_t;
+
+
+typedef struct {
+    TCPBin_CMD_DIOConfig_payload_t gpioConfig[IFS_NUMBER_OF_CONFIG_GPIO];
+    char dynamicPayload[];
+}TCPBin_CMD_SystemControl_ConfigurationFileFixed_payload_t;
+
+
 
 
 #ifdef  __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_GLOBAL

@@ -52,6 +52,9 @@ void vIFS_setFlashDataFileNameEthernet(int clientfd, char *payload);
 __SYSTEM_INTERNALFLASHSTORAGE_EXT
 void vIFS_removeFileNameEthernet(int clientfd, char *payload);
 
+__SYSTEM_INTERNALFLASHSTORAGE_EXT
+void vIFS_getFlashConfigurationFileEthernet(int clientfd);
+
 #ifdef __cplusplus
 }
 #endif

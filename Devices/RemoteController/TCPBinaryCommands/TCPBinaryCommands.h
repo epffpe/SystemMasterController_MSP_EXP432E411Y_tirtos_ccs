@@ -150,6 +150,12 @@ typedef enum {
     TCP_CMD_System_setManufacturerInformationData,
     TCP_CMD_System_setManufacturerInformationDataResponse,
 
+
+    TCP_CMD_System_getConfigurationFile,
+    TCP_CMD_System_getConfigurationFileResponse,
+    TCP_CMD_System_setConfigurationFile,
+    TCP_CMD_System_setConfigurationFileResponse,
+
 //DiscreteIO
     TCP_CMD_DiscreteIO_get5VOutputPowerStatus = 320,
     TCP_CMD_DiscreteIO_get5VOutputPowerStatusResponse,
@@ -162,8 +168,8 @@ typedef enum {
 
     TCP_CMD_DiscreteIO_getDIOConfiguration,
     TCP_CMD_DiscreteIO_getDIOConfigurationResponse,
-    TCP_CMD_DiscreteIO_setDIOConfiguration,
-    TCP_CMD_DiscreteIO_setDIOConfigurationResponse,
+    TCP_CMD_DiscreteIO_setDIODirection,
+    TCP_CMD_DiscreteIO_setDIODirectionResponse,
     TCP_CMD_DiscreteIO_setDIConfiguration,
     TCP_CMD_DiscreteIO_setDIConfigurationResponse,
     TCP_CMD_DiscreteIO_setDOConfiguration,
