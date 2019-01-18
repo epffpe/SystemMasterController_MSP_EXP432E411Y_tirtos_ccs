@@ -87,6 +87,7 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_System_getManufacturerInformationData] = vTCPRCBin_SystemControl_getManufacturerInformationData,
  [TCP_CMD_System_setManufacturerInformationData] = vTCPRCBin_SystemControl_setManufacturerInformationData,
 
+ [TCP_CMD_System_getConfigurationFile] = vTCPRCBin_SystemControl_getConfigurationFile,
 
 
  [TCP_CMD_DiscreteIO_get5VOutputPowerStatus] = vTCPRCBin_DiscreteIO_get5VOutputPowerStatus,

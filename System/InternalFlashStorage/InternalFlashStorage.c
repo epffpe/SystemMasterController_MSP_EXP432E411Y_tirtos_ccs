@@ -751,7 +751,7 @@ void vIFS_getFlashConfigurationFileEthernet(int clientfd)
 
         if (pBuffer !=NULL) {
             TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)pBuffer;
-            pFrame->type = TCP_CMD_System_getFlashDeviceListResponse | 0x80000000;
+            pFrame->type = TCP_CMD_System_getConfigurationFileResponse | 0x80000000;
             pFrame->retDeviceID = TCPRCBINDEVICE_ID;
             pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_DISCRETEIO_CLASS_RETURN_UUID;
             pFrame->retParamID = 4;
