@@ -45,6 +45,7 @@ const tEEPROM_DIOCfgData g_sDefaultEEPROMDIOCfgData =
  .dioCfg[3] = GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES,
  .dioCfg[4] = GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES,
  .dioCfg[5] = GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES,
+ .doSyncCtrMax = 1000,
  .diConfig[0] =
          {
           .DIDebounceDly = 50,
@@ -137,132 +138,132 @@ const tEEPROM_DIOCfgData g_sDefaultEEPROMDIOCfgData =
          },
  .doConfig[0] =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = false
          },
  .doConfig[1] =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = false
          },
  .doConfig[2] =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = false
          },
  .doConfig[3] =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = false
          },
  .doConfig[4] =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = false
          },
  .doConfig[5] =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = false
          },
  .do5VOutEn =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = false
          },
  .doPWRPeripheralEn =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = true
          },
  .doUARTDebug =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = true
          },
  .doSerial5En =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = true
          },
  .doLEDD6 =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = true
          },
  .doLEDD20 =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = true
          },
  .doUSB0EPEn =
          {
-          .DOA = 100,
-          .DOB = 200,
-          .DOBCtr = 300,
+          .DOA = 500,
+          .DOB = 1000,
+          .DOBCtr = 0,
           .DOBypassEn = 0,
           .DOModeSel = DO_MODE_DIRECT,
-          .DOBlinkEnSel = DO_BLINK_EN,
+          .DOBlinkEnSel = DO_BLINK_EN_NORMAL,
           .DOInv = false
          },
 };
@@ -275,8 +276,9 @@ volatile tEEPROM_Data *INFO_get()
 
 void INFO_set(tEEPROM_Data *info)
 {
-    EEPROMProgram((uint32_t *)info, DEFAULT_EEPROM_ADDRESS, sizeof(tEEPROM_Data));
+//    EEPROMProgram((uint32_t *)info, DEFAULT_EEPROM_ADDRESS, sizeof(tEEPROM_Data));
     g_sEEPROMData = *info;
+    EEPROMProgram((uint32_t *)&g_sEEPROMData, DEFAULT_EEPROM_ADDRESS, sizeof(tEEPROM_Data));
 }
 
 
@@ -288,8 +290,9 @@ volatile tEEPROM_DIOCfgData *psEEPDIOConfg_get()
 void vEEPDIOConfg_set(tEEPROM_DIOCfgData *info)
 {
 //    EEPROMProgram((uint32_t *)info, DEFAULT_EEPROM_ADDRESS, sizeof(tEEPROM_Data));
-    EEPROMProgram((uint32_t *)&info, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
+//    EEPROMProgram((uint32_t *)&info, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
     g_sEEPROMDIOCfgData = *info;
+    EEPROMProgram((uint32_t *)&g_sEEPROMDIOCfgData, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
 }
 
 

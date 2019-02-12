@@ -598,6 +598,11 @@ void DOSetSyncCtrMax(uint32_t val)
     DOSyncCtrMax = val / DIO_TASK_DLY_TICKS;
     OS_EXIT_CRITICAL();
 }
+
+uint32_t    xDOGetSyncCtrMax()
+{
+    return DOSyncCtrMax;
+}
 #endif
 
 /*

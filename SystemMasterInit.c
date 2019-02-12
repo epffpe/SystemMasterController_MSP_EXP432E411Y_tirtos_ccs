@@ -186,6 +186,20 @@ void vDiscreteIO_init()
     DICfgMode(DIO_IRDA_RX, g_sEEPROMDIOCfgData.diIRDARx.DIModeSel);
     DICfgMode(DIO_TEMP_ALERT, g_sEEPROMDIOCfgData.diTempAlert.DIModeSel);
 
+    DICfgDebounce   (DIO_GPI_0, g_sEEPROMDIOCfgData.diConfig[0].DIDebounceDly, g_sEEPROMDIOCfgData.diConfig[0].DIRptStartDly, g_sEEPROMDIOCfgData.diConfig[0].DIRptDly);
+    DICfgDebounce   (DIO_GPI_1, g_sEEPROMDIOCfgData.diConfig[1].DIDebounceDly, g_sEEPROMDIOCfgData.diConfig[1].DIRptStartDly, g_sEEPROMDIOCfgData.diConfig[1].DIRptDly);
+    DICfgDebounce   (DIO_GPI_2, g_sEEPROMDIOCfgData.diConfig[2].DIDebounceDly, g_sEEPROMDIOCfgData.diConfig[2].DIRptStartDly, g_sEEPROMDIOCfgData.diConfig[2].DIRptDly);
+    DICfgDebounce   (DIO_GPI_3, g_sEEPROMDIOCfgData.diConfig[3].DIDebounceDly, g_sEEPROMDIOCfgData.diConfig[3].DIRptStartDly, g_sEEPROMDIOCfgData.diConfig[3].DIRptDly);
+    DICfgDebounce   (DIO_GPI_4, g_sEEPROMDIOCfgData.diConfig[4].DIDebounceDly, g_sEEPROMDIOCfgData.diConfig[4].DIRptStartDly, g_sEEPROMDIOCfgData.diConfig[4].DIRptDly);
+    DICfgDebounce   (DIO_GPI_5, g_sEEPROMDIOCfgData.diConfig[5].DIDebounceDly, g_sEEPROMDIOCfgData.diConfig[5].DIRptStartDly, g_sEEPROMDIOCfgData.diConfig[5].DIRptDly);
+
+    DISetDebounceEn (DIO_GPI_0, g_sEEPROMDIOCfgData.diConfig[0].DIDebounceEn);
+    DISetDebounceEn (DIO_GPI_1, g_sEEPROMDIOCfgData.diConfig[1].DIDebounceEn);
+    DISetDebounceEn (DIO_GPI_2, g_sEEPROMDIOCfgData.diConfig[2].DIDebounceEn);
+    DISetDebounceEn (DIO_GPI_3, g_sEEPROMDIOCfgData.diConfig[3].DIDebounceEn);
+    DISetDebounceEn (DIO_GPI_4, g_sEEPROMDIOCfgData.diConfig[4].DIDebounceEn);
+    DISetDebounceEn (DIO_GPI_5, g_sEEPROMDIOCfgData.diConfig[5].DIDebounceEn);
+
     DICfgMode(DIO_GPI_0, g_sEEPROMDIOCfgData.diConfig[0].DIModeSel);
     DICfgMode(DIO_GPI_1, g_sEEPROMDIOCfgData.diConfig[1].DIModeSel);
     DICfgMode(DIO_GPI_2, g_sEEPROMDIOCfgData.diConfig[2].DIModeSel);
@@ -194,15 +208,27 @@ void vDiscreteIO_init()
     DICfgMode(DIO_GPI_5, g_sEEPROMDIOCfgData.diConfig[5].DIModeSel);
 
 
+    DOSetSyncCtrMax(g_sEEPROMDIOCfgData.doSyncCtrMax);
+
     DOCfgMode (DIO_5V_OUT_EN, g_sEEPROMDIOCfgData.do5VOutEn.DOModeSel, g_sEEPROMDIOCfgData.do5VOutEn.DOInv);
     DOCfgMode (DIO_PWR_PERIPHERAL_EN, g_sEEPROMDIOCfgData.doPWRPeripheralEn.DOModeSel, g_sEEPROMDIOCfgData.doPWRPeripheralEn.DOInv);
 
 
     DOCfgMode (DIO_UART_DEBUG, g_sEEPROMDIOCfgData.doUARTDebug.DOModeSel, g_sEEPROMDIOCfgData.doUARTDebug.DOInv);
     DOCfgMode (DIO_SERIAL5_EN_, g_sEEPROMDIOCfgData.doSerial5En.DOModeSel, g_sEEPROMDIOCfgData.doSerial5En.DOInv);
+
+//    Display_printf(g_SMCDisplay, 0, 0, "DIO_LED_D6 mode: %d, inv: %d\n", g_sEEPROMDIOCfgData.doLEDD6.DOModeSel, g_sEEPROMDIOCfgData.doLEDD6.DOInv);
+    Display_printf(g_SMCDisplay, 0, 0, "Configuring Discrete IO pins\n");
     DOCfgMode (DIO_LED_D6, g_sEEPROMDIOCfgData.doLEDD6.DOModeSel, g_sEEPROMDIOCfgData.doLEDD6.DOInv);
     DOCfgMode (DIO_LED_D20, g_sEEPROMDIOCfgData.doLEDD20.DOModeSel, g_sEEPROMDIOCfgData.doLEDD20.DOInv);
     DOCfgMode (DIO_USB0EPEN, g_sEEPROMDIOCfgData.doUSB0EPEn.DOModeSel, g_sEEPROMDIOCfgData.doUSB0EPEn.DOInv);
+
+    DOCfgBlink (DIO_GPO_0, g_sEEPROMDIOCfgData.doConfig[0].DOBlinkEnSel, g_sEEPROMDIOCfgData.doConfig[0].DOA, g_sEEPROMDIOCfgData.doConfig[0].DOB);
+    DOCfgBlink (DIO_GPO_1, g_sEEPROMDIOCfgData.doConfig[1].DOBlinkEnSel, g_sEEPROMDIOCfgData.doConfig[1].DOA, g_sEEPROMDIOCfgData.doConfig[1].DOB);
+    DOCfgBlink (DIO_GPO_2, g_sEEPROMDIOCfgData.doConfig[2].DOBlinkEnSel, g_sEEPROMDIOCfgData.doConfig[2].DOA, g_sEEPROMDIOCfgData.doConfig[2].DOB);
+    DOCfgBlink (DIO_GPO_3, g_sEEPROMDIOCfgData.doConfig[3].DOBlinkEnSel, g_sEEPROMDIOCfgData.doConfig[3].DOA, g_sEEPROMDIOCfgData.doConfig[3].DOB);
+    DOCfgBlink (DIO_GPO_4, g_sEEPROMDIOCfgData.doConfig[4].DOBlinkEnSel, g_sEEPROMDIOCfgData.doConfig[4].DOA, g_sEEPROMDIOCfgData.doConfig[4].DOB);
+    DOCfgBlink (DIO_GPO_5, g_sEEPROMDIOCfgData.doConfig[5].DOBlinkEnSel, g_sEEPROMDIOCfgData.doConfig[5].DOA, g_sEEPROMDIOCfgData.doConfig[5].DOB);
 
     DOCfgMode (DIO_GPO_0, g_sEEPROMDIOCfgData.doConfig[0].DOModeSel, g_sEEPROMDIOCfgData.doConfig[0].DOInv);
     DOCfgMode (DIO_GPO_1, g_sEEPROMDIOCfgData.doConfig[1].DOModeSel, g_sEEPROMDIOCfgData.doConfig[1].DOInv);
@@ -211,40 +237,42 @@ void vDiscreteIO_init()
     DOCfgMode (DIO_GPO_4, g_sEEPROMDIOCfgData.doConfig[4].DOModeSel, g_sEEPROMDIOCfgData.doConfig[4].DOInv);
     DOCfgMode (DIO_GPO_5, g_sEEPROMDIOCfgData.doConfig[5].DOModeSel, g_sEEPROMDIOCfgData.doConfig[5].DOInv);
 
+
+
     if (g_sEEPROMDIOCfgData.dioCfg[0] & GPIO_CFG_INPUT) {
         GPIO_setConfig(Board_GPI_0, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
     }else{
-        GPIO_setConfig(Board_GPO_0, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
+        GPIO_setConfig(Board_GPI_0, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
     }
 
     if (g_sEEPROMDIOCfgData.dioCfg[1] & GPIO_CFG_INPUT) {
         GPIO_setConfig(Board_GPI_1, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
     }else{
-        GPIO_setConfig(Board_GPO_1, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
+        GPIO_setConfig(Board_GPI_1, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
     }
 
     if (g_sEEPROMDIOCfgData.dioCfg[2] & GPIO_CFG_INPUT) {
         GPIO_setConfig(Board_GPI_2, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
     }else{
-        GPIO_setConfig(Board_GPO_2, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
+        GPIO_setConfig(Board_GPI_2, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
     }
 
     if (g_sEEPROMDIOCfgData.dioCfg[3] & GPIO_CFG_INPUT) {
         GPIO_setConfig(Board_GPI_3, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
     }else{
-        GPIO_setConfig(Board_GPO_3, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
+        GPIO_setConfig(Board_GPI_3, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
     }
 
     if (g_sEEPROMDIOCfgData.dioCfg[4] & GPIO_CFG_INPUT) {
         GPIO_setConfig(Board_GPI_4, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
     }else{
-        GPIO_setConfig(Board_GPO_4, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
+        GPIO_setConfig(Board_GPI_4, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
     }
 
     if (g_sEEPROMDIOCfgData.dioCfg[5] & GPIO_CFG_INPUT) {
         GPIO_setConfig(Board_GPI_5, GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
     }else{
-        GPIO_setConfig(Board_GPO_5, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
+        GPIO_setConfig(Board_GPI_5, GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
     }
 
 

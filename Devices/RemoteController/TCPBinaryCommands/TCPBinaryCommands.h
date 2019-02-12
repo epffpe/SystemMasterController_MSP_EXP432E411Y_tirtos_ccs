@@ -175,6 +175,9 @@ typedef enum {
     TCP_CMD_DiscreteIO_setDOConfiguration,
     TCP_CMD_DiscreteIO_setDOConfigurationResponse,
 
+    TCP_CMD_DiscreteIO_setDOValue,
+    TCP_CMD_DiscreteIO_setDOValueResponse,
+
 //Panasonic PCU
     TCP_CMD_Panasonic_getMonitorStatus = 340,
     TCP_CMD_Panasonic_getMonitorStatusResponse,

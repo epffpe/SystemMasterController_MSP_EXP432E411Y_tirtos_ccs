@@ -80,6 +80,7 @@ typedef struct {
 
 typedef struct {
     uint32_t                dioCfg[6];
+    uint32_t                doSyncCtrMax;
     tEEPROM_DIConfigData    diConfig[6];
     tEEPROM_DIConfigData    di5VOutStatus;
     tEEPROM_DIConfigData    diInternal5VSwStatus;

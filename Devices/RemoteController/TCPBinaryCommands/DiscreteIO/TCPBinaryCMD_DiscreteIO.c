@@ -175,7 +175,7 @@ void vTCPRCBin_DiscreteIO_getDIOConfiguration(int clientfd, char *payload, int32
 //        GPIO_getConfig(g_TCPRCBin_DiscreteIO_GPIMapTable[index], (GPIO_PinConfig *)&pFramePayload->pinConfig);
         pFramePayload->pinConfig = g_sEEPROMDIOCfgData.dioCfg[index];
         pFramePayload->index = index;
-        switch (pFramePayload->pinConfig & GPIO_CFG_IO_MASK) {
+        switch (pFramePayload->pinConfig & GPIO_CFG_IO_MASK  & 0x00f70000) {
         case GPIO_CFG_IN_NOPULL:
         case GPIO_CFG_IN_PU:
         case GPIO_CFG_IN_PD:
@@ -195,6 +195,7 @@ void vTCPRCBin_DiscreteIO_getDIOConfiguration(int clientfd, char *payload, int32
             pFramePayload->DOA = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOA;
             pFramePayload->DOB = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOB;
             pFramePayload->DOBCtr = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOBCtr;
+            pFramePayload->DOSyncCtrMax = xDOGetSyncCtrMax();
             pFramePayload->DOOut = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOOut;
             pFramePayload->DOCtrl = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOCtrl;
             pFramePayload->DOBypass = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOBypass;
@@ -235,13 +236,13 @@ void vTCPRCBin_DiscreteIO_setDIODirection(int clientfd, char *payload, int32_t s
     if (index < TCPRCBin_DiscreteIO_DIOIndex_Count) {
         pFramePayload->index = index;
 
-        switch (pConfg->pinConfig & GPIO_CFG_IO_MASK) {
+        switch (pConfg->pinConfig & GPIO_CFG_IO_MASK & 0x00f70000) {
         case GPIO_CFG_IN_NOPULL:
         case GPIO_CFG_IN_PU:
         case GPIO_CFG_IN_PD:
             GPIO_setConfig(g_TCPRCBin_DiscreteIO_GPIMapTable[index], GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES);
             info.dioCfg[index] = GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES;
-            vEEPDIOConfg_set(&info);
+//            vEEPDIOConfg_set(&info);
             pFramePayload->pinConfig = GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_BOTH_EDGES;
             pFramePayload->DIVal = DITbl[g_TCPRCBin_DiscreteIO_DIMapTable[index]].DIVal;
             pFramePayload->DIDebounceDly = DITbl[g_TCPRCBin_DiscreteIO_DIMapTable[index]].DIDebounceDly;
@@ -256,13 +257,15 @@ void vTCPRCBin_DiscreteIO_setDIODirection(int clientfd, char *payload, int32_t s
         case GPIO_CFG_OUT_OD_NOPULL:
         case GPIO_CFG_OUT_OD_PU:
         case GPIO_CFG_OUT_OD_PD:
-            GPIO_setConfig(g_TCPRCBin_DiscreteIO_GPOMapTable[index], GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
+//            GPIO_setConfig(g_TCPRCBin_DiscreteIO_GPOMapTable[index], GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
+            GPIO_setConfig(g_TCPRCBin_DiscreteIO_GPIMapTable[index], GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW);
             info.dioCfg[index] = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW;
-            vEEPDIOConfg_set(&info);
+//            vEEPDIOConfg_set(&info);
             pFramePayload->pinConfig = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW;
             pFramePayload->DOA = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOA;
             pFramePayload->DOB = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOB;
             pFramePayload->DOBCtr = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOBCtr;
+            pFramePayload->DOSyncCtrMax = xDOGetSyncCtrMax();
             pFramePayload->DOOut = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOOut;
             pFramePayload->DOCtrl = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOCtrl;
             pFramePayload->DOBypass = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOBypass;
@@ -275,6 +278,7 @@ void vTCPRCBin_DiscreteIO_setDIODirection(int clientfd, char *payload, int32_t s
             break;
         }
         bytesSent = send(clientfd, buffer, sizeof(buffer), 0);
+        vEEPDIOConfg_set(&info);
         bytesSent = bytesSent;
     }
 }
@@ -366,7 +370,7 @@ void vTCPRCBin_DiscreteIO_setDOConfiguration(int clientfd, char *payload, int32_
     if (index < TCPRCBin_DiscreteIO_DIOIndex_Count) {
         pFramePayload->index = index;
 
-        switch (pConfg->pinConfig & GPIO_CFG_IO_MASK) {
+        switch (pConfg->pinConfig & GPIO_CFG_IO_MASK & 0x00f70000) {
         case GPIO_CFG_OUT_STD:
         case GPIO_CFG_OUT_OD_NOPULL:
         case GPIO_CFG_OUT_OD_PU:
@@ -380,18 +384,20 @@ void vTCPRCBin_DiscreteIO_setDOConfiguration(int clientfd, char *payload, int32_
             info.doConfig[index].DOModeSel = pConfg->DOModeSel;
             info.doConfig[index].DOBlinkEnSel = pConfg->DOBlinkEnSel;
             info.doConfig[index].DOInv = pConfg->DOInv;
+            info.doSyncCtrMax = pConfg->DOSyncCtrMax;
             vEEPDIOConfg_set(&info);
 
             DOCfgMode (g_TCPRCBin_DiscreteIO_DOMapTable[index], pConfg->DOModeSel, pConfg->DOInv);
             DOSetBypass (g_TCPRCBin_DiscreteIO_DOMapTable[index], pConfg->DOBypass);
             DOSetBypassEn (g_TCPRCBin_DiscreteIO_DOMapTable[index], pConfg->DOBypassEn);
             DOCfgBlink (g_TCPRCBin_DiscreteIO_DOMapTable[index], pConfg->DOBlinkEnSel, pConfg->DOA, pConfg->DOB);
-            DOSetSyncCtrMax(pConfg->DOBCtr);
+            DOSetSyncCtrMax(pConfg->DOSyncCtrMax);
 
             pFramePayload->pinConfig = GPIO_CFG_OUT_OD_PU | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW;
             pFramePayload->DOA = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOA;
             pFramePayload->DOB = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOB;
             pFramePayload->DOBCtr = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOBCtr;
+            pFramePayload->DOSyncCtrMax = xDOGetSyncCtrMax();
             pFramePayload->DOOut = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOOut;
             pFramePayload->DOCtrl = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOCtrl;
             pFramePayload->DOBypass = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOBypass;

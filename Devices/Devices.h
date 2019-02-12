@@ -151,7 +151,7 @@ typedef enum
 
 typedef struct Device_Params {
     uint32_t        deviceID;
-    device_types_t  deviceType;
+    uint32_t        deviceType;
     void            *arg0;
     void            *arg1;
     uint32_t        period;

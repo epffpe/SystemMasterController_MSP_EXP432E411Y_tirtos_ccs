@@ -235,6 +235,7 @@ void        DOSetBypass (uint8_t n, bool state);
 #if         DO_BLINK_MODE_EN
 void        DOCfgBlink (uint8_t n, uint8_t mode, uint32_t a, uint32_t b);
 void        DOSetSyncCtrMax(uint32_t val);
+uint32_t    xDOGetSyncCtrMax();
 #endif
 
 void DIO_InitIO(void);

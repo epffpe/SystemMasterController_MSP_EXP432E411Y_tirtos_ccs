@@ -722,7 +722,7 @@ void vIFS_getFlashConfigurationFileEthernet(int clientfd)
     IFS_deviceInfoFile_t devInfo;
 
 
-    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
+//    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
 
     Error_init(&eb);
 
@@ -745,7 +745,7 @@ void vIFS_getFlashConfigurationFileEthernet(int clientfd)
         bufferSize = sizeof(TCPBin_CMD_retFrame_t) +
                 sizeof(TCPBin_CMD_SystemControl_ConfigurationFileFixed_payload_t) +
                 sizeof(TCPBin_CMD_SystemControl_RAM_deviceList_payload_t) +
-                counter * sizeof(TCPBin_CMD_SystemControl_devicesList_t);
+                counter * (sizeof(TCPBin_CMD_SystemControl_FlashFileData_payload_t) + sizeof(IFS_deviceInfoFile_t));
 
         char *pBuffer = Memory_alloc(NULL, bufferSize, 0, &eb);
 
@@ -761,7 +761,7 @@ void vIFS_getFlashConfigurationFileEthernet(int clientfd)
             for (index = 0; index < IFS_NUMBER_OF_CONFIG_GPIO; index++) {
                 pFramePayload->gpioConfig[index].index = index;
                 pFramePayload->gpioConfig[index].pinConfig = g_sEEPROMDIOCfgData.dioCfg[index];
-                switch (pFramePayload->gpioConfig[index].pinConfig & GPIO_CFG_IO_MASK) {
+                switch (pFramePayload->gpioConfig[index].pinConfig & GPIO_CFG_IO_MASK & 0x00f70000) {
                 case GPIO_CFG_IN_NOPULL:
                 case GPIO_CFG_IN_PU:
                 case GPIO_CFG_IN_PD:
@@ -781,6 +781,7 @@ void vIFS_getFlashConfigurationFileEthernet(int clientfd)
                     pFramePayload->gpioConfig[index].DOA = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOA;
                     pFramePayload->gpioConfig[index].DOB = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOB;
                     pFramePayload->gpioConfig[index].DOBCtr = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOBCtr;
+                    pFramePayload->gpioConfig[index].DOSyncCtrMax = xDOGetSyncCtrMax();
                     pFramePayload->gpioConfig[index].DOOut = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOOut;
                     pFramePayload->gpioConfig[index].DOCtrl = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOCtrl;
                     pFramePayload->gpioConfig[index].DOBypass = DOTbl[g_TCPRCBin_DiscreteIO_DOMapTable[index]].DOBypass;
@@ -798,8 +799,9 @@ void vIFS_getFlashConfigurationFileEthernet(int clientfd)
             TCPBin_CMD_SystemControl_RAM_deviceList_payload_t *pDynamicFramePayload = (TCPBin_CMD_SystemControl_RAM_deviceList_payload_t *)pFramePayload->dynamicPayload;
             pDynamicFramePayload->numbOfDevices = counter;
 
-            TCPBin_CMD_SystemControl_devicesList_t *pDeviceListElem = (TCPBin_CMD_SystemControl_devicesList_t *)pDynamicFramePayload->payload;
-
+//            TCPBin_CMD_SystemControl_devicesList_t *pDeviceListElem = (TCPBin_CMD_SystemControl_devicesList_t *)pDynamicFramePayload->payload;
+            TCPBin_CMD_SystemControl_FlashFileData_payload_t *pDeviceListElem = (TCPBin_CMD_SystemControl_FlashFileData_payload_t *)pDynamicFramePayload->payload;
+            IFS_deviceInfoFile_t *pDevInfo;
 
             /*
              * Fill information
@@ -823,15 +825,20 @@ void vIFS_getFlashConfigurationFileEthernet(int clientfd)
                             if (SPIFFS_read(&g_IFSfs, fd, (void *)&devInfo, sizeof(IFS_deviceInfoFile_t)) >= 0) {
                                 res = SPIFFS_close(&g_IFSfs, fd);
                                 if (res == 0) {
-                                    pDeviceListElem->deviceID = devInfo.params.deviceID;
-                                    pDeviceListElem->deviceType = devInfo.params.deviceType;
+                                    pDeviceListElem->fileSize = pe2->size;
                                     memcpy(pDeviceListElem->fileName, (char *)pe2->name, IFS_FILE_NAME_LENGTH);
-                                    memcpy(pDeviceListElem->description, devInfo.description, IFS_FILE_DESCRIPTION_LENGTH);
+
+                                    pDevInfo = (IFS_deviceInfoFile_t *)pDeviceListElem->payload;
+
+                                    memcpy(pDevInfo->description, devInfo.description, IFS_FILE_DESCRIPTION_LENGTH);
+                                    pDevInfo->params = devInfo.params;
+
+//                                    pDeviceListElem->deviceType = devInfo.params.deviceType;
 
                                 }
                             }
                         }
-                        pDeviceListElem++;
+                        pDeviceListElem = (TCPBin_CMD_SystemControl_FlashFileData_payload_t *)pDevInfo->data;
 
                     }
                 }

@@ -30,6 +30,7 @@ typedef struct {
             uint32_t    DOA;
             uint32_t    DOB;
             uint32_t    DOBCtr;
+            uint32_t    DOSyncCtrMax;
             uint8_t     DOOut;
             uint8_t     DOCtrl;
             uint8_t     DOBypass;
@@ -70,6 +71,7 @@ typedef struct {
         uint32_t    DOA;
         uint32_t    DOB;
         uint32_t    DOBCtr;
+        uint32_t    DOSyncCtrMax;
         uint8_t     DOOut;
         uint8_t     DOCtrl;
         uint8_t     DOBypass;
