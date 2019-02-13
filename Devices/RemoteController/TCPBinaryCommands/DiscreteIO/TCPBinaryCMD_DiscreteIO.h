@@ -82,6 +82,10 @@ typedef struct {
     };
 }TCPBin_CMD_DOConfig_payload_t;
 
+typedef struct {
+    uint32_t    index;
+    uint32_t    value;
+}TCPBin_CMD_DOValue_payload_t;
 
 #ifdef __cplusplus
 extern "C"
@@ -123,6 +127,10 @@ __TCPBINARYCOMMANDS_DISCRETEIO_EXT
 void vTCPRCBin_DiscreteIO_setDIConfiguration(int clientfd, char *payload, int32_t size);
 __TCPBINARYCOMMANDS_DISCRETEIO_EXT
 void vTCPRCBin_DiscreteIO_setDOConfiguration(int clientfd, char *payload, int32_t size);
+__TCPBINARYCOMMANDS_DISCRETEIO_EXT
+void vTCPRCBin_DiscreteIO_setDOValue(int clientfd, char *payload, int32_t size);
+__TCPBINARYCOMMANDS_DISCRETEIO_EXT
+void vTCPRCBin_DiscreteIO_setDOToggle(int clientfd, char *payload, int32_t size);
 
 
 

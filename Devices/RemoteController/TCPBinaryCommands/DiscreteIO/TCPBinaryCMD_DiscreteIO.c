@@ -414,7 +414,64 @@ void vTCPRCBin_DiscreteIO_setDOConfiguration(int clientfd, char *payload, int32_
     }
 }
 
+void vTCPRCBin_DiscreteIO_setDOValue(int clientfd, char *payload, int32_t size)
+{
+    int bytesSent;
+    TCPBin_CMD_DOValue_payload_t *pConfg;
 
+    char buffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(TCPBin_CMD_DOValue_payload_t)];
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+    pFrame->type = TCP_CMD_DiscreteIO_setDOValueResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_DISCRETEIO_CLASS_RETURN_UUID;
+    pFrame->retParamID = 4;
+
+    TCPBin_CMD_DOValue_payload_t *pFramePayload = (TCPBin_CMD_DOValue_payload_t *)pFrame->payload;
+    pConfg = (TCPBin_CMD_DOValue_payload_t *)payload;
+
+    if (pConfg->index < TCPRCBin_DiscreteIO_DIOIndex_Count) {
+        DOSet (g_TCPRCBin_DiscreteIO_DOMapTable[pConfg->index], pConfg->value);
+//        Display_printf(g_SMCDisplay, 0, 0, "Set DO%d = %d\n", pConfg->index, pConfg->value);
+
+        pFramePayload->index = pConfg->index;
+        pFramePayload->value = DOGet (pConfg->index);
+        bytesSent = send(clientfd, buffer, sizeof(buffer), 0);
+        bytesSent = bytesSent;
+
+    }
+}
+
+void vTCPRCBin_DiscreteIO_setDOToggle(int clientfd, char *payload, int32_t size)
+{
+    int bytesSent;
+    uint32_t value, index;
+    TCPBin_CMD_DOValue_payload_t *pConfg;
+
+    char buffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(TCPBin_CMD_DOValue_payload_t)];
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+    pFrame->type = TCP_CMD_DiscreteIO_setDOToggleResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_DISCRETEIO_CLASS_RETURN_UUID;
+    pFrame->retParamID = 4;
+
+    TCPBin_CMD_DOValue_payload_t *pFramePayload = (TCPBin_CMD_DOValue_payload_t *)pFrame->payload;
+    pConfg = (TCPBin_CMD_DOValue_payload_t *)payload;
+
+    if (pConfg->index < TCPRCBin_DiscreteIO_DIOIndex_Count) {
+        index = g_TCPRCBin_DiscreteIO_DOMapTable[pConfg->index];
+        value = DOTbl[index].DOCtrl ? 0:1;
+        DOSet (index, value);
+//        Display_printf(g_SMCDisplay, 0, 0, "Set DO%d = %d -> %d\n", pConfg->index, DOTbl[index].DOCtrl, value);
+
+        pFramePayload->index = pConfg->index;
+        pFramePayload->value = DOGet (pConfg->index);
+        bytesSent = send(clientfd, buffer, sizeof(buffer), 0);
+        bytesSent = bytesSent;
+
+    }
+}
 
 
 

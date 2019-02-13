@@ -102,6 +102,8 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_DiscreteIO_setDIConfiguration] = vTCPRCBin_DiscreteIO_setDIConfiguration,
  [TCP_CMD_DiscreteIO_setDOConfiguration] = vTCPRCBin_DiscreteIO_setDOConfiguration,
 
+ [TCP_CMD_DiscreteIO_setDOValue] = vTCPRCBin_DiscreteIO_setDOValue,
+ [TCP_CMD_DiscreteIO_setDOToggle] = vTCPRCBin_DiscreteIO_setDOToggle,
 
 // ALTO Temp boxes
  [TCP_CMD_ALTOMultinet_getPot] = TCPBin_ALTOMultinetPotGet,
