@@ -38,6 +38,12 @@
 #include <string.h>
 #include <stdint.h>
 
+
+#include <ctype.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
+
 #include <pthread.h>
 /* BSD support */
 #include <netinet/in.h>
@@ -48,6 +54,7 @@
 #include <ti/net/slnetutils.h>
 
 #include <ti/display/Display.h>
+#include "System/EEPROM/EEPROMStorage.h"
 
 #define UDPPACKETSIZE 1472
 
@@ -69,6 +76,7 @@ void *UDPFinder_task(void *arg0)
     int                bytesSent;
     int                status;
     int                server;
+    int n;
     fd_set             readSet;
     struct sockaddr_in localAddr;
     struct sockaddr_in clientAddr;
@@ -76,7 +84,9 @@ void *UDPFinder_task(void *arg0)
     char               buffer[UDPPACKETSIZE];
     uint16_t           portNumber = *(uint16_t *)arg0;
     uint32_t IPTmp;
-    char response[] = "System Master Controller ID: 0123456789";
+    char response[64];
+
+    volatile tEEPROM_Data *pManufacturerInformation;
 
     fdOpenSession(TaskSelf());
 
@@ -123,9 +133,12 @@ void *UDPFinder_task(void *arg0)
                                    (uint8_t)IPTmp&0xFF,
                                    clientAddr.sin_port
                     );
-                    bytesSent = sendto(server, response, sizeof(response), 0,
+                    pManufacturerInformation = INFO_get();
+                    n = sprintf(response, "System Master Controller ID: %06d", pManufacturerInformation->unitSerialNumber);
+
+                    bytesSent = sendto(server, response, n, 0,
                                                 (struct sockaddr *)&clientAddr, addrlen);
-                    if(bytesSent != sizeof(response)){
+                    if(bytesSent != n){
                         Display_printf(g_SMCDisplay, 0, 0, "Error: sendto failed.\n");
 
                     }

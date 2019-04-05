@@ -34,13 +34,15 @@ Void udpHandlerFxn(UArg arg0, UArg arg1)
     int                bytesSent;
     int                status;
     int                server;
+    int n;
     fd_set             readSet;
     struct sockaddr_in localAddr;
     struct sockaddr_in clientAddr;
     socklen_t          addrlen;
     char               buffer[UDPPACKETSIZE];
-    char response[] = "System Master Controller ID: 0123456789";
+    char response[64];
 
+    volatile tEEPROM_Data *pManufacturerInformation;
     uint32_t IPTmp;
 
     // Open the file session
@@ -107,7 +109,10 @@ Void udpHandlerFxn(UArg arg0, UArg arg1)
                                    clientAddr.sin_port
                                    );
 
-                    bytesSent = sendto(server, response, sizeof(response), 0,
+                    pManufacturerInformation = INFO_get();
+                    n = sprintf(response, "System Master Controller ID: %06d", pManufacturerInformation->unitSerialNumber);
+
+                    bytesSent = sendto(server, response, n, 0,
                             (struct sockaddr *)&clientAddr, addrlen);
 //                    bytesSent = sendto(server, buffer, bytesRcvd, 0,
 //                            (struct sockaddr *)&clientAddr, addrlen);
