@@ -133,7 +133,8 @@ ADCBufMSP432E4_Channels adcBuf0MSP432E4Channels[MSP_EXP432E401Y_ADCBUF0CHANNELCO
     },
     {
         // +5V Main Monitor
-        .adcPin = ADCBufMSP432E4_PP_6_A22,
+//        .adcPin = ADCBufMSP432E4_PP_6_A22,
+        .adcPin = ADCBufMSP432E4_PP_6_A23,
         .adcSequence = ADCBufMSP432E4_Seq_0,
         .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
         .adcDifferentialPin = ADCBufMSP432E4_PIN_NONE,
@@ -142,7 +143,8 @@ ADCBufMSP432E4_Channels adcBuf0MSP432E4Channels[MSP_EXP432E401Y_ADCBUF0CHANNELCO
     },
     {
          // +5V Peripheral Monitor
-        .adcPin = ADCBufMSP432E4_PP_7_A23,
+//        .adcPin = ADCBufMSP432E4_PP_7_A23,
+        .adcPin = ADCBufMSP432E4_PP_7_A22,
         .adcSequence = ADCBufMSP432E4_Seq_0,
         .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
         .adcDifferentialPin = ADCBufMSP432E4_PIN_NONE,
