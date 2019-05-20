@@ -57,6 +57,16 @@
 #define UDPHANDLERSTACK 4096
 #define IFPRI  4   /* Ethernet interface priority */
 
+#define HTTPSTACKSIZE   8192
+#define IF_PRIORITY     1
+#define SERVER_PORT     80
+#define SEC_SERVER_PORT 443
+
+/* Prototypes */
+extern Display_Handle display;
+extern void *serverFxn(void *arg0);
+
+
 /* Prototypes */
 extern void *tcpHandler(void *arg0);
 extern void *UDPFinder_task(void *arg0);
@@ -75,9 +85,13 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
     struct sched_param  priParam;
     int                 retc;
     int                 detachState;
+    uint32_t            hostByteAddr;
     static uint16_t arg0 = TCPPORT;
     static bool createTask = true;
-    int32_t status = 0;
+    int32_t             status = 0;
+    static uint16_t     http_port = SERVER_PORT;
+    static uint16_t     https_port = SEC_SERVER_PORT;
+//    int32_t status = 0;
 
     Task_Handle taskHandle;
     Task_Params taskParams;
@@ -176,6 +190,53 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
             while (1);
         }
 
+        /*
+         * **************************************************************************
+         */
+
+        /* Set priority and stack size attributes */
+        pthread_attr_init(&attrs);
+        priParam.sched_priority = 1;
+
+        detachState = PTHREAD_CREATE_DETACHED;
+        retc = pthread_attr_setdetachstate(&attrs, detachState);
+        if (retc != 0)
+        {
+            Display_printf(g_SMCDisplay, 0, 0,
+                    "httpSrvBasicHooks main: pthread_attr_setdetachstate() "
+                    "failed\n");
+            while (1);
+        }
+
+        pthread_attr_setschedparam(&attrs, &priParam);
+
+        retc |= pthread_attr_setstacksize(&attrs, HTTPSTACKSIZE);
+        if (retc != 0)
+        {
+            Display_printf(g_SMCDisplay, 0, 0,
+                    "httpSrvBasicHooks main: pthread_attr_setstacksize() "
+                    "failed\n");
+            while (1);
+        }
+
+        /* Begin the thread that will start the INSECURE server */
+        retc = pthread_create(&thread, &attrs, serverFxn, (void *)&http_port);
+        if (retc != 0)
+        {
+            Display_printf(g_SMCDisplay, 0, 0,
+                    "httpSrvBasicHooks main: http pthread_create() failed\n");
+            while (1);
+        }
+
+//        /* Begin the thread that will start the SECURE server */
+//        retc = pthread_create(&thread, &attrs, serverFxn, (void *)&https_port);
+//        if (retc != 0)
+//        {
+//            Display_printf(g_SMCDisplay, 0, 0,
+//                    "httpSrvBasicHooks main: https pthread_create() failed\n");
+//            while (1);
+//        }
+
         createTask = false;
     }
 //    System_flush();
@@ -193,7 +254,7 @@ void serviceReportHook(uint32_t item, uint32_t status, uint32_t report, void *h)
     static char *statusStr[] =
         {"Disabled", "Waiting", "IPTerm", "Failed","Enabled"};
 
-    Display_printf(display, 0, 0, "Service Status: %-9s: %-9s: %-9s: %03d\n",
+    Display_printf(g_SMCDisplay, 0, 0, "Service Status: %-9s: %-9s: %-9s: %03d\n",
             taskName[item - 1], statusStr[status], reportStr[report / 256],
             report & 0xFF);
 }
