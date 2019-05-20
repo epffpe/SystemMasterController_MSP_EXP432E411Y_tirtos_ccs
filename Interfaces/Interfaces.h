@@ -48,7 +48,7 @@ typedef enum {
  *  I2C_MODE_CALLBACK does not block task execution; but calls a callback
  *  function when the I2C transfer has completed
  */
-typedef enum I2C_TransferMode {
+typedef enum IF_TransferMode {
     IF_MODE_BLOCKING,  /*!< I2C_transfer blocks execution*/
     IF_MODE_CALLBACK   /*!< I2C_transfer queues transactions and does not block */
 } IF_TransferMode;

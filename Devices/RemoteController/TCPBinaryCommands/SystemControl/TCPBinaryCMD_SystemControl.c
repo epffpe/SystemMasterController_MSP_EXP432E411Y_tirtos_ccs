@@ -61,7 +61,7 @@ void vTCPRCBin_SystemControl_getOverAllStatus(int clientfd, char *payload, int32
     pFramePayload->fADCCH[1] = 0.0;
     pFramePayload->fADCCH[2] = 0.0;
     pFramePayload->fMCUTemp = 0.0;
-    pFramePayload->fBoardTemp = 0.0;
+    pFramePayload->fBoardTemp = (float)g_i16I2CTempSensor;
     pFramePayload->ui32HeapTotalSize = memStats.totalSize;
     pFramePayload->ui32HeapTotalFreeSize = memStats.totalFreeSize;
     pFramePayload->ui32HeapLargestFreeSize = memStats.largestFreeSize;

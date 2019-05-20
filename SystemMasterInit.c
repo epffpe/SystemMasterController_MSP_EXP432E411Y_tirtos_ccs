@@ -90,6 +90,7 @@ void *mainThread(void *arg0)
 
     vDiscreteIO_init();
     vHeartBeat_init();
+    vI2CTemp101_init();
 
     /*
      * Initialize interfaces
@@ -133,7 +134,7 @@ void *SMC_initThread(void *arg0)
 //    ADCBuf_init();
     GPIO_init();
     PWM_init();
-    // I2C_init();
+    I2C_init();
     // SDSPI_init();
 //    SPI_init();
     UART_init();
@@ -146,6 +147,7 @@ void *SMC_initThread(void *arg0)
 
     vDiscreteIO_init();
     vHeartBeat_init();
+    vI2CTemp101_init();
 
     //disconnect Diode D20 and SMC_GPI_0
 //    vPPPCU_init();
@@ -170,7 +172,7 @@ void *SMC_initThread(void *arg0)
     vIFS_loadStartUpConfiguration(NULL);
 
 
-//    test3();
+//    test4();
     return 0;
 }
 

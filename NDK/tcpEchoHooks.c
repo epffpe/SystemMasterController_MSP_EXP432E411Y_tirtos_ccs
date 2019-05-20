@@ -183,6 +183,23 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
 
 
 /*
+ *  ======== serviceReportHook ========
+ *  NDK service report hook
+ */
+void serviceReportHook(uint32_t item, uint32_t status, uint32_t report, void *h)
+{
+    static char *taskName[] = {"Telnet", "HTTP", "NAT", "DHCPS", "DHCPC", "DNS"};
+    static char *reportStr[] = {"", "Running", "Updated", "Complete", "Fault"};
+    static char *statusStr[] =
+        {"Disabled", "Waiting", "IPTerm", "Failed","Enabled"};
+
+    Display_printf(display, 0, 0, "Service Status: %-9s: %-9s: %-9s: %03d\n",
+            taskName[item - 1], statusStr[status], reportStr[report / 256],
+            report & 0xFF);
+}
+
+
+/*
  *  ======== netOpenHook ========
  *  NDK network open hook
  */
