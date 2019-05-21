@@ -44,6 +44,13 @@
 
 #include "HTTPServer/urlsimple.h"
 
+#include <ti/display/Display.h>
+#include <ti/display/DisplayUart.h>
+#include <ti/display/DisplayExt.h>
+#include <ti/display/AnsiColor.h>
+
+#include "DISPLAY/SMCDisplay.h"
+
 /* Maximum length of a value in the database */
 #define MAX_DB_ENTRY_LEN    (64)
 
@@ -77,6 +84,8 @@ static ssize_t Ssock_recvall(int ssock, void * buf, size_t len, int flags)
     while (len > 0) {
         nbytes = recv(ssock, buf, len, flags);
         if (nbytes > 0) {
+            ((uint8_t *)buf)[nbytes] = 0;
+            Display_printf(g_SMCDisplay, 0, 0, "%s\n", (uint8_t *)buf);
             len -= nbytes;
             buf = (uint8_t *)buf + nbytes;
         }
@@ -169,6 +178,16 @@ int URLSimple_process(URLHandler_Handle urlHandler, int method,
                     body = "Data string successfully posted to server.";
                     returnCode = HTTP_SC_OK;
                     status = URLHandler_EHANDLED;
+
+//                    if (contentLength > 0)
+//                    {
+//                        char *buf;
+//
+//                        buf = malloc(contentLength);
+//                        /* This is done to flush the socket */
+//                        (void) Ssock_recvall(ssock, buf, contentLength, 0);
+//                        free(buf);
+//                    }
                 }
             }
             else
@@ -212,7 +231,20 @@ int URLSimple_process(URLHandler_Handle urlHandler, int method,
         }
 
         HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
-                body ? strlen(body) : 0, body ? body : NULL);
+                body ? strlen(body) : 0, NULL);
+//        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+//                body ? 2000*strlen(body) : 0, NULL);
+        if (body) {
+//            for (contentLength = 0; contentLength < 2000; contentLength++) {
+//                send(ssock, body, strlen(body), 0);
+//            }
+            send(ssock, body, strlen(body), 0);
+//            send(ssock, body, strlen(body) - 1, 0);
+//            sleep(5);
+//            send(ssock, ".", 1, 0);
+        }
+//        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+//                body ? strlen(body) : 0, body ? body : NULL);
     }
 
     return (status);

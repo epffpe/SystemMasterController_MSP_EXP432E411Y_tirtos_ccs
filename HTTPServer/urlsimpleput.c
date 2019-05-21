@@ -36,7 +36,6 @@
 #include <ti/net/http/httpserver.h>
 #include <ti/net/http/http.h>
 
-#include "HTTPServer/urlsimpleput.h"
 
 /*
  *  ======== Ssock_recvall ========
