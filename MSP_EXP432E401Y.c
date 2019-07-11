@@ -159,6 +159,15 @@ ADCBufMSP432E4_Channels adcBuf0MSP432E4Channels[MSP_EXP432E401Y_ADCBUF0CHANNELCO
         .adcDifferentialPin = ADCBufMSP432E4_PIN_NONE,
         .adcInternalSource = ADCBufMSP432E4_INTERNAL_SOURCE_MODE_OFF,
         .refVoltage = 3300000
+    },
+    {
+         // MCU Current Monitor
+        .adcPin = ADCBufMSP432E4_PK_0_A16,
+        .adcSequence = ADCBufMSP432E4_Seq_0,
+        .adcInputMode = ADCBufMSP432E4_SINGLE_ENDED,
+        .adcDifferentialPin = ADCBufMSP432E4_PIN_NONE,
+        .adcInternalSource = ADCBufMSP432E4_INTERNAL_SOURCE_MODE_OFF,
+        .refVoltage = 3300000
     }
 };
 

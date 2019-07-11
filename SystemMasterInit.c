@@ -44,8 +44,8 @@ void vHeartBeat_init();
 void test();
 
 extern void pvPPPCU_inputLineIntHandler(uint_least8_t index);
-extern void test2();
-extern void test3();
+//extern void test2();
+//extern void test3();
 extern void *EFS_mainThread(void *arg0);
 
 //*****************************************************************************

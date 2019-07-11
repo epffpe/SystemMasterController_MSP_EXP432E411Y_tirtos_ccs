@@ -15,6 +15,7 @@ typedef struct {
     uint16_t v5Main;
     uint16_t v5Per;
     uint16_t v28;
+    uint16_t mcuCur;
 } SAM_Channels;
 
 
