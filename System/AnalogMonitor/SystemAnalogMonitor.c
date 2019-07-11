@@ -17,19 +17,20 @@
 
 #define ADCBUFFERSIZE    (60)
 
-uint16_t SYSAMON_sampleBufferOne[ADCBUFFERSIZE];
-uint16_t SYSAMON_sampleBufferTwo[ADCBUFFERSIZE];
-uint16_t SYSAMON_sampleBuffer[ADCBUFFERSIZE];
-float CBuffer[ADCBUFFERSIZE];
+uint16_t g_SYSAMON_sampleBufferOne[ADCBUFFERSIZE];
+uint16_t g_SYSAMON_sampleBufferTwo[ADCBUFFERSIZE];
+uint16_t g_SYSAMON_sampleBuffer[ADCBUFFERSIZE];
+uint32_t g_microvoltBuffer[ADCBUFFERSIZE];
+float g_CBuffer[ADCBUFFERSIZE];
 
 
-float avgTemperature;
-float avgTemp;
+
+float g_avgTemp;
 
 
 
 /* ADCBuf semaphore */
-sem_t adcbufSem;
+sem_t g_adcbufSem;
 
 
 /*
@@ -43,29 +44,79 @@ void adcBufCallback(ADCBuf_Handle handle, ADCBuf_Conversion *conversion,
     uint16_t *rawTemperatureBuf = (uint16_t *) completedADCBuffer;
 
 
-//    avgTemperature = 0;
-//    memcpy(SYSAMON_sampleBuffer, completedADCBuffer, ADCBUFFERSIZE);
-    /* Calculate average temperature */
+    switch(completedChannel) {
+    case Board_ADCBUF0CHANNEL1:
+        // Adjust raw ADC values and convert them to microvolts
+        ADCBuf_adjustRawValues(handle, completedADCBuffer, ADCBUFFERSIZE, completedChannel);
+        ADCBuf_convertAdjustedToMicroVolts(handle, completedChannel, completedADCBuffer, g_microvoltBuffer, ADCBUFFERSIZE);
+        for (i = 0; i < ADCBUFFERSIZE; i++) {
+            g_avgTemp = (g_microvoltBuffer[i] + 3 * g_avgTemp) / 4;
+        }
+        g_fSAMavgCPUTemperature = 0.1 * g_avgTemp / 1e3;
+        break;
+    case Board_ADCBUF0CHANNEL2:
+        // Adjust raw ADC values and convert them to microvolts
+        ADCBuf_adjustRawValues(handle, completedADCBuffer, ADCBUFFERSIZE, completedChannel);
+        ADCBuf_convertAdjustedToMicroVolts(handle, completedChannel, completedADCBuffer, g_microvoltBuffer, ADCBUFFERSIZE);
+        for (i = 0; i < ADCBUFFERSIZE; i++) {
+            g_avgTemp = (g_microvoltBuffer[i] + 3 * g_avgTemp) / 4;
+        }
+        g_fSAMavgCPUTemperature = 0.2 * g_avgTemp / 1e3;
+        break;
+    case Board_ADCBUF0CHANNEL3:
+        // Adjust raw ADC values and convert them to microvolts
+        ADCBuf_adjustRawValues(handle, completedADCBuffer, ADCBUFFERSIZE, completedChannel);
+        ADCBuf_convertAdjustedToMicroVolts(handle, completedChannel, completedADCBuffer, g_microvoltBuffer, ADCBUFFERSIZE);
+        for (i = 0; i < ADCBUFFERSIZE; i++) {
+            g_avgTemp = (g_microvoltBuffer[i] + 3 * g_avgTemp) / 4;
+        }
+        g_fSAMavgCPUTemperature = 2 * g_avgTemp / 1e6;
+        break;
+    case Board_ADCBUF0CHANNEL4:
+        // Adjust raw ADC values and convert them to microvolts
+        ADCBuf_adjustRawValues(handle, completedADCBuffer, ADCBUFFERSIZE, completedChannel);
+        ADCBuf_convertAdjustedToMicroVolts(handle, completedChannel, completedADCBuffer, g_microvoltBuffer, ADCBUFFERSIZE);
+        for (i = 0; i < ADCBUFFERSIZE; i++) {
+            g_avgTemp = (g_microvoltBuffer[i] + 3 * g_avgTemp) / 4;
+        }
+        g_fSAMavgCPUTemperature = 2 * g_avgTemp / 1e6;
+        break;
+    case Board_ADCBUF0CHANNEL5:
+        // Adjust raw ADC values and convert them to microvolts
+        ADCBuf_adjustRawValues(handle, completedADCBuffer, ADCBUFFERSIZE, completedChannel);
+        ADCBuf_convertAdjustedToMicroVolts(handle, completedChannel, completedADCBuffer, g_microvoltBuffer, ADCBUFFERSIZE);
+        for (i = 0; i < ADCBUFFERSIZE; i++) {
+            g_avgTemp = (g_microvoltBuffer[i] + 3 * g_avgTemp) / 4;
+        }
+        g_fSAMavgCPUTemperature = 11 * g_avgTemp / 1e6;
+        break;
+    case Board_ADCBUF0CHANNEL0:
+        //    avgTemperature = 0;
+        //    memcpy(SYSAMON_sampleBuffer, completedADCBuffer, ADCBUFFERSIZE);
+        /* Calculate average temperature */
 
-    for (i = 0; i < ADCBUFFERSIZE; i++) {
-        SYSAMON_sampleBuffer[i] = rawTemperatureBuf[i];
-//        if (!(i % Board_ADCBUF0CHANNELCOUNT)) {
-//            avgTemperature += rawTemperatureBuf[i];
-//        }
-//        avgTemperature += rawTemperatureBuf[i];
-        avgTemp = (rawTemperatureBuf[i] + 3 * avgTemp) / 4;
+        for (i = 0; i < ADCBUFFERSIZE; i++) {
+            g_SYSAMON_sampleBuffer[i] = rawTemperatureBuf[i];
+            //        if (!(i % Board_ADCBUF0CHANNELCOUNT)) {
+            //            avgTemperature += rawTemperatureBuf[i];
+            //        }
+            //        avgTemperature += rawTemperatureBuf[i];
+            g_avgTemp = (rawTemperatureBuf[i] + 3 * g_avgTemp) / 4;
+        }
+//        avgTemperature = avgTemperature/ADCBUFFERSIZE;
+        //    avgTemperature = avgTemperature/(ADCBUFFERSIZE / Board_ADCBUF0CHANNELCOUNT);
+        g_fSAMavgCPUTemperature = (1475*4096 - (75 * 33 * g_avgTemp))/ 40960;
+        /* Convert ADC value to Celsius */
+        //    avgTemperature = (1475*4096 - (75 * 33 * avgTemperature))/ 40960;
+        //    avgTemperature = 36.3 * (avgTemperature / 4096);
+        //    avgTemperature = (660 * avgTemperature) / 4096; // (3.3 * avgTemperature) / 4096 / 50 * 10
+        //    avgTemperature = (330 * avgTemperature) / 4096; // (3.3 * avgTemperature) / 4096 / 100 * 10
+        break;
     }
-//    avgTemperature = avgTemperature/ADCBUFFERSIZE;
-//    avgTemperature = avgTemperature/(ADCBUFFERSIZE / Board_ADCBUF0CHANNELCOUNT);
-    avgTemperature = (1475*4096 - (75 * 33 * avgTemp))/ 40960;
-    /* Convert ADC value to Celsius */
-//    avgTemperature = (1475*4096 - (75 * 33 * avgTemperature))/ 40960;
-//    avgTemperature = 36.3 * (avgTemperature / 4096);
-//    avgTemperature = (660 * avgTemperature) / 4096; // (3.3 * avgTemperature) / 4096 / 50 * 10
-//    avgTemperature = (330 * avgTemperature) / 4096; // (3.3 * avgTemperature) / 4096 / 100 * 10
 
     /* post adcbuf semaphore */
-    sem_post(&adcbufSem);
+    sem_post(&g_adcbufSem);
+
 }
 
 
@@ -74,13 +125,13 @@ void test2()
     ADCBuf_Params adcBufParams;
     /* Driver handles shared between the task and the callback function */
     ADCBuf_Handle adcBuf;
-//    ADCBuf_Conversion continuousConversion[Board_ADCBUF0CHANNELCOUNT];
+    ADCBuf_Conversion continuousConversions[6];
     ADCBuf_Conversion continuousConversion;
 
     int32_t         status;
 
 
-    status = sem_init(&adcbufSem, 0, 0);
+    status = sem_init(&g_adcbufSem, 0, 0);
     if (status != 0) {
         Display_printf(g_SMCDisplay, 0, 0, "Error creating adcbufSem\n");
         while(1);
@@ -91,9 +142,11 @@ void test2()
     /* Set up an ADCBuf peripheral in ADCBuf_RECURRENCE_MODE_CONTINUOUS */
     ADCBuf_Params_init(&adcBufParams);
     adcBufParams.callbackFxn = adcBufCallback;
-    adcBufParams.recurrenceMode = ADCBuf_RECURRENCE_MODE_ONE_SHOT;
+//    adcBufParams.recurrenceMode = ADCBuf_RECURRENCE_MODE_ONE_SHOT;
+    adcBufParams.recurrenceMode = ADCBuf_RECURRENCE_MODE_CONTINUOUS;
     adcBufParams.returnMode = ADCBuf_RETURN_MODE_CALLBACK;
-    adcBufParams.samplingFrequency = 100000;
+//    adcBufParams.returnMode = ADCBuf_RETURN_MODE_BLOCKING;
+    adcBufParams.samplingFrequency = 10000;
 
     adcBuf = ADCBuf_open(Board_ADCBUF0, &adcBufParams);
 
@@ -102,53 +155,61 @@ void test2()
         while(1);
     }
 
-//    /* Configure the conversion struct */
-//    continuousConversion[0].arg = NULL;
-//    continuousConversion[0].adcChannel = Board_ADCBUF0CHANNEL0;
-//    continuousConversion[0].sampleBuffer = SYSAMON_sampleBufferOne;
-//    continuousConversion[0].sampleBufferTwo = SYSAMON_sampleBufferTwo;
-//    continuousConversion[0].samplesRequestedCount = ADCBUFFERSIZE;
-//
-//    /* Configure the conversion struct */
-//    continuousConversion[1].arg = NULL;
-//    continuousConversion[1].adcChannel = Board_ADCBUF0CHANNEL1;
-//    continuousConversion[1].sampleBuffer = SYSAMON_sampleBufferOne;
-//    continuousConversion[1].sampleBufferTwo = SYSAMON_sampleBufferTwo;
-//    continuousConversion[1].samplesRequestedCount = ADCBUFFERSIZE;
-//
-//    /* Configure the conversion struct */
-//    continuousConversion[2].arg = NULL;
-//    continuousConversion[2].adcChannel = Board_ADCBUF0CHANNEL2;
-//    continuousConversion[2].sampleBuffer = SYSAMON_sampleBufferOne;
-//    continuousConversion[2].sampleBufferTwo = NULL;
-//    continuousConversion[2].samplesRequestedCount = ADCBUFFERSIZE;
-//
-//    /* Configure the conversion struct */
-//    continuousConversion[3].arg = NULL;
-//    continuousConversion[3].adcChannel = Board_ADCBUF0CHANNEL3;
-//    continuousConversion[3].sampleBuffer = SYSAMON_sampleBufferOne;
-//    continuousConversion[3].sampleBufferTwo = SYSAMON_sampleBufferTwo;
-//    continuousConversion[3].samplesRequestedCount = ADCBUFFERSIZE;
-//
-//    /* Configure the conversion struct */
-//    continuousConversion[4].arg = NULL;
-//    continuousConversion[4].adcChannel = Board_ADCBUF0CHANNEL4;
-//    continuousConversion[4].sampleBuffer = SYSAMON_sampleBufferOne;
-//    continuousConversion[4].sampleBufferTwo = SYSAMON_sampleBufferTwo;
-//    continuousConversion[4].samplesRequestedCount = ADCBUFFERSIZE;
-//
-//    /* Configure the conversion struct */
-//    continuousConversion[5].arg = NULL;
-//    continuousConversion[5].adcChannel = Board_ADCBUF0CHANNEL5;
-//    continuousConversion[5].sampleBuffer = SYSAMON_sampleBufferOne;
-//    continuousConversion[5].sampleBufferTwo = SYSAMON_sampleBufferTwo;
-//    continuousConversion[5].samplesRequestedCount = ADCBUFFERSIZE;
+    /* Configure the conversion struct */
+    continuousConversions[0].arg = NULL;
+    continuousConversions[0].adcChannel = Board_ADCBUF0CHANNEL0;
+    continuousConversions[0].sampleBuffer = g_SYSAMON_sampleBufferOne;
+    continuousConversions[0].sampleBufferTwo = g_SYSAMON_sampleBufferTwo;
+    continuousConversions[0].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /* Configure the conversion struct */
+    continuousConversions[1].arg = NULL;
+    continuousConversions[1].adcChannel = Board_ADCBUF0CHANNEL1;
+    continuousConversions[1].sampleBuffer = NULL;
+    continuousConversions[1].sampleBufferTwo = NULL;
+    continuousConversions[1].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /* Configure the conversion struct */
+    continuousConversions[2].arg = NULL;
+    continuousConversions[2].adcChannel = Board_ADCBUF0CHANNEL2;
+    continuousConversions[2].sampleBuffer = NULL;
+    continuousConversions[2].sampleBufferTwo = NULL;
+    continuousConversions[2].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /* Configure the conversion struct */
+    continuousConversions[3].arg = NULL;
+    continuousConversions[3].adcChannel = Board_ADCBUF0CHANNEL3;
+    continuousConversions[3].sampleBuffer = NULL;
+    continuousConversions[3].sampleBufferTwo = NULL;
+    continuousConversions[3].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /* Configure the conversion struct */
+    continuousConversions[4].arg = NULL;
+    continuousConversions[4].adcChannel = Board_ADCBUF0CHANNEL4;
+    continuousConversions[4].sampleBuffer = NULL;
+    continuousConversions[4].sampleBufferTwo = NULL;
+    continuousConversions[4].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /* Configure the conversion struct */
+    continuousConversions[5].arg = NULL;
+    continuousConversions[5].adcChannel = Board_ADCBUF0CHANNEL5;
+    continuousConversions[5].sampleBuffer = NULL;
+    continuousConversions[5].sampleBufferTwo = NULL;
+    continuousConversions[5].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /* Start converting sequencer 0. */
+    if (ADCBuf_convert(adcBuf, continuousConversions, 6) != ADCBuf_STATUS_SUCCESS) {
+        /* Did not start conversion process correctly. */
+        while(1);
+    }
+
+    sem_wait(&g_adcbufSem);
 
     /* Configure the conversion struct */
     continuousConversion.arg = NULL;
     continuousConversion.adcChannel = Board_ADCBUF0CHANNEL0;
-    continuousConversion.sampleBuffer = SYSAMON_sampleBufferOne;
-    continuousConversion.sampleBufferTwo = SYSAMON_sampleBufferTwo;
+    continuousConversion.sampleBuffer = g_SYSAMON_sampleBufferOne;
+    continuousConversion.sampleBufferTwo = g_SYSAMON_sampleBufferTwo;
     continuousConversion.samplesRequestedCount = ADCBUFFERSIZE;
 
     /*
@@ -156,20 +217,40 @@ void test2()
      * and transfered in the background thread
      */
     while(1) {
-        sleep(1);
-        continuousConversion.adcChannel = Board_ADCBUF0CHANNEL0;
-        /* Start converting. */
-//        if (ADCBuf_convert(adcBuf, &continuousConversion[0], Board_ADCBUF0CHANNELCOUNT) != ADCBuf_STATUS_SUCCESS) {
-        if (ADCBuf_convert(adcBuf, &continuousConversion, 1) == ADCBuf_STATUS_SUCCESS) {
-            /* Did not start conversion process correctly. */
-//            while(1);
-            /* Wait for semaphore and print average temperature */
-            sem_wait(&adcbufSem);
-            /* Print a message with average temperature */
-            Display_printf(g_SMCDisplay, 0, 0, "The average temperature is %.3fC", avgTemperature);
-        }else{
-            Display_printf(g_SMCDisplay, 0, 0, "ADCBuf_convert failed");
-        }
+//        sleep(1);
+
+
+//        continuousConversion.adcChannel = Board_ADCBUF0CHANNEL5;
+//        continuousConversions[0].adcChannel = Board_ADCBUF0CHANNEL5;
+//        /* Start converting. */
+////        if (ADCBuf_convert(adcBuf, &continuousConversions[0], 1) == ADCBuf_STATUS_SUCCESS) {
+//        if (ADCBuf_convert(adcBuf, &continuousConversion, 1) == ADCBuf_STATUS_SUCCESS) {
+//            /* Wait for semaphore and print average temperature */
+//            sem_wait(&adcbufSem);
+//
+////            int i;
+////            ADCBuf_adjustRawValues(adcBuf, SYSAMON_sampleBufferOne, ADCBUFFERSIZE, Board_ADCBUF0CHANNEL5);
+////            ADCBuf_convertAdjustedToMicroVolts(adcBuf, Board_ADCBUF0CHANNEL5, SYSAMON_sampleBufferOne, microvoltBuffer, ADCBUFFERSIZE);
+////            for (i = 0; i < ADCBUFFERSIZE; i++) {
+////                avgTemp = (microvoltBuffer[i] + 3 * avgTemp) / 4;
+////            }
+////            avgTemperature = 11 * avgTemp / 1e6;
+//
+//            /* Print a message with average temperature */
+//            Display_printf(g_SMCDisplay, 0, 0, "The average temperature is %.3fC", avgTemperature);
+//        }else{
+//            Display_printf(g_SMCDisplay, 0, 0, "ADCBuf_convert failed");
+//        }
+
+//        /* Start converting sequencer 0. */
+//        if (ADCBuf_convert(adcBuf, continuousConversions, 2) != ADCBuf_STATUS_SUCCESS) {
+//            /* Did not start conversion process correctly. */
+//            Display_printf(g_SMCDisplay, 0, 0, "ADCBuf_convert failed");
+//        }else {
+            sem_wait(&g_adcbufSem);
+//
+//        }
+
     }
 }
 
@@ -291,6 +372,186 @@ void test3()
 
         sleep(1);
     }
+}
+
+
+uint32_t g_aui32LogicCur[10], g_ui32AvgLogicCur;
+uint32_t g_aui32PerCur[10], g_ui32AvgPerCur;
+uint32_t g_aui32V5Main[10], g_ui32AvgV5Main;
+uint32_t g_aui32V5Per[10], g_ui32AvgV5Per;
+uint32_t g_aui32V28[10], g_ui32AvgV28;
+
+
+uint16_t g_aui16InternalTempSensor[10];
+uint16_t g_aui16LogicCur[10];
+uint16_t g_aui16PerCur[10];
+uint16_t g_aui16V5Main[10];
+uint16_t g_aui16V5Per[10];
+uint16_t g_aui16V28[10];
+
+Void vSAM_taskFxn(UArg arg0, UArg arg1)
+{
+    ADCBuf_Params adcBufParams;
+    /* Driver handles shared between the task and the callback function */
+    ADCBuf_Handle adcBuf;
+    ADCBuf_Conversion continuousConversions[Board_ADCBUF0CHANNELCOUNT];
+    SAM_Channels *psRAWChannels;
+
+
+    int i;
+
+
+    Display_printf(g_SMCDisplay, 0, 0, "Starting the System Analog Monitor Task");
+
+    /* Set up an ADCBuf peripheral in ADCBuf_RECURRENCE_MODE_CONTINUOUS */
+    ADCBuf_Params_init(&adcBufParams);
+    adcBufParams.callbackFxn = adcBufCallback;
+    adcBufParams.recurrenceMode = ADCBuf_RECURRENCE_MODE_ONE_SHOT;
+//    adcBufParams.recurrenceMode = ADCBuf_RECURRENCE_MODE_CONTINUOUS;
+//    adcBufParams.returnMode = ADCBuf_RETURN_MODE_CALLBACK;
+    adcBufParams.returnMode = ADCBuf_RETURN_MODE_BLOCKING;
+    adcBufParams.samplingFrequency = 10000;
+
+    adcBuf = ADCBuf_open(Board_ADCBUF0, &adcBufParams);
+
+    if (!adcBuf){
+        /* AdcBuf did not open correctly. */
+        while(1);
+    }
+    /* Configure the conversion struct */
+    continuousConversions[0].arg = NULL;
+    continuousConversions[0].adcChannel = Board_ADCBUF0CHANNEL0;
+    continuousConversions[0].sampleBuffer = g_SYSAMON_sampleBufferOne;
+    continuousConversions[0].sampleBufferTwo = g_SYSAMON_sampleBufferTwo;
+    continuousConversions[0].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /* Configure the conversion struct */
+    continuousConversions[1].arg = NULL;
+    continuousConversions[1].adcChannel = Board_ADCBUF0CHANNEL1;
+    continuousConversions[1].sampleBuffer = NULL;
+    continuousConversions[1].sampleBufferTwo = NULL;
+    continuousConversions[1].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /* Configure the conversion struct */
+    continuousConversions[2].arg = NULL;
+    continuousConversions[2].adcChannel = Board_ADCBUF0CHANNEL2;
+    continuousConversions[2].sampleBuffer = NULL;
+    continuousConversions[2].sampleBufferTwo = NULL;
+    continuousConversions[2].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /* Configure the conversion struct */
+    continuousConversions[3].arg = NULL;
+    continuousConversions[3].adcChannel = Board_ADCBUF0CHANNEL3;
+    continuousConversions[3].sampleBuffer = NULL;
+    continuousConversions[3].sampleBufferTwo = NULL;
+    continuousConversions[3].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /* Configure the conversion struct */
+    continuousConversions[4].arg = NULL;
+    continuousConversions[4].adcChannel = Board_ADCBUF0CHANNEL4;
+    continuousConversions[4].sampleBuffer = NULL;
+    continuousConversions[4].sampleBufferTwo = NULL;
+    continuousConversions[4].samplesRequestedCount = ADCBUFFERSIZE;
+
+    /* Configure the conversion struct */
+    continuousConversions[5].arg = NULL;
+    continuousConversions[5].adcChannel = Board_ADCBUF0CHANNEL5;
+    continuousConversions[5].sampleBuffer = NULL;
+    continuousConversions[5].sampleBufferTwo = NULL;
+    continuousConversions[5].samplesRequestedCount = ADCBUFFERSIZE;
+
+
+    /*
+     * Go to sleep in the foreground thread forever. The data will be collected
+     * and transfered in the background thread
+     */
+    while(1) {
+        Task_sleep((unsigned int)10);
+        /* Start converting. */
+        if (ADCBuf_convert(adcBuf, continuousConversions, 6) == ADCBuf_STATUS_SUCCESS) {
+
+            psRAWChannels = (SAM_Channels *)g_SYSAMON_sampleBufferOne;
+            for (i = 0; i < 10; i++) {
+                g_aui16InternalTempSensor[i] = psRAWChannels[i].internalTempSensor;
+                g_avgTemp = (g_aui16InternalTempSensor[i] + 3 * g_avgTemp) / 4;
+
+                g_aui16LogicCur[i] = psRAWChannels[i].logicCur;
+                g_aui16PerCur[i] = psRAWChannels[i].perCur;
+                g_aui16V5Main[i] = psRAWChannels[i].v5Main;
+                g_aui16V5Per[i] = psRAWChannels[i].v5Per;
+                g_aui16V28[i] = psRAWChannels[i].v28;
+            }
+            /* Convert ADC value to Celsius */
+            g_fSAMavgCPUTemperature = (1475*4096 - (75 * 33 * g_avgTemp))/ 40960;
+
+
+            ADCBuf_adjustRawValues(adcBuf, g_aui16LogicCur, 10, Board_ADCBUF0CHANNEL1);
+            ADCBuf_convertAdjustedToMicroVolts(adcBuf, Board_ADCBUF0CHANNEL1, g_aui16LogicCur, g_aui32LogicCur, 10);
+
+            ADCBuf_adjustRawValues(adcBuf, g_aui16PerCur, 10, Board_ADCBUF0CHANNEL2);
+            ADCBuf_convertAdjustedToMicroVolts(adcBuf, Board_ADCBUF0CHANNEL2, g_aui16PerCur, g_aui32PerCur, 10);
+
+            ADCBuf_adjustRawValues(adcBuf, g_aui16V5Main, 10, Board_ADCBUF0CHANNEL3);
+            ADCBuf_convertAdjustedToMicroVolts(adcBuf, Board_ADCBUF0CHANNEL3, g_aui16V5Main, g_aui32V5Main, 10);
+
+            ADCBuf_adjustRawValues(adcBuf, g_aui16V5Per, 10, Board_ADCBUF0CHANNEL4);
+            ADCBuf_convertAdjustedToMicroVolts(adcBuf, Board_ADCBUF0CHANNEL4, g_aui16V5Per, g_aui32V5Per, 10);
+
+            ADCBuf_adjustRawValues(adcBuf, g_aui16V28, 10, Board_ADCBUF0CHANNEL5);
+            ADCBuf_convertAdjustedToMicroVolts(adcBuf, Board_ADCBUF0CHANNEL5, g_aui16V28, g_aui32V28, 10);
+
+            /*
+             * Low Pass Filter
+             */
+            for (i = 0; i < 10; i++) {
+                g_ui32AvgLogicCur = (g_aui32LogicCur[i] + 3 * g_ui32AvgLogicCur) / 4;
+                g_ui32AvgPerCur = (g_aui32PerCur[i] + 3 * g_ui32AvgPerCur) / 4;
+                g_ui32AvgV5Main = (g_aui32V5Main[i] + 3 * g_ui32AvgV5Main) / 4;
+                g_ui32AvgV5Per = (g_aui32V5Per[i] + 3 * g_ui32AvgV5Per) / 4;
+                g_ui32AvgV28 = (g_aui32V28[i] + 3 * g_ui32AvgV28) / 4;
+
+            }
+            /*
+             * Unit conversion
+             */
+
+            g_fSAMavgLogicCur = 0.1 * g_ui32AvgLogicCur / 1e3;
+            g_fSAMavgPerCur = 0.2 * g_ui32AvgPerCur / 1e3;
+            g_fSAMavgV5Main = 2 * g_ui32AvgV5Main / 1e6;
+            g_fSAMavgV5Per = 2 * g_ui32AvgV5Per / 1e6;
+            g_fSAMavgV28 = 11 * g_ui32AvgV28 / 1e6;
+
+
+
+            /* Print a message with average temperature */
+//            Display_printf(g_SMCDisplay, 0, 0, "CPUTemp = %.2fC, LogicCur = %.2fA, PerCur = %.2fA, 5VMain = %.2fV, 5VPer = %.2fV, 28V = %.2fV",
+//                           g_fSAMavgCPUTemperature,
+//                           g_fSAMavgLogicCur,
+//                           g_fSAMavgPerCur,
+//                           g_fSAMavgV5Main,
+//                           g_fSAMavgV5Per,
+//                           g_fSAMavgV28);
+        }else{
+            Display_printf(g_SMCDisplay, 0, 0, "ADCBuf_convert failed");
+        }
+
+    }
+}
+
+
+void vSAM_init()
+{
+    Task_Params taskParams;
+//    Task_Handle taskHandle;
+    Error_Block eb;
+    /* Make sure Error_Block is initialized */
+    Error_init(&eb);
+    Display_printf(g_SMCDisplay, 0, 0, "Initializing System Analog Monitor\n");
+    /* Construct heartBeat Task  thread */
+    Task_Params_init(&taskParams);
+    taskParams.priority = 3;
+    taskParams.stackSize = 1024;
+    Task_create((Task_FuncPtr)vSAM_taskFxn, &taskParams, NULL);
 }
 
 

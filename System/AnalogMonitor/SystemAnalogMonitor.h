@@ -8,6 +8,15 @@
 #ifndef SYSTEM_SYSTEMANALOGMONITOR_H_
 #define SYSTEM_SYSTEMANALOGMONITOR_H_
 
+typedef struct {
+    uint16_t internalTempSensor;
+    uint16_t logicCur;
+    uint16_t perCur;
+    uint16_t v5Main;
+    uint16_t v5Per;
+    uint16_t v28;
+} SAM_Channels;
+
 
 
 #ifdef  __SYSTEM_SYSTEMANALOGMONITOR_GLOBAL
@@ -21,7 +30,24 @@
 extern "C" {
 #endif
 
+__SYSTEM_SYSTEMANALOGMONITOR_EXT
+float g_fSAMavgCPUTemperature;
+__SYSTEM_SYSTEMANALOGMONITOR_EXT
+float g_fSAMavgLogicCur;
+__SYSTEM_SYSTEMANALOGMONITOR_EXT
+float g_fSAMavgPerCur;
+__SYSTEM_SYSTEMANALOGMONITOR_EXT
+float g_fSAMavgV5Main;
+__SYSTEM_SYSTEMANALOGMONITOR_EXT
+float g_fSAMavgV5Per;
+__SYSTEM_SYSTEMANALOGMONITOR_EXT
+float g_fSAMavgV28;
+__SYSTEM_SYSTEMANALOGMONITOR_EXT
+float g_fSAMavgMCUCur;
 
+
+__SYSTEM_SYSTEMANALOGMONITOR_EXT
+void vSAM_init();
 
 
 #ifdef __cplusplus

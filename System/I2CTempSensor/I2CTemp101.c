@@ -96,7 +96,7 @@ void vI2CTemp101_init()
     /* Construct heartBeat Task  thread */
     Task_Params_init(&taskParams);
     taskParams.priority = 2;
-    taskParams.stackSize = 512;
+    taskParams.stackSize = 768;
     Task_create((Task_FuncPtr)vI2CTemp101Fxn, &taskParams, NULL);
 }
 

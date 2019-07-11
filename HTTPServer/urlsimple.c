@@ -43,6 +43,7 @@
 #include <ti/net/http/logging.h>
 
 #include "HTTPServer/urlsimple.h"
+#include "HTTPServer/URLHandler/URLHandler.h"
 
 #include <ti/display/Display.h>
 #include <ti/display/DisplayUart.h>
@@ -107,145 +108,169 @@ int URLSimple_process(URLHandler_Handle urlHandler, int method,
                       int contentLength, int ssock)
 {
     int status          = URLHandler_ENOTHANDLED;
-    char *body          = NULL;         /* Body of HTTP response in process */
-    char *contentType   = "text/plain"; /* default, but can be overridden */
-    char *retString     = NULL;         /* String retrieved from server */
-    char *inputKey      = NULL;         /* Name of value to store in server */
-    char *inputValue    = NULL;         /* Value to store in server */
-    char argsToParse[MAX_DB_ENTRY_LEN];
-    int returnCode;                     /* HTTP response status code */
-    int retc;                           /* Error checking for internal funcs */
+//    char *body          = NULL;         /* Body of HTTP response in process */
+//    char *contentType   = "text/plain"; /* default, but can be overridden */
+//    char *retString     = NULL;         /* String retrieved from server */
+//    char *inputKey      = NULL;         /* Name of value to store in server */
+//    char *inputValue    = NULL;         /* Value to store in server */
+//    char argsToParse[MAX_DB_ENTRY_LEN];
+//    int returnCode;                     /* HTTP response status code */
+//    int retc;                           /* Error checking for internal funcs */
 
-    /* Determine the corresponding URL on the server */
-    if (strcmp(url, "/home.html") == 0)
-    {
-        if (method == URLHandler_GET)
-        {
-            body = "/get 'home.html': This is the resource requested.";
-            returnCode = HTTP_SC_OK;
-            status = URLHandler_EHANDLED;
-        }
-    }
-    else if (strcmp(url, "/login.html") == 0)
-    {
-        if (method == URLHandler_GET)
-        {
-            body = "/get 'login.html': This is the login page.";
-            returnCode = HTTP_SC_OK;
-            status = URLHandler_EHANDLED;
-        }
-    }
-    else if (strcmp(url, "/db.html") == 0)
-    {
-        /* Parse query string */
-        strncpy(argsToParse, urlArgs, strlen(urlArgs) + 1);
-        /* Ensure that only one uri arg was passed in the request */
-        if (strchr(argsToParse, '=') == strrchr(argsToParse, '='))
-        {
-            inputKey = strtok(argsToParse, "=");
-            if (method == URLHandler_GET)
-            {
-                retString = serverGet(inputKey);
-                if (retString)
-                {
-                    body = retString;
-                }
-                else
-                {
-                    body = "String not found.";
-                }
-                returnCode = HTTP_SC_OK;
-                status = URLHandler_EHANDLED;
-            }
-            else if (method == URLHandler_POST)
-            {
-                inputValue = strtok(NULL, "=");
-                retc = serverPost(inputKey, inputValue);
-                if (retc == ERR_BAD_INPUT)
-                {
-                    body = "Failed to POST. The data string is invalid.";
-                    returnCode = HTTP_SC_BAD_REQUEST;
-                    status = URLHandler_EERRORHANDLED;
-                }
-                else if (retc == ERR_DB_FULL)
-                {
-                    body = "Database is full";
-                    returnCode = HTTP_SC_SERVICE_UNAVAILABLE;
-                    status = URLHandler_EERRORHANDLED;
-                }
-                else
-                {
-                    body = "Data string successfully posted to server.";
-                    returnCode = HTTP_SC_OK;
-                    status = URLHandler_EHANDLED;
-
-//                    if (contentLength > 0)
-//                    {
-//                        char *buf;
-//
-//                        buf = malloc(contentLength);
-//                        /* This is done to flush the socket */
-//                        (void) Ssock_recvall(ssock, buf, contentLength, 0);
-//                        free(buf);
-//                    }
-                }
-            }
-            else
-            {
-                body = "This method is not supported at this URL.";
-                returnCode = HTTP_SC_METHOD_NOT_ALLOWED;
-                /* Close the connection */
-                status = URLHandler_EERRORHANDLED;
-            }
-        }
-        else
-        {
-            body = "This handler does not support multiple parameter requests.";
-            returnCode = HTTP_SC_BAD_REQUEST;
-            status = URLHandler_EERRORHANDLED;
-        }
-    }
-    else if(method == URLHandler_PATCH)
-    {
-        body = "PATCH is not handled by any handlers on this server.";
-        returnCode = HTTP_SC_METHOD_NOT_ALLOWED;
-        status = URLHandler_ENOTHANDLED;
-    }
-    else if(method == URLHandler_DELETE)
-    {
-        body = "DELETE is not handled by any handlers on this server.";
-        returnCode = HTTP_SC_METHOD_NOT_ALLOWED;
-        status = URLHandler_EERRORHANDLED;
-    }
-
-    if (status != URLHandler_ENOTHANDLED)
-    {
-        if (contentLength > 0)
-        {
-            char *buf;
-
-            buf = malloc(contentLength);
-            /* This is done to flush the socket */
-            (void) Ssock_recvall(ssock, buf, contentLength, 0);
-            free(buf);
-        }
-
-        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
-                body ? strlen(body) : 0, NULL);
-//        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
-//                body ? 2000*strlen(body) : 0, NULL);
-        if (body) {
-//            for (contentLength = 0; contentLength < 2000; contentLength++) {
-//                send(ssock, body, strlen(body), 0);
+//    /* Determine the corresponding URL on the server */
+//    if (strcmp(url, "/home.html") == 0)
+//    {
+//        if (method == URLHandler_GET)
+//        {
+//            body = "/get 'home.html': This is the resource requested.";
+//            returnCode = HTTP_SC_OK;
+//            status = URLHandler_EHANDLED;
+//        }
+//    }
+//    else if (strcmp(url, "/login.html") == 0)
+//    {
+//        if (method == URLHandler_GET)
+//        {
+//            body = "/get 'login.html': This is the login page.";
+//            returnCode = HTTP_SC_OK;
+//            status = URLHandler_EHANDLED;
+//        }
+//    }
+//    else if (strcmp(url, "/db.html") == 0)
+//    {
+//        /* Parse query string */
+//        strncpy(argsToParse, urlArgs, strlen(urlArgs) + 1);
+//        /* Ensure that only one uri arg was passed in the request */
+//        if (strchr(argsToParse, '=') == strrchr(argsToParse, '='))
+//        {
+//            inputKey = strtok(argsToParse, "=");
+//            if (method == URLHandler_GET)
+//            {
+//                retString = serverGet(inputKey);
+//                if (retString)
+//                {
+//                    body = retString;
+//                }
+//                else
+//                {
+//                    body = "String not found.";
+//                }
+//                returnCode = HTTP_SC_OK;
+//                status = URLHandler_EHANDLED;
 //            }
-            send(ssock, body, strlen(body), 0);
-//            send(ssock, body, strlen(body) - 1, 0);
-//            sleep(5);
-//            send(ssock, ".", 1, 0);
-        }
+//            else if (method == URLHandler_POST)
+//            {
+//                inputValue = strtok(NULL, "=");
+//                retc = serverPost(inputKey, inputValue);
+//                if (retc == ERR_BAD_INPUT)
+//                {
+//                    body = "Failed to POST. The data string is invalid.";
+//                    returnCode = HTTP_SC_BAD_REQUEST;
+//                    status = URLHandler_EERRORHANDLED;
+//                }
+//                else if (retc == ERR_DB_FULL)
+//                {
+//                    body = "Database is full";
+//                    returnCode = HTTP_SC_SERVICE_UNAVAILABLE;
+//                    status = URLHandler_EERRORHANDLED;
+//                }
+//                else
+//                {
+//                    body = "Data string successfully posted to server.";
+//                    returnCode = HTTP_SC_OK;
+//                    status = URLHandler_EHANDLED;
+//
+////                    if (contentLength > 0)
+////                    {
+////                        char *buf;
+////
+////                        buf = malloc(contentLength);
+////                        /* This is done to flush the socket */
+////                        (void) Ssock_recvall(ssock, buf, contentLength, 0);
+////                        free(buf);
+////                    }
+//                }
+//            }
+//            else
+//            {
+//                body = "This method is not supported at this URL.";
+//                returnCode = HTTP_SC_METHOD_NOT_ALLOWED;
+//                /* Close the connection */
+//                status = URLHandler_EERRORHANDLED;
+//            }
+//        }
+//        else
+//        {
+//            body = "This handler does not support multiple parameter requests.";
+//            returnCode = HTTP_SC_BAD_REQUEST;
+//            status = URLHandler_EERRORHANDLED;
+//        }
+//    }
+//    else if(method == URLHandler_PATCH)
+//    {
+//        body = "PATCH is not handled by any handlers on this server.";
+//        returnCode = HTTP_SC_METHOD_NOT_ALLOWED;
+//        status = URLHandler_ENOTHANDLED;
+//    }
+//    else if(method == URLHandler_DELETE)
+//    {
+//        body = "DELETE is not handled by any handlers on this server.";
+//        returnCode = HTTP_SC_METHOD_NOT_ALLOWED;
+//        status = URLHandler_EERRORHANDLED;
+//    }
+//
+//    if (status != URLHandler_ENOTHANDLED)
+//    {
+//        if (contentLength > 0)
+//        {
+//            char *buf;
+//
+//            buf = malloc(contentLength);
+//            /* This is done to flush the socket */
+//            (void) Ssock_recvall(ssock, buf, contentLength, 0);
+//            free(buf);
+//        }
+//
 //        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
-//                body ? strlen(body) : 0, body ? body : NULL);
+//                body ? strlen(body) : 0, NULL);
+////        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+////                body ? 2000*strlen(body) : 0, NULL);
+//        if (body) {
+////            for (contentLength = 0; contentLength < 2000; contentLength++) {
+////                send(ssock, body, strlen(body), 0);
+////            }
+//            send(ssock, body, strlen(body), 0);
+////            send(ssock, body, strlen(body) - 1, 0);
+////            sleep(5);
+////            send(ssock, ".", 1, 0);
+//        }
+////        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+////                body ? strlen(body) : 0, body ? body : NULL);
+//    }
+
+
+    tURLHandlerEntry *psURLEntry = &g_psURLTable[0];
+
+    //
+    // Search through the command table until a null command string is
+    // found, which marks the end of the table.
+    //
+    while (psURLEntry->pcCmd) {
+        //
+        // If this command entry command string matches argv[0], then call
+        // the function for this command, passing the command line
+        // arguments.
+        //
+        if (!strcmp(url, psURLEntry->pcCmd)) {
+            return (psURLEntry->pfnCmd(urlHandler, method, url, urlArgs, contentLength, ssock));
+        }
+
+        //
+        // Not found, so advance to the next entry.
+        //
+        psURLEntry++;
     }
+
 
     return (status);
 }

@@ -131,7 +131,7 @@ void *mainThread(void *arg0)
 void *SMC_initThread(void *arg0)
 {
     /* Call driver init functions */
-//    ADCBuf_init();
+    ADCBuf_init();
     GPIO_init();
     PWM_init();
     I2C_init();
@@ -148,6 +148,7 @@ void *SMC_initThread(void *arg0)
     vDiscreteIO_init();
     vHeartBeat_init();
     vI2CTemp101_init();
+    vSAM_init();
 
     //disconnect Diode D20 and SMC_GPI_0
 //    vPPPCU_init();
@@ -170,9 +171,12 @@ void *SMC_initThread(void *arg0)
     vDevice_init();
 
     vIFS_loadStartUpConfiguration(NULL);
+//    vEFS_loadStartUpConfiguration(NULL);
+    vEFS_loadStartUpConfigurationTest(NULL);
 
 
 //    test4();
+//    test2();
     return 0;
 }
 

@@ -50,17 +50,17 @@ void vTCPRCBin_SystemControl_getOverAllStatus(int clientfd, char *payload, int32
     TCPBin_CMD_SystemControl_monitorStatus_payload_t *pFramePayload = (TCPBin_CMD_SystemControl_monitorStatus_payload_t *)pFrame->payload;
 
 
-    pFramePayload->f28Voltage = 28.0;
-    pFramePayload->f5MainVoltage = 5.0;
-    pFramePayload->f5PerVoltage = 0.0;
-    pFramePayload->fLogicCurrent = 0.0;
-    pFramePayload->fPerCurrent = 0.0;
-    pFramePayload->fMCUCurrent = 0.0;
+    pFramePayload->f28Voltage = g_fSAMavgV28;
+    pFramePayload->f5MainVoltage = g_fSAMavgV5Main;
+    pFramePayload->f5PerVoltage = g_fSAMavgV5Per;
+    pFramePayload->fLogicCurrent = g_fSAMavgLogicCur;
+    pFramePayload->fPerCurrent = g_fSAMavgPerCur;
+    pFramePayload->fMCUCurrent = g_fSAMavgMCUCur;
     pFramePayload->fDAC = 0.0;
     pFramePayload->fADCCH[0] = 0.0;
     pFramePayload->fADCCH[1] = 0.0;
     pFramePayload->fADCCH[2] = 0.0;
-    pFramePayload->fMCUTemp = 0.0;
+    pFramePayload->fMCUTemp = g_fSAMavgCPUTemperature;
     pFramePayload->fBoardTemp = (float)g_i16I2CTempSensor;
     pFramePayload->ui32HeapTotalSize = memStats.totalSize;
     pFramePayload->ui32HeapTotalFreeSize = memStats.totalFreeSize;

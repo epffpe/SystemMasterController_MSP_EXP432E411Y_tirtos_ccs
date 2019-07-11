@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /* For usleep() */
 #include <unistd.h>
@@ -66,6 +67,11 @@
 //#include <ti/sysbios/family/arm/m3/Hwi.h>
 
 #include <ti/sysbios/hal/Hwi.h>
+
+
+//#include <ti/net/http/httpserver.h>
+//#include <ti/net/http/http.h>
+//#include <ti/net/http/logging.h>
 
 
 //typedef char           INT8;
@@ -241,7 +247,8 @@
 #include "Devices/RemoteController/TCPBinaryCommands/DiscreteIO/TCPBinaryCMD_DiscreteIO.h"
 #include "Devices/RemoteController/TCPBinaryCommands/SystemControl/TCPBinaryCMD_SystemControl.h"
 
-
+#include "HTTPServer/urlsimple.h"
+#include "HTTPServer/URLHandler/URLHandler.h"
 
 
 #define ARRSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
