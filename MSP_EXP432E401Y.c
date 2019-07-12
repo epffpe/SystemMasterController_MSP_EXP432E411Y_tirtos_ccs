@@ -841,6 +841,8 @@ GPIO_PinConfig gpioPinConfigs[] = {
     GPIOMSP432E4_PF4 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
     /* SMC_FLASH_RESET */
     GPIOMSP432E4_PF5 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
+    /* SMC_DAC_FSS */
+    GPIOMSP432E4_PD2 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_LOW | GPIO_CFG_OUT_LOW,
 
 };
 
@@ -1182,9 +1184,11 @@ const SPIMSP432E4DMA_HWAttrs spiMSP432E4DMAHWAttrs[MSP_EXP432E401Y_SPICOUNT] = {
         .txDmaChannel = UDMA_CH13_SSI2TX,
         .minDmaTransferSize = 10,
         .clkPinMask = SPIMSP432E4_PD3_SSI2CLK,
-        .fssPinMask = SPIMSP432E4_PD2_SSI2FSS,
+//        .fssPinMask = SPIMSP432E4_PD2_SSI2FSS,
+        .fssPinMask = SPIMSP432E4_PIN_NO_CONFIG,
         .xdat0PinMask = SPIMSP432E4_PD1_SSI2XDAT0,
-        .xdat1PinMask = SPIMSP432E4_PD0_SSI2XDAT1
+//        .xdat1PinMask = SPIMSP432E4_PD0_SSI2XDAT1
+        .xdat1PinMask = SPIMSP432E4_PIN_NO_CONFIG
     },
     {
         .baseAddr = SSI3_BASE,
@@ -1199,6 +1203,34 @@ const SPIMSP432E4DMA_HWAttrs spiMSP432E4DMAHWAttrs[MSP_EXP432E401Y_SPICOUNT] = {
         .fssPinMask = SPIMSP432E4_PQ1_SSI3FSS,
         .xdat0PinMask = SPIMSP432E4_PQ2_SSI3XDAT0,
         .xdat1PinMask = SPIMSP432E4_PQ3_SSI3XDAT1
+    },
+    {
+        .baseAddr = SSI0_BASE,
+        .intNum = INT_SSI0,
+        .intPriority = (~0),
+        .scratchBufPtr = &spiMSP432E4DMAscratchBuf[MSP_EXP432E401Y_SPI0],
+        .defaultTxBufValue = (~0),
+        .minDmaTransferSize = 512,
+        .rxDmaChannel = UDMA_CH10_SSI0RX,
+        .txDmaChannel = UDMA_CH11_SSI0TX,
+        .clkPinMask = SPIMSP432E4_PA2_SSI0CLK,
+        .fssPinMask = SPIMSP432E4_PA3_SSI0FSS,
+        .xdat0PinMask = SPIMSP432E4_PA4_SSI0XDAT0,
+        .xdat1PinMask = SPIMSP432E4_PA5_SSI0XDAT1
+    },
+    {
+        .baseAddr = SSI1_BASE,
+        .intNum = INT_SSI1,
+        .intPriority = (~0),
+        .scratchBufPtr = &spiMSP432E4DMAscratchBuf[MSP_EXP432E401Y_SPI1],
+        .defaultTxBufValue = (~0),
+        .minDmaTransferSize = 10,
+        .rxDmaChannel = UDMA_CH24_SSI1RX,
+        .txDmaChannel = UDMA_CH23_UART1TX,
+        .clkPinMask = SPIMSP432E4_PB5_SSI1CLK,
+        .fssPinMask = SPIMSP432E4_PB4_SSI1FSS,
+        .xdat0PinMask = SPIMSP432E4_PE4_SSI1XDAT0,
+        .xdat1PinMask = SPIMSP432E4_PE5_SSI1XDAT1
     }
 };
 
@@ -1212,6 +1244,16 @@ const SPI_Config SPI_config[MSP_EXP432E401Y_SPICOUNT] = {
         .fxnTablePtr = &SPIMSP432E4DMA_fxnTable,
         .object = &spiMSP432E4DMAObjects[MSP_EXP432E401Y_SPI3],
         .hwAttrs = &spiMSP432E4DMAHWAttrs[MSP_EXP432E401Y_SPI3]
+    },
+    {
+        .fxnTablePtr = &SPIMSP432E4DMA_fxnTable,
+        .object = &spiMSP432E4DMAObjects[MSP_EXP432E401Y_SPI0],
+        .hwAttrs = &spiMSP432E4DMAHWAttrs[MSP_EXP432E401Y_SPI0]
+    },
+    {
+        .fxnTablePtr = &SPIMSP432E4DMA_fxnTable,
+        .object = &spiMSP432E4DMAObjects[MSP_EXP432E401Y_SPI1],
+        .hwAttrs = &spiMSP432E4DMAHWAttrs[MSP_EXP432E401Y_SPI1]
     },
 };
 

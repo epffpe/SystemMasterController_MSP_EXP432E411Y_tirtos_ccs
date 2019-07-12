@@ -8,6 +8,11 @@
 #ifndef SYSTEM_SYSTEMANALOGMONITOR_H_
 #define SYSTEM_SYSTEMANALOGMONITOR_H_
 
+
+#define SYSTEMANALOGMONITOR_TASK_STACK_SIZE         1024
+#define SYSTEMANALOGMONITOR_TASK_PRIORITY           3
+
+
 typedef struct {
     uint16_t internalTempSensor;
     uint16_t logicCur;

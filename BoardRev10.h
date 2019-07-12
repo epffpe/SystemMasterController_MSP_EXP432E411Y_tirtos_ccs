@@ -87,6 +87,13 @@ extern "C" {
 
 #define Board_SPI0                  MSP_EXP432E401Y_SPI2
 #define Board_SPI1                  MSP_EXP432E401Y_SPI3
+#define Board_SPI2                  MSP_EXP432E401Y_SPI0
+#define Board_SPI3                  MSP_EXP432E401Y_SPI1
+
+#define Board_SPI_ADC               MSP_EXP432E401Y_SPI1
+#define Board_SPI_DAC               MSP_EXP432E401Y_SPI2
+#define Board_SPI_FLASH             MSP_EXP432E401Y_SPI3
+#define Board_SPI_FRAM              MSP_EXP432E401Y_SPI0
 
 #define Board_SPI_MASTER            MSP_EXP432E401Y_SPI2
 #define Board_SPI_SLAVE             MSP_EXP432E401Y_SPI2

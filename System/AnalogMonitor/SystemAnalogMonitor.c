@@ -575,8 +575,8 @@ void vSAM_init()
     Display_printf(g_SMCDisplay, 0, 0, "Initializing System Analog Monitor\n");
     /* Construct heartBeat Task  thread */
     Task_Params_init(&taskParams);
-    taskParams.priority = 3;
-    taskParams.stackSize = 1024;
+    taskParams.priority = SYSTEMANALOGMONITOR_TASK_PRIORITY;
+    taskParams.stackSize = SYSTEMANALOGMONITOR_TASK_STACK_SIZE;
     Task_create((Task_FuncPtr)vSAM_taskFxn, &taskParams, NULL);
 }
 

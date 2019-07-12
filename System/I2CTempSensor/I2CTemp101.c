@@ -95,8 +95,8 @@ void vI2CTemp101_init()
     Display_printf(g_SMCDisplay, 0, 0, "Initializing heartbeat\n");
     /* Construct heartBeat Task  thread */
     Task_Params_init(&taskParams);
-    taskParams.priority = 2;
-    taskParams.stackSize = 768;
+    taskParams.priority = I2CTEMP101_TASK_PRIORITY;
+    taskParams.stackSize = I2CTEMP101_TASK_STACK_SIZE;
     Task_create((Task_FuncPtr)vI2CTemp101Fxn, &taskParams, NULL);
 }
 

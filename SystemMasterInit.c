@@ -136,7 +136,7 @@ void *SMC_initThread(void *arg0)
     PWM_init();
     I2C_init();
     // SDSPI_init();
-//    SPI_init();
+    SPI_init();
     UART_init();
     // Watchdog_init();
 
@@ -174,6 +174,7 @@ void *SMC_initThread(void *arg0)
 //    vEFS_loadStartUpConfiguration(NULL);
     vEFS_loadStartUpConfigurationTest(NULL);
 
+    vSPIDAC101_init();
 
 //    test4();
 //    test2();

@@ -56,7 +56,7 @@ void vTCPRCBin_SystemControl_getOverAllStatus(int clientfd, char *payload, int32
     pFramePayload->fLogicCurrent = g_fSAMavgLogicCur;
     pFramePayload->fPerCurrent = g_fSAMavgPerCur;
     pFramePayload->fMCUCurrent = g_fSAMavgMCUCur;
-    pFramePayload->fDAC = 0.0;
+    pFramePayload->fDAC = 10.0 * g_ui16SPIDAC101_dacVal / 1024;
     pFramePayload->fADCCH[0] = 0.0;
     pFramePayload->fADCCH[1] = 0.0;
     pFramePayload->fADCCH[2] = 0.0;

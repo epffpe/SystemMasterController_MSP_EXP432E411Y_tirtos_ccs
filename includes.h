@@ -233,6 +233,7 @@
 #include "System/ExternalFlashStorage/ExternalFlashStorage.h"
 #include "System/EEPROM/EEPROMStorage.h"
 #include "System/I2CTempSensor/I2CTemp101.h"
+#include "System/SPIDAC/SPIDAC.h"
 
 
 

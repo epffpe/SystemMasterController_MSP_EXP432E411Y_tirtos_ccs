@@ -11,6 +11,11 @@
 #include <stdio.h>
 #include <string>         // std::string
 #include <string.h>         // std::string
+#include <ti/drivers/uart/UARTMSP432E4.h>
+
+
+extern const UART_Config UART_config[];
+extern const uint_least8_t UART_count;
 
 void         vIFUART_close(IF_Handle handle);
 int          xIFUART_control(IF_Handle handle, unsigned int cmd, void *arg);
@@ -146,8 +151,26 @@ IF_Handle hIFUART_open(IF_Handle handle, IF_Params *params)
 
     object->hBSPSerial_uart = UART_open(hwAttrs->uartIndex, &paramsUnion.uartParams);
     if (object->hBSPSerial_uart == NULL) {
-        object->state.opened = false;
-        System_abort("Can't open UART");
+
+        UART_Handle handle = NULL;
+
+        if (hwAttrs->uartIndex < UART_count) {
+            /* If params are NULL use defaults */
+//            if (params == NULL) {
+//                params = (UART_Params *) &UART_defaultParams;
+//            }
+
+            /* Get handle for this driver instance */
+            handle = (UART_Handle)&(UART_config[hwAttrs->uartIndex]);
+            UARTMSP432E4_Object        *uObject = (UARTMSP432E4_Object *)handle->object;
+            if (uObject->state.opened) {
+                object->hBSPSerial_uart = handle;
+            }else {
+                object->state.opened = false;
+                System_abort("Can't open UART");
+            }
+        }
+
     }else{
         Semaphore_post(object->hBSPSerial_semUARTConnected);
         Semaphore_post(object->hBSPSerial_semTxSerial);

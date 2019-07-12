@@ -8,7 +8,8 @@
 #ifndef SYSTEM_I2CTEMPSENSOR_I2CTEMP101_H_
 #define SYSTEM_I2CTEMPSENSOR_I2CTEMP101_H_
 
-
+#define I2CTEMP101_TASK_STACK_SIZE         768
+#define I2CTEMP101_TASK_PRIORITY           2
 
 #ifdef __cplusplus
 extern "C"  {
