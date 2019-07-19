@@ -57,9 +57,9 @@ void vTCPRCBin_SystemControl_getOverAllStatus(int clientfd, char *payload, int32
     pFramePayload->fPerCurrent = g_fSAMavgPerCur;
     pFramePayload->fMCUCurrent = g_fSAMavgMCUCur;
     pFramePayload->fDAC = 10.0 * g_ui16SPIDAC101_dacVal / 1024;
-    pFramePayload->fADCCH[0] = 0.0;
-    pFramePayload->fADCCH[1] = 0.0;
-    pFramePayload->fADCCH[2] = 0.0;
+    pFramePayload->fADCCH[0] = g_fMAX1301Vin_volt;
+    pFramePayload->fADCCH[1] = g_fMAX1301Vout_volt;
+    pFramePayload->fADCCH[2] = g_fMAX1301V5_volt;
     pFramePayload->fMCUTemp = g_fSAMavgCPUTemperature;
     pFramePayload->fBoardTemp = (float)g_i16I2CTempSensor;
     pFramePayload->ui32HeapTotalSize = memStats.totalSize;

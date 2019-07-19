@@ -234,6 +234,7 @@
 #include "System/EEPROM/EEPROMStorage.h"
 #include "System/I2CTempSensor/I2CTemp101.h"
 #include "System/SPIDAC/SPIDAC.h"
+#include "System/MAX1301/MAX1301.h"
 
 
 

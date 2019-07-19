@@ -11,14 +11,6 @@
 
 
 
-
-
-
-
-
-
-
-
 Void vSPIDAC101_taskFxn(UArg arg0, UArg arg1)
 {
     SPI_Handle      masterSpi;
@@ -59,6 +51,7 @@ Void vSPIDAC101_taskFxn(UArg arg0, UArg arg1)
         if (dacVal++ > 1023) {
             dacVal = 0;
         }
+//        dacVal = 512;
 
 //        for (dacVal = 0; dacVal < 1024; dacVal++) {
             g_ui16SPIDAC101_dacVal = dacVal;
@@ -88,7 +81,7 @@ void vSPIDAC101_init()
     Error_Block eb;
     /* Make sure Error_Block is initialized */
     Error_init(&eb);
-    Display_printf(g_SMCDisplay, 0, 0, "Initializing heartbeat\n");
+    Display_printf(g_SMCDisplay, 0, 0, "Initializing vSPIDAC101_taskFxn\n");
     /* Construct heartBeat Task  thread */
     Task_Params_init(&taskParams);
     taskParams.priority = SPIDAC101_TASK_PRIORITY;
