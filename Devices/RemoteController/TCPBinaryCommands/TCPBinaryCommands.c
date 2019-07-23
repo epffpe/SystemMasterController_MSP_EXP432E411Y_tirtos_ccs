@@ -109,6 +109,9 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_ALTOMultinet_getPot] = TCPBin_ALTOMultinetPotGet,
 
 
+ //Analog Output
+ [TCP_CMD_DAC_setVoltage] = vTCPRCBin_DAC_setVoltageValue,
+
 };
 #define TCPBIN_CMD_COUNT   (sizeof (g_apfTCPBinCmdTable) / sizeof (g_apfTCPBinCmdTable[0]))
 

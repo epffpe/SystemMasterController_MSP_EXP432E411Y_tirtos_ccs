@@ -248,6 +248,7 @@
 #include "Devices/RemoteController/TCPBinaryCommands/RAWCharacteristicData/TCPBinaryCMD_RAWCharacteristicData.h"
 #include "Devices/RemoteController/TCPBinaryCommands/DiscreteIO/TCPBinaryCMD_DiscreteIO.h"
 #include "Devices/RemoteController/TCPBinaryCommands/SystemControl/TCPBinaryCMD_SystemControl.h"
+#include "Devices/RemoteController/TCPBinaryCommands/DAC/TCPBinaryCMD_DAC.h"
 
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"

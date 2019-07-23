@@ -174,10 +174,11 @@ void *SMC_initThread(void *arg0)
 //    vEFS_loadStartUpConfiguration(NULL);
     vEFS_loadStartUpConfigurationTest(NULL);
 
-    vSPIDAC101_init();
+    vSPIDAC101_init(25e3, 25e3);
+    vSPIDAC_setRawValue(0);
     vMAX1301_init();
 
-//    test4();
+    //    test4();
 //    test2();
     return 0;
 }

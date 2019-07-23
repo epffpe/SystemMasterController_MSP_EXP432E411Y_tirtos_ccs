@@ -184,6 +184,11 @@ typedef enum {
     TCP_CMD_Panasonic_getMonitorStatus = 340,
     TCP_CMD_Panasonic_getMonitorStatusResponse,
 
+//Analog Output
+    TCP_CMD_DAC_setVoltage = 350,
+    TCP_CMD_DAC_setVoltageResponse,
+
+
     TCP_CMD_COUNT
 } TCPBin_CMD_types_te;
 
