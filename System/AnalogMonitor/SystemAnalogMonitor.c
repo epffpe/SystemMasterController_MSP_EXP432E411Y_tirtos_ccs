@@ -533,7 +533,7 @@ Void vSAM_taskFxn(UArg arg0, UArg arg1)
                 g_ui32SAMAvgV5Main = (g_aui32SAMV5Main[i] + 3 * g_ui32SAMAvgV5Main) / 4;
                 g_ui32SAMAvgV5Per = (g_aui32SAMV5Per[i] + 3 * g_ui32SAMAvgV5Per) / 4;
                 g_ui32SAMAvgV28 = (g_aui32V28[i] + 3 * g_ui32SAMAvgV28) / 4;
-                g_ui32SAMAvgMCUCur = (g_aui32V28[i] + 3 * g_ui32SAMAvgMCUCur) / 4;
+                g_ui32SAMAvgMCUCur = (g_aui32MCUCur[i] + 3 * g_ui32SAMAvgMCUCur) / 4;
 
             }
             /*
