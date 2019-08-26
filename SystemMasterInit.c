@@ -130,6 +130,7 @@ void *mainThread(void *arg0)
 
 void *SMC_initThread(void *arg0)
 {
+    Error_Block eb;
     /* Call driver init functions */
     ADCBuf_init();
     GPIO_init();
@@ -140,7 +141,7 @@ void *SMC_initThread(void *arg0)
     UART_init();
     // Watchdog_init();
 
-    SMCDisplay_init();
+//    SMCDisplay_init();
     GPIO_write(SMC_SERIAL0_DE, 1);
     Display_printf(g_SMCDisplay, 0, 0, "Starting the System Master Controller\n"
                    "-- Compiled: "__DATE__" "__TIME__" --\n");
@@ -170,7 +171,8 @@ void *SMC_initThread(void *arg0)
      */
     vDevice_init();
 
-    vIFS_loadStartUpConfiguration(NULL);
+//    vIFS_loadStartUpConfiguration(NULL);
+
 //    vEFS_loadStartUpConfiguration(NULL);
     vEFS_loadStartUpConfigurationTest(NULL);
 
@@ -180,6 +182,47 @@ void *SMC_initThread(void *arg0)
 
     //    test4();
 //    test2();
+
+//    DOSet(DIO_UART_DEBUG);
+    DOSet(DIO_SERIAL5_EN_, 1);
+
+    Error_init(&eb);
+    Device_Params deviceParams;
+    vTFUartTestDevice_Params_init(&deviceParams, 100, IF_SERIAL_0);
+    xDevice_add(&deviceParams, &eb);
+//    Task_sleep((unsigned int)10);
+    vTFUartTestDevice_Params_init(&deviceParams, 101, IF_SERIAL_1);
+    xDevice_add(&deviceParams, &eb);
+//    Task_sleep((unsigned int)10);
+    vTFUartTestDevice_Params_init(&deviceParams, 102, IF_SERIAL_2);
+    xDevice_add(&deviceParams, &eb);
+//    Task_sleep((unsigned int)10);
+    vTFUartTestDevice_Params_init(&deviceParams, 103, IF_SERIAL_3);
+    xDevice_add(&deviceParams, &eb);
+//    Task_sleep((unsigned int)10);
+    vTFUartTestDevice_Params_init(&deviceParams, 104, IF_SERIAL_4);
+    xDevice_add(&deviceParams, &eb);
+//    Task_sleep((unsigned int)10);
+    vTFUartTestDevice_Params_init(&deviceParams, 105, IF_SERIAL_5);
+    xDevice_add(&deviceParams, &eb);
+//    Task_sleep((unsigned int)10);
+    vTFUartTestDevice_Params_init(&deviceParams, 106, IF_SERIAL_6);
+    xDevice_add(&deviceParams, &eb);
+
+    vDUTUartTestDevice_Params_init(&deviceParams, 200, IF_SERIAL_0);
+//    xDevice_add(&deviceParams, &eb);
+    vDUTUartTestDevice_Params_init(&deviceParams, 201, IF_SERIAL_1);
+//    xDevice_add(&deviceParams, &eb);
+    vDUTUartTestDevice_Params_init(&deviceParams, 202, IF_SERIAL_2);
+//    xDevice_add(&deviceParams, &eb);
+    vDUTUartTestDevice_Params_init(&deviceParams, 203, IF_SERIAL_3);
+//    xDevice_add(&deviceParams, &eb);
+    vDUTUartTestDevice_Params_init(&deviceParams, 204, IF_SERIAL_4);
+//    xDevice_add(&deviceParams, &eb);
+    vDUTUartTestDevice_Params_init(&deviceParams, 205, IF_SERIAL_5);
+//    xDevice_add(&deviceParams, &eb);
+    vDUTUartTestDevice_Params_init(&deviceParams, 206, IF_SERIAL_6);
+//    xDevice_add(&deviceParams, &eb);
     return 0;
 }
 

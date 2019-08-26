@@ -48,6 +48,7 @@ tURLHandlerEntry g_psURLTable[] =
  {"/",              URL_index, "Test"},
  {"/index.html",    URL_index, "Test"},
  {"/home.html",     URL_home, "Test"},
+ {"/longFile.html", URL_home, "Test"},
  {"/test.html",     URL_testFilePost, "Test"},
  {"/upload.html",   URL_fileUploadPost, "Test"},
  {"/send/data",     URL_fileUploadPost, "Test"},

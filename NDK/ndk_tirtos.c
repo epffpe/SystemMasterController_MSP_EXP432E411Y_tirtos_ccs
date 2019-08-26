@@ -141,7 +141,8 @@ unsigned char ti_ndk_config_Global_pHdrMem[PKT_NUM_FRAMEBUF * sizeof(PBM_Pkt)]
 static void networkOpen();
 static void networkClose();
 static void networkIPAddr(uint32_t IPAddr, uint32_t IfIdx, uint32_t fAdd);
-static char *hostName = "tisoc";
+//static char *hostName = "tisoc";
+static char *hostName = "SMC-EPF";
 
 extern void llTimerTick();
 
@@ -261,6 +262,52 @@ static void initIp(void *hCfg)
     CfgAddEntry(hCfg, CFGTAG_SERVICE, CFGITEM_SERVICE_DHCPCLIENT, 0,
             sizeof(dhcpc), (unsigned char *)&dhcpc, NULL);
 }
+
+//Void configIpInitStatic(HANDLE hCfg)
+//{
+//    RemottaConfig *rc = getRemottaConfig();
+//    char *DomainName = "scientt.scom";
+//    char ipAddress[20], netmask[20], gateway[20];
+//
+//    debug("CONFIGURANDO STATIC IP\r\n");
+//
+//
+//    /* Add our global hostname to hCfg (to be claimed in all connected domains) */
+//    CfgAddEntry(hCfg, CFGTAG_SYSINFO, CFGITEM_DHCP_HOSTNAME, 0,
+//                 strlen(hostname),
+//                 (UINT8 *)hostname, 0);
+//
+//    /* Configure IP address manually on interface 1 */
+//    {
+//        CI_IPNET NA;
+//        CI_ROUTE RT;
+//        /* Setup manual IP address */
+//        bzero(&NA, sizeof(NA));
+//        getStringAddressFromInt(rc->configData.ethParam.ipAddress, ipAddress);
+//        getStringAddressFromInt(rc->configData.ethParam.networkMask, netmask);
+//        NA.IPAddr  = inet_addr(ipAddress);
+//        NA.IPMask  = inet_addr(netmask);
+//        strcpy(NA.Domain, DomainName);
+//        NA.NetType = 0;
+//
+//        CfgAddEntry(hCfg, CFGTAG_IPNET, 1, 0,
+//                sizeof(CI_IPNET), (UINT8 *)&NA, 0);
+//
+//        /*
+//         *  Add the default gateway. Since it is the default, the
+//         *  destination address and mask are both zero (we go ahead
+//         *  and show the assignment for clarity).
+//         */
+//        bzero(&RT, sizeof(RT));
+//        RT.IPDestAddr = 0;
+//        RT.IPDestMask = 0;
+//        getStringAddressFromInt(rc->configData.ethParam.gateway, gateway);
+//        RT.IPGateAddr = inet_addr(gateway);
+//
+//        CfgAddEntry(hCfg, CFGTAG_ROUTE, 0, 0,
+//                sizeof(CI_ROUTE), (UINT8 *)&RT, 0);
+//    }
+//}
 
 /*
  *  ======== initUdp ========

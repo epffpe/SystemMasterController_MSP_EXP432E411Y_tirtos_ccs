@@ -47,9 +47,36 @@ void vGenericTemplateDevice_periodicEventHook(UArg arg0, UArg arg1)
 
 void vGenericTemplateDevice_appMsgEventHook(UArg arg0, UArg arg1)
 {
-//    DeviceList_Handler devHandle;
-//
-//    devHandle = (DeviceList_Handler)arg1;
+    DeviceList_Handler devHandle;
+    Queue_Handle msgQHandle;
+    device_msg_t *pMsg;
+
+    ASSERT(arg0 != NULL);
+    ASSERT(arg1 != NULL);
+
+    if (arg0 == NULL) {
+        return;
+    }
+    if (arg1 == NULL) {
+        return;
+    }
+
+    devHandle = (DeviceList_Handler)arg1;
+
+    msgQHandle = devHandle->msgQHandle;
+
+    while (!Queue_empty(msgQHandle))
+    {
+        pMsg = Queue_dequeue(msgQHandle);
+
+        // Process application-layer message probably sent from ourselves.
+//        vALTOAmp_processApplicationMessage(pMsg, myDeviceID, ifHandle, txbuff, rxbuff);
+
+
+        // Free the received message.
+        Memory_free(pMsg->heap, pMsg, pMsg->pduLen);
+//            Task_sleep(3000);
+    }
 }
 
 
@@ -84,6 +111,12 @@ void vGenericTemplateDevice_Params_init(Device_Params *params, uint32_t address)
         ui32EventId = xGeneticDevice_registerHookFunctionForEventId(pHooks, DEVICE_APP_MSG_EVT, vGenericTemplateDevice_appMsgEventHook, arg0);
 
         vGeneticDevice_Params_init(params, address, pHooks);
+        params->deviceType = DEVICE_TYPE_GENERIC;
+        params->arg1 = NULL;
+        params->period = GENERIC_DEVICE_CLOCK_PERIOD;
+        params->timeout = GENERIC_DEVICE_CLOCK_TIMEOUT;
+        params->priority = GENERICDEVICE_TASK_PRIORITY;
+        params->stackSize = GENERICDEVICE_TASK_STACK_SIZE;
     }
     (void)ui32EventId;
 }

@@ -126,6 +126,7 @@ Void vGeneticDeviceFxn(UArg arg0, UArg arg1)
     hooks = *(GenericDevice_hookParams *)args.hooks;
 
     Memory_free(NULL, (GenericDevice_hookParams *)args.hooks, sizeof(GenericDevice_hookParams));
+    args.hooks = &hooks;
     Memory_free(NULL, (GenericDevice_args *)arg0, sizeof(GenericDevice_args));
 
     devHandle = (DeviceList_Handler)arg1;
@@ -135,6 +136,8 @@ Void vGeneticDeviceFxn(UArg arg0, UArg arg1)
 
 //    if (hooks.setupFxn) hooks.setupFxn(hooks.setupArg0, arg1);
     if (hooks.setupFxn) hooks.setupFxn((UArg)&args, arg1);
+
+
 
     while (1) {
         events = Event_pend(eventHandle, hooks.andMask, hooks.orMask, hooks.timeout); //BIOS_WAIT_FOREVER
@@ -146,6 +149,7 @@ Void vGeneticDeviceFxn(UArg arg0, UArg arg1)
 
         if (events & DEVICE_APP_KILL_EVT) {
             events &= ~DEVICE_APP_KILL_EVT;
+
 
             Clock_stop(clockHandle);
             Clock_delete(&clockHandle);
