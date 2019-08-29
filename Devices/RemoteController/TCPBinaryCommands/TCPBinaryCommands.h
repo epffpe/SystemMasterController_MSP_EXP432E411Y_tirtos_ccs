@@ -188,6 +188,11 @@ typedef enum {
     TCP_CMD_DAC_setVoltage = 350,
     TCP_CMD_DAC_setVoltageResponse,
 
+//Production Test and qual
+    TCP_CMD_TEST_resetCounters = 400,
+    TCP_CMD_TEST_resetCountersResponse,
+    TCP_CMD_TEST_getCounters,
+    TCP_CMD_TEST_getCountersResponse,
 
     TCP_CMD_COUNT
 } TCPBin_CMD_types_te;

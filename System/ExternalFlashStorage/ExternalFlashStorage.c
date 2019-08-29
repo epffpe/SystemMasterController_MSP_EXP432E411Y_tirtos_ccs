@@ -173,6 +173,27 @@ void *EFS_mainThread(void *arg0)
 }
 
 
+void vEFS_init()
+{
+    int32_t        status;
+
+    Display_printf(g_SMCDisplay, 0, 0,
+            "==================================================");
+
+    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
+    Display_printf(g_SMCDisplay, 0, 0, "Loading Initial Configuration");
+
+    /* Initialize spiffs, spiffs_config & spiffsnvsdata structures Board_NVSINTERNAL, Board_NVSEXTERNAL*/
+    status = SPIFFSNVS_config(&g_EFSspiffsnvsData, Board_NVSEXTERNAL, &g_EFSfs, &g_EFSfsConfig,
+        SPIFFS_LOGICAL_BLOCK_SIZE, SPIFFS_LOGICAL_PAGE_SIZE);
+    if (status != SPIFFSNVS_STATUS_SUCCESS) {
+        Display_printf(g_SMCDisplay, 0, 0,
+            "Error with SPIFFS configuration.\n");
+
+//        while (1);
+    }
+}
+
 void vEFS_loadStartUpConfigurationTest(void *arg0)
 {
     spiffs_file    fd;
@@ -189,21 +210,21 @@ void vEFS_loadStartUpConfigurationTest(void *arg0)
     char buffRead[EFS_READ_BUFFER_SIZE];
     uint32_t fileSize;
 
-    Display_printf(g_SMCDisplay, 0, 0,
-            "==================================================");
-
-    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
-    Display_printf(g_SMCDisplay, 0, 0, "Loading Initial Configuration");
-
-    /* Initialize spiffs, spiffs_config & spiffsnvsdata structures Board_NVSINTERNAL, Board_NVSEXTERNAL*/
-    status = SPIFFSNVS_config(&g_EFSspiffsnvsData, Board_NVSEXTERNAL, &g_EFSfs, &g_EFSfsConfig,
-        SPIFFS_LOGICAL_BLOCK_SIZE, SPIFFS_LOGICAL_PAGE_SIZE);
-    if (status != SPIFFSNVS_STATUS_SUCCESS) {
-        Display_printf(g_SMCDisplay, 0, 0,
-            "Error with SPIFFS configuration.\n");
-
-        while (1);
-    }
+//    Display_printf(g_SMCDisplay, 0, 0,
+//            "==================================================");
+//
+//    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
+//    Display_printf(g_SMCDisplay, 0, 0, "Loading Initial Configuration");
+//
+//    /* Initialize spiffs, spiffs_config & spiffsnvsdata structures Board_NVSINTERNAL, Board_NVSEXTERNAL*/
+//    status = SPIFFSNVS_config(&g_EFSspiffsnvsData, Board_NVSEXTERNAL, &g_EFSfs, &g_EFSfsConfig,
+//        SPIFFS_LOGICAL_BLOCK_SIZE, SPIFFS_LOGICAL_PAGE_SIZE);
+//    if (status != SPIFFSNVS_STATUS_SUCCESS) {
+//        Display_printf(g_SMCDisplay, 0, 0,
+//            "Error with SPIFFS configuration.\n");
+//
+//        while (1);
+//    }
 
     Display_printf(g_SMCDisplay, 0, 0, "Mounting External Flash file system...");
 

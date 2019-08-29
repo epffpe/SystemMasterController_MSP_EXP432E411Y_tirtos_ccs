@@ -36,6 +36,8 @@ typedef struct {
 extern "C" {
 #endif
 
+__SYSTEM_INTERNALFLASHSTORAGE_EXT
+void vIFS_init();
 
 __SYSTEM_INTERNALFLASHSTORAGE_EXT
 void vIFS_loadStartUpConfiguration(void *arg0);

@@ -112,6 +112,11 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  //Analog Output
  [TCP_CMD_DAC_setVoltage] = vTCPRCBin_DAC_setVoltageValue,
 
+//Production Test and qual
+ [TCP_CMD_TEST_resetCounters] = vTCPRCBin_ProductionTest_resetCounters,
+ [TCP_CMD_TEST_getCounters] = vTCPRCBin_ProductionTest_getCounters,
+
+
 };
 #define TCPBIN_CMD_COUNT   (sizeof (g_apfTCPBinCmdTable) / sizeof (g_apfTCPBinCmdTable[0]))
 

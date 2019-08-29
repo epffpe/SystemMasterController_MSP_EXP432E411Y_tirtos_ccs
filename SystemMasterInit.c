@@ -171,9 +171,12 @@ void *SMC_initThread(void *arg0)
      */
     vDevice_init();
 
+    vIFS_init();
 //    vIFS_loadStartUpConfiguration(NULL);
 
 //    vEFS_loadStartUpConfiguration(NULL);
+
+    vEFS_init();
     vEFS_loadStartUpConfigurationTest(NULL);
 
     vSPIDAC101_init(25e3, 25e3);
@@ -188,27 +191,24 @@ void *SMC_initThread(void *arg0)
 
     Error_init(&eb);
     Device_Params deviceParams;
+
+    /* Test Fixture */
     vTFUartTestDevice_Params_init(&deviceParams, 100, IF_SERIAL_0);
     xDevice_add(&deviceParams, &eb);
-//    Task_sleep((unsigned int)10);
     vTFUartTestDevice_Params_init(&deviceParams, 101, IF_SERIAL_1);
     xDevice_add(&deviceParams, &eb);
-//    Task_sleep((unsigned int)10);
     vTFUartTestDevice_Params_init(&deviceParams, 102, IF_SERIAL_2);
     xDevice_add(&deviceParams, &eb);
-//    Task_sleep((unsigned int)10);
     vTFUartTestDevice_Params_init(&deviceParams, 103, IF_SERIAL_3);
     xDevice_add(&deviceParams, &eb);
-//    Task_sleep((unsigned int)10);
     vTFUartTestDevice_Params_init(&deviceParams, 104, IF_SERIAL_4);
     xDevice_add(&deviceParams, &eb);
-//    Task_sleep((unsigned int)10);
     vTFUartTestDevice_Params_init(&deviceParams, 105, IF_SERIAL_5);
     xDevice_add(&deviceParams, &eb);
-//    Task_sleep((unsigned int)10);
     vTFUartTestDevice_Params_init(&deviceParams, 106, IF_SERIAL_6);
     xDevice_add(&deviceParams, &eb);
 
+    /* Device under test */
     vDUTUartTestDevice_Params_init(&deviceParams, 200, IF_SERIAL_0);
 //    xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 201, IF_SERIAL_1);

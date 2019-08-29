@@ -22,6 +22,9 @@
 extern "C" {
 #endif
 
+
+__SYSTEM_EXTERNALFLASHSTORAGE_EXT
+void vEFS_init();
 __SYSTEM_EXTERNALFLASHSTORAGE_EXT
 void vEFS_loadStartUpConfigurationTest(void *arg0);
 __SYSTEM_EXTERNALFLASHSTORAGE_EXT

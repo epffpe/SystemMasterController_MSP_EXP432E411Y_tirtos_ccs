@@ -249,6 +249,7 @@
 #include "Devices/RemoteController/TCPBinaryCommands/DiscreteIO/TCPBinaryCMD_DiscreteIO.h"
 #include "Devices/RemoteController/TCPBinaryCommands/SystemControl/TCPBinaryCMD_SystemControl.h"
 #include "Devices/RemoteController/TCPBinaryCommands/DAC/TCPBinaryCMD_DAC.h"
+#include "Devices/RemoteController/TCPBinaryCommands/ProductionTest/TCPBinaryCMD_ProductionTest.h"
 #include "Devices/GenericDevice/TFTest/TFUARTTestDevice.h"
 #include "Devices/GenericDevice/DUTTest/DUTUartTestDevice.h"
 

@@ -57,18 +57,9 @@ SPIFFSNVS_Data g_IFSspiffsnvsData;
 int xIFS_createDefaultFiles();
 int xIFS_findDevicesAtStartUp();
 
-void vIFS_loadStartUpConfiguration(void *arg0)
+void vIFS_init()
 {
-    spiffs_file    fd;
-//    spiffs_config  fsConfig;
     int32_t        status;
-
-//    spiffs_DIR d;
-//    struct spiffs_dirent e;
-//    struct spiffs_dirent *pe = &e;
-
-    u32_t total, used;
-    int res;
 
     Display_printf(g_SMCDisplay, 0, 0,
             "==================================================");
@@ -85,6 +76,37 @@ void vIFS_loadStartUpConfiguration(void *arg0)
 
         while (1);
     }
+}
+
+
+void vIFS_loadStartUpConfiguration(void *arg0)
+{
+    spiffs_file    fd;
+//    spiffs_config  fsConfig;
+    int32_t        status;
+
+//    spiffs_DIR d;
+//    struct spiffs_dirent e;
+//    struct spiffs_dirent *pe = &e;
+
+    u32_t total, used;
+    int res;
+
+//    Display_printf(g_SMCDisplay, 0, 0,
+//            "==================================================");
+//
+//    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
+//    Display_printf(g_SMCDisplay, 0, 0, "Loading Initial Configuration");
+//
+//    /* Initialize spiffs, spiffs_config & spiffsnvsdata structures Board_NVSINTERNAL, Board_NVSEXTERNAL*/
+//    status = SPIFFSNVS_config(&g_IFSspiffsnvsData, Board_NVSINTERNAL, &g_IFSfs, &g_fsConfig,
+//        IFS_SPIFFS_LOGICAL_BLOCK_SIZE, IFS_SPIFFS_LOGICAL_PAGE_SIZE);
+//    if (status != SPIFFSNVS_STATUS_SUCCESS) {
+//        Display_printf(g_SMCDisplay, 0, 0,
+//            "Error with SPIFFS configuration.\n");
+//
+//        while (1);
+//    }
 
     Display_printf(g_SMCDisplay, 0, 0, "Mounting Internal Flash file system...");
 
