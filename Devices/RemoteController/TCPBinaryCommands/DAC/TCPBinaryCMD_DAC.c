@@ -7,12 +7,29 @@
 
 #define __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_DAC_TCPBINARYCMD_DAC_GLOBAL
 #include "includes.h"
+#undef htonl
+#undef htons
+#undef ntohl
+#undef ntohs
 
+
+
+/* BSD support */
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+
+#include <ti/net/slnetutils.h>
+
+extern void fdOpenSession();
+extern void fdCloseSession();
+extern void *TaskSelf();
 
 
 void vTCPRCBin_DAC_setVoltageValue(int clientfd, char *payload, int32_t size)
 {
-    int bytesSent, index;
+    int bytesSent;
     Memory_Stats memStats;
     char buffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(uint32_t)];
 
