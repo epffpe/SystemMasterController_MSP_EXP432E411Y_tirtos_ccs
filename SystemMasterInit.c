@@ -36,12 +36,15 @@
 
 #include "includes.h"
 
+//#define DUT
+
 
 /* Example/Board Header files */
 
 void vDiscreteIO_init();
 void vHeartBeat_init();
 void test();
+void testCan();
 
 extern void pvPPPCU_inputLineIntHandler(uint_least8_t index);
 //extern void test2();
@@ -122,7 +125,7 @@ void *mainThread(void *arg0)
 
 
 
-    test3();
+//    test3();
     return 0;
 }
 
@@ -139,6 +142,7 @@ void *SMC_initThread(void *arg0)
     // SDSPI_init();
     SPI_init();
     UART_init();
+    CAN_init();
     // Watchdog_init();
 
 //    SMCDisplay_init();
@@ -185,6 +189,7 @@ void *SMC_initThread(void *arg0)
 
     //    test4();
 //    test2();
+    testCan();
 
 //    DOSet(DIO_UART_DEBUG);
     DOSet(DIO_SERIAL5_EN_, 1);
@@ -192,6 +197,7 @@ void *SMC_initThread(void *arg0)
     Error_init(&eb);
     Device_Params deviceParams;
 
+#ifndef DUT
     /* Test Fixture */
     vTFUartTestDevice_Params_init(&deviceParams, 100, IF_SERIAL_0);
     xDevice_add(&deviceParams, &eb);
@@ -207,22 +213,24 @@ void *SMC_initThread(void *arg0)
     xDevice_add(&deviceParams, &eb);
     vTFUartTestDevice_Params_init(&deviceParams, 106, IF_SERIAL_6);
     xDevice_add(&deviceParams, &eb);
-
+#else
     /* Device under test */
     vDUTUartTestDevice_Params_init(&deviceParams, 200, IF_SERIAL_0);
-//    xDevice_add(&deviceParams, &eb);
+    xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 201, IF_SERIAL_1);
-//    xDevice_add(&deviceParams, &eb);
+    xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 202, IF_SERIAL_2);
-//    xDevice_add(&deviceParams, &eb);
+    xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 203, IF_SERIAL_3);
-//    xDevice_add(&deviceParams, &eb);
+    xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 204, IF_SERIAL_4);
-//    xDevice_add(&deviceParams, &eb);
+    xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 205, IF_SERIAL_5);
-//    xDevice_add(&deviceParams, &eb);
+    xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 206, IF_SERIAL_6);
-//    xDevice_add(&deviceParams, &eb);
+    xDevice_add(&deviceParams, &eb);
+
+#endif
     return 0;
 }
 
@@ -428,5 +436,100 @@ void test()
 
         usleep(time);
     }
+}
+
+
+
+static CAN_Handle can;
+
+
+Void canTXTestFxn(UArg arg0, UArg arg1)
+{
+    uint32_t framesSent;
+    CAN_Frame canFrame[2] = {0};
+    while (1) {
+        Task_sleep((unsigned int)100);
+#ifndef DUT
+        canFrame[0].id = 1;  // TF is sending
+        canFrame[1].id = 4;  // TF is sending
+#else
+        canFrame[0].id = 2; // DUT is sending
+        canFrame[1].id = 2; // DUT is sending
+#endif
+        canFrame[0].err = 0;
+        canFrame[0].rtr = 0;
+        canFrame[0].eff = 0;
+        canFrame[0].dlc = 1;
+        canFrame[0].data[0] = framesSent++;
+
+        canFrame[1].err = 0;
+        canFrame[1].rtr = 0;
+        canFrame[1].eff = 0;
+        canFrame[1].dlc = 2;
+        canFrame[1].data[0] = framesSent;
+        canFrame[1].data[1] = framesSent++;
+        CAN_write(can, &canFrame, sizeof(canFrame));
+//        Display_print1(g_SMCDisplay, 0, 0, "Button pressed. Frame ID sent: 0x%3x", canFrame.id);
+    }
+}
+
+Void canRXTestFxn(UArg arg0, UArg arg1)
+{
+    CAN_Params canParams;
+
+
+    Display_printf(g_SMCDisplay, 0, 0, "canRXTestFxn task started\n");
+    /*
+     * Open CAN instance.
+     * CAN_Params filterID and filterMask determine what messages to receive.
+     */
+    CAN_Params_init(&canParams);
+#ifndef DUT
+    canParams.filterID = 0x002; //TF reading addres
+#else
+    canParams.filterID = 0x001; //DUT reading addres
+#endif
+
+    canParams.filterMask = 0x003;
+    can = CAN_open(Board_CAN0, &canParams);
+
+//#ifndef DUT
+    Task_Params taskParams;
+    Error_Block eb;
+    /* Make sure Error_Block is initialized */
+    Error_init(&eb);
+    Display_printf(g_SMCDisplay, 0, 0, "Initializing canTXTestFxn\n");
+    Task_Params_init(&taskParams);
+//    taskParams.arg0 = 1000;
+    taskParams.stackSize = 1024;
+    Task_create((Task_FuncPtr)canTXTestFxn, &taskParams, NULL);
+//#endif
+
+    /*
+     * Toggles Board_GPIO_LED0 every time a CAN frame is received.
+     * Also prints out the received CAN frame ID to UART display.
+     * CAN_Params filterID, filterMask control how often CAN_read is completed.
+     */
+    CAN_Frame canFrame = {0};
+    while (1) {
+        CAN_read(can, &canFrame, sizeof(canFrame));
+//        Display_print1(g_SMCDisplay, 0, 0, "Message received. Frame ID received: 0x%3x", canFrame.id);
+        DOSet(DIO_LED_D20, DOGet(DIO_LED_D20));
+    }
+}
+
+void testCan()
+{
+    Task_Params taskParams;
+//    Task_Handle taskHandle;
+    Error_Block eb;
+    /* Make sure Error_Block is initialized */
+    Error_init(&eb);
+    Display_printf(g_SMCDisplay, 0, 0, "Initializing canRXTestFxn\n");
+    /* Construct heartBeat Task  thread */
+    Task_Params_init(&taskParams);
+//    taskParams.arg0 = 1000;
+    taskParams.stackSize = 1024;
+    Task_create((Task_FuncPtr)canRXTestFxn, &taskParams, NULL);
 }
 

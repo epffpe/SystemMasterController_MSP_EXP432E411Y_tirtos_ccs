@@ -107,7 +107,7 @@
 //#include <ti/drivers/EMAC.h>
 //#include <ti/drivers/emac/EMACMSP432E4.h>
 
-
+#include <ti/drivers/CAN.h>
 #include <ti/drivers/GPIO.h>
 //#include <ti/drivers/gpio/GPIOMSP432E4.h>
 #include <ti/drivers/ADCBuf.h>
