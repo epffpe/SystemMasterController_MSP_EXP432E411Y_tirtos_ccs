@@ -111,6 +111,11 @@ Void udpHandlerFxn(UArg arg0, UArg arg1)
 
                     pManufacturerInformation = INFO_get();
                     n = sprintf(response, "System Master Controller ID: %06d", pManufacturerInformation->unitSerialNumber);
+//#ifdef TEST_FIXTURE
+//                    n = sprintf(response, "SMC Test Fixture ID: %06d", pManufacturerInformation->unitSerialNumber);
+//#else
+//                    n = sprintf(response, "System Master Controller ID: %06d", pManufacturerInformation->unitSerialNumber);
+//#endif
 
                     bytesSent = sendto(server, response, n, 0,
                             (struct sockaddr *)&clientAddr, addrlen);

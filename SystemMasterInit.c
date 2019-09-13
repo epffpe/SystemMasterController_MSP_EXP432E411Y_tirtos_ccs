@@ -36,16 +36,12 @@
 
 #include "includes.h"
 
-//#define DUT
-#define TEST_FIXTURE
-
 
 /* Example/Board Header files */
 
 void vDiscreteIO_init();
 void vHeartBeat_init();
 void test();
-void testCan();
 
 extern void pvPPPCU_inputLineIntHandler(uint_least8_t index);
 //extern void test2();
@@ -191,7 +187,7 @@ void *SMC_initThread(void *arg0)
     //    test4();
 //    test2();
 #if defined(TEST_FIXTURE) || defined(DUT)
-    testCan();
+    vCANTest_init();
 #endif
 
 //    DOSet(DIO_UART_DEBUG);
@@ -443,127 +439,4 @@ void test()
     }
 }
 
-/*
- * CAN Test
- */
-
-
-static CAN_Handle can;
-volatile uint32_t framesSent, frameError;
-
-
-Void canTXTestFxn(UArg arg0, UArg arg1)
-{
-    CAN_Frame canFrame[2] = {0};
-    uint32_t *pui32Error = (uint32_t *)canFrame[1].data;
-    uint32_t *pui32Data = (uint32_t *)canFrame[0].data;
-    while (1) {
-        Task_sleep((unsigned int)100);
-#ifdef TEST_FIXTURE
-        canFrame[0].id = 1;  // TF is sending
-        canFrame[1].id = 4;  // TF is sending
-#endif
-#ifdef DUT
-        canFrame[0].id = 2; // DUT is sending
-        canFrame[1].id = 2; // DUT is sending
-#endif
-        canFrame[0].err = 0;
-        canFrame[0].rtr = 0;
-        canFrame[0].eff = 0;
-        canFrame[0].dlc = 4;
-//        canFrame[0].data[0] = framesSent++;
-        *pui32Data = framesSent++;
-
-        canFrame[1].err = 0;
-        canFrame[1].rtr = 0;
-        canFrame[1].eff = 0;
-        canFrame[1].dlc = 4;
-//        canFrame[1].data[0] = frameError;
-//        canFrame[1].data[1] = frameError;
-        *pui32Error = frameError;
-        CAN_write(can, &canFrame, sizeof(canFrame));
-//        Display_print1(g_SMCDisplay, 0, 0, "Button pressed. Frame ID sent: 0x%3x", canFrame.id);
-    }
-}
-
-Void canRXTestFxn(UArg arg0, UArg arg1)
-{
-    CAN_Params canParams;
-    uint32_t *pui32Data;
-
-    Display_printf(g_SMCDisplay, 0, 0, "canRXTestFxn task started\n");
-
-    framesSent = frameError = 0;
-
-    /*
-     * Open CAN instance.
-     * CAN_Params filterID and filterMask determine what messages to receive.
-     */
-    CAN_Params_init(&canParams);
-#ifdef TEST_FIXTURE
-    canParams.filterID = 0x002; //TF reading addres
-#endif
-#ifdef DUT
-    canParams.filterID = 0x001; //DUT reading addres
-#endif
-
-    canParams.filterMask = 0x003;
-    can = CAN_open(Board_CAN0, &canParams);
-
-#ifdef TEST_FIXTURE
-    Task_Params taskParams;
-    Error_Block eb;
-    /* Make sure Error_Block is initialized */
-    Error_init(&eb);
-    Display_printf(g_SMCDisplay, 0, 0, "Initializing canTXTestFxn\n");
-    Task_Params_init(&taskParams);
-//    taskParams.arg0 = 1000;
-    taskParams.priority = 3;
-    taskParams.stackSize = 1024;
-    Task_create((Task_FuncPtr)canTXTestFxn, &taskParams, NULL);
-#endif
-
-    /*
-     * Toggles Board_GPIO_LED0 every time a CAN frame is received.
-     * Also prints out the received CAN frame ID to UART display.
-     * CAN_Params filterID, filterMask control how often CAN_read is completed.
-     */
-    CAN_Frame canFrame = {0};
-    while (1) {
-        CAN_read(can, &canFrame, sizeof(canFrame));
-        DOSet(DIO_LED_D20, DOGet(DIO_LED_D20));
-        pui32Data = (uint32_t *)canFrame.data;
-#ifdef DUT
-        canFrame.id = 2; // DUT is sending
-        canFrame.err = 0;
-        canFrame.rtr = 0;
-        canFrame.eff = 0;
-        canFrame.dlc = 4;
-//        canFrame.data[0] = canFrame.data[0] + 1;
-        (*pui32Data)++;
-
-        CAN_write(can, &canFrame, sizeof(canFrame));
-#endif
-
-#ifdef TEST_FIXTURE
-        if (*pui32Data != framesSent) frameError++;
-#endif
-    }
-}
-
-void testCan()
-{
-    Task_Params taskParams;
-//    Task_Handle taskHandle;
-    Error_Block eb;
-    /* Make sure Error_Block is initialized */
-    Error_init(&eb);
-    Display_printf(g_SMCDisplay, 0, 0, "Initializing canRXTestFxn\n");
-    /* Construct heartBeat Task  thread */
-    Task_Params_init(&taskParams);
-//    taskParams.arg0 = 1000;
-    taskParams.stackSize = 1024;
-    taskParams.priority = 8;
-    Task_create((Task_FuncPtr)canRXTestFxn, &taskParams, NULL);
-}
 

@@ -112,7 +112,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="HTTPServer/httpSrvBasicHooks.c|Deprecated/BSPSerial.cpp|Deprecated/ALTO/ALTOMultinet/ALTOMultinet.c|Deprecated/ALTO/ALTOMultinet/TempControllerWorker.c|FileSystem/MSP_EXP432E401Y.c|FileSystem/SPIMSP432E4DMA.c|Deprecated/ALTO/ForteManager/ComputerBridge.cpp|Deprecated/ALTO/ALTOMultinet/RelayControllerWorker.c|Deprecated/AVDS/AVDSClient.c|cangpiotxrx.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Deprecated/BSPSerial.cpp|Deprecated/ALTO/ALTOMultinet/ALTOMultinet.c|HTTPServer/httpSrvBasicHooks.c|Deprecated/ALTO/ALTOMultinet/TempControllerWorker.c|FileSystem/MSP_EXP432E401Y.c|FileSystem/SPIMSP432E4DMA.c|Deprecated/ALTO/ForteManager/ComputerBridge.cpp|Deprecated/ALTO/ALTOMultinet/RelayControllerWorker.c|Deprecated/AVDS/AVDSClient.c|cangpiotxrx.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

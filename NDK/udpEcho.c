@@ -56,6 +56,8 @@
 #include <ti/display/Display.h>
 #include "System/EEPROM/EEPROMStorage.h"
 
+#include "Deprecated/CANTest/CANTest.h"
+
 #define UDPPACKETSIZE 1472
 
 
@@ -134,8 +136,12 @@ void *UDPFinder_task(void *arg0)
                                    clientAddr.sin_port
                     );
                     pManufacturerInformation = INFO_get();
+//                    n = sprintf(response, "System Master Controller ID: %06d", pManufacturerInformation->unitSerialNumber);
+#ifdef TEST_FIXTURE
+                    n = sprintf(response, "SMC Test Fixture ID: %06d", pManufacturerInformation->unitSerialNumber);
+#else
                     n = sprintf(response, "System Master Controller ID: %06d", pManufacturerInformation->unitSerialNumber);
-
+#endif
                     bytesSent = sendto(server, response, n, 0,
                                                 (struct sockaddr *)&clientAddr, addrlen);
                     if(bytesSent != n){

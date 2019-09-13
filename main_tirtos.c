@@ -79,6 +79,13 @@ void programEMACAddress()
     FlashUserSave();
 }
 
+void readUserFlashReg()
+{
+    uint32_t ulUser0, ulUser1, ulUser2, ulUser3;
+
+    FlashAllUserRegisterGet(&ulUser0, &ulUser1, &ulUser2, &ulUser3);
+}
+
 //Void inittask(UArg arg0, UArg arg1)
 //{
 //    SMC_initThread(NULL);
@@ -111,6 +118,7 @@ int main(void)
     /* Call driver init functions */
     Board_initGeneral();
 
+    readUserFlashReg();
 //    programEMACAddress();
 
     INFO_init();

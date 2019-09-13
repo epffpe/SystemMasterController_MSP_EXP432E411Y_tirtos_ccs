@@ -206,6 +206,7 @@
 #include "Deprecated/RosenDVD/Rosen.h"
 #include "Deprecated/RosenDVD/RosenBlueRayDVD.h"
 #include "Deprecated/Panasonic/PassengerControlUnit.h"
+#include "Deprecated/CANTest/CANTest.h"
 //#include "mx66l51235f.h"
 //
 //#include "TrashCollection/TrashCollection.h"

@@ -48,8 +48,8 @@ void vTCPRCBin_ProductionTest_getCounters(int clientfd, char *payload, int32_t s
     uint32_t *pFramePayload = (uint32_t *)pFrame->payload;
 
     for (index = 0; index < IF_COUNT; index++) pFramePayload[index] = g_TFUartTestErrorCounter[index];
-    pFramePayload[index++] = 0;
-    pFramePayload[index++] = 0;
+    pFramePayload[index++] = g_ui32CANTestFrameError0;
+    pFramePayload[index++] = g_ui32CANTestFrameError1;
 
 
     bytesSent = send(clientfd, buffer, sizeof(buffer), 0);
@@ -75,6 +75,8 @@ void vTCPRCBin_ProductionTest_resetCounters(int clientfd, char *payload, int32_t
     uint32_t *pFramePayload = (uint32_t *)pFrame->payload;
 
     for (index = 0; index < IF_COUNT; index++) g_TFUartTestErrorCounter[index] = 0;
+    g_ui32CANTestFrameError0 = 0;
+    g_ui32CANTestFrameError1 = 0;
     *pFramePayload = 1;
 
 
