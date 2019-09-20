@@ -115,6 +115,10 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
 //Production Test and qual
  [TCP_CMD_TEST_resetCounters] = vTCPRCBin_ProductionTest_resetCounters,
  [TCP_CMD_TEST_getCounters] = vTCPRCBin_ProductionTest_getCounters,
+ [TCP_CMD_TEST_setGPIOAsInput] = vTCPRCBin_ProductionTest_setGPIOAsInput,
+ [TCP_CMD_TEST_setGPIOAsOutput] = vTCPRCBin_ProductionTest_setGPIOAsOutput,
+ [TCP_CMD_TEST_setGPIOOutputValue] = vTCPRCBin_ProductionTest_setGPIOOutputValue,
+ [TCP_CMD_TEST_getGPIOInputValue] = vTCPRCBin_ProductionTest_getGPIOInputValue,
 
 
 };

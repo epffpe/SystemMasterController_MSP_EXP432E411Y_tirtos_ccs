@@ -58,10 +58,11 @@ Void vCANTest_canTXTestFxn(UArg arg0, UArg arg1)
         canFrame[1].err = 0;
         canFrame[1].rtr = 0;
         canFrame[1].eff = 0;
-        canFrame[1].dlc = 4;
-//        canFrame[1].data[0] = frameError;
-//        canFrame[1].data[1] = frameError;
-        *pui32Data1 = *pui32Error;
+        canFrame[1].dlc = 8;
+//        *pui32Data1 = *pui32Error;
+        pui32Data1 = (uint32_t *)canFrame[1].data;
+        *(pui32Data1++) = g_ui32CANTestFrameError0;
+        *pui32Data1 = g_ui32CANTestFrameError1;
         CAN_write(canHandler, &canFrame, sizeof(canFrame));
 //        Display_print1(g_SMCDisplay, 0, 0, "Button pressed. Frame ID sent: 0x%3x", canFrame.id);
     }

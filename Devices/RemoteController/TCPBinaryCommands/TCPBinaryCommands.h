@@ -193,6 +193,14 @@ typedef enum {
     TCP_CMD_TEST_resetCountersResponse,
     TCP_CMD_TEST_getCounters,
     TCP_CMD_TEST_getCountersResponse,
+    TCP_CMD_TEST_setGPIOAsInput,
+    TCP_CMD_TEST_setGPIOAsInputResponse,
+    TCP_CMD_TEST_setGPIOAsOutput,
+    TCP_CMD_TEST_setGPIOAsOutputResponse,
+    TCP_CMD_TEST_setGPIOOutputValue,
+    TCP_CMD_TEST_setGPIOOutputValueResponse,
+    TCP_CMD_TEST_getGPIOInputValue,
+    TCP_CMD_TEST_getGPIOInputValueResponse,
 
     TCP_CMD_COUNT
 } TCPBin_CMD_types_te;
