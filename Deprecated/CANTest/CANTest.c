@@ -33,9 +33,11 @@ Void vCANTest_canTXTestFxn(UArg arg0, UArg arg1)
     if (arg0 == NULL) {
         pui32Error = &g_ui32CANTestFrameError0;
         pui32FrameSent = &g_ui32CANTestFramesSent0;
+        Task_sleep((unsigned int)120);
     }else{
         pui32Error = &g_ui32CANTestFrameError1;
         pui32FrameSent = &g_ui32CANTestFramesSent1;
+        Task_sleep((unsigned int)150);
     }
 
     while (1) {

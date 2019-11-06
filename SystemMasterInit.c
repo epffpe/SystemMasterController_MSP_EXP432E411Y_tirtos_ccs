@@ -199,36 +199,57 @@ void *SMC_initThread(void *arg0)
 #ifdef TEST_FIXTURE
     /* Test Fixture */
     vTFUartTestDevice_Params_init(&deviceParams, 100, IF_SERIAL_0);
+    deviceParams.timeout = 100;
     xDevice_add(&deviceParams, &eb);
     vTFUartTestDevice_Params_init(&deviceParams, 101, IF_SERIAL_1);
+    deviceParams.timeout = 110;
     xDevice_add(&deviceParams, &eb);
     vTFUartTestDevice_Params_init(&deviceParams, 102, IF_SERIAL_2);
+    deviceParams.timeout = 130;
     xDevice_add(&deviceParams, &eb);
     vTFUartTestDevice_Params_init(&deviceParams, 103, IF_SERIAL_3);
+    deviceParams.timeout = 140;
     xDevice_add(&deviceParams, &eb);
     vTFUartTestDevice_Params_init(&deviceParams, 104, IF_SERIAL_4);
+    deviceParams.timeout = 160;
     xDevice_add(&deviceParams, &eb);
     vTFUartTestDevice_Params_init(&deviceParams, 105, IF_SERIAL_5);
+    deviceParams.timeout = 170;
     xDevice_add(&deviceParams, &eb);
     vTFUartTestDevice_Params_init(&deviceParams, 106, IF_SERIAL_6);
+    deviceParams.timeout = 180;
     xDevice_add(&deviceParams, &eb);
 #endif
 
 #ifdef DUT
     /* Device under test */
     vDUTUartTestDevice_Params_init(&deviceParams, 200, IF_SERIAL_0);
+//    deviceParams.period = 1000;
+//    deviceParams.timeout = 100;
     xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 201, IF_SERIAL_1);
+//    deviceParams.period = 1000;
+//    deviceParams.timeout = 110;
     xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 202, IF_SERIAL_2);
+//    deviceParams.period = 1000;
+//    deviceParams.timeout = 120;
     xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 203, IF_SERIAL_3);
+//    deviceParams.period = 1000;
+//    deviceParams.timeout = 130;
     xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 204, IF_SERIAL_4);
+//    deviceParams.period = 1000;
+//    deviceParams.timeout = 140;
     xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 205, IF_SERIAL_5);
+//    deviceParams.period = 1000;
+//    deviceParams.timeout = 150;
     xDevice_add(&deviceParams, &eb);
     vDUTUartTestDevice_Params_init(&deviceParams, 206, IF_SERIAL_6);
+//    deviceParams.period = 1000;
+//    deviceParams.timeout = 160;
     xDevice_add(&deviceParams, &eb);
 
 #endif
