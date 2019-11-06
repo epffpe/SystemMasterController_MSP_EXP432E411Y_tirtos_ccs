@@ -17,7 +17,7 @@ Void vI2CTemp101Fxn(UArg arg0, UArg arg1)
 {
 
     uint16_t        sample;
-    uint16_t        temperature;
+    int16_t         temperature;
     uint8_t         txBuffer[1];
     uint8_t         rxBuffer[2];
     I2C_Handle      i2c;
@@ -56,7 +56,6 @@ Void vI2CTemp101Fxn(UArg arg0, UArg arg1)
             /* Extract degrees C from the received data; see TMP116 datasheet */
             temperature = (rxBuffer[0] << 4) | (rxBuffer[1] >> 4);
 //            temperature *= 0.0078125;
-            temperature *= 0.0625;
 
             /*
              * If the MSB is set '1', then we have a 2's complement
@@ -65,6 +64,10 @@ Void vI2CTemp101Fxn(UArg arg0, UArg arg1)
             if (rxBuffer[0] & 0x80) {
                 temperature |= 0xF000;
             }
+//            g_fI2CTempSensor = temperature;
+//            g_fI2CTempSensor *= 0.0625;
+
+            temperature *= 0.0625; //shift 4 to right
 
             g_i16I2CTempSensor = temperature;
 

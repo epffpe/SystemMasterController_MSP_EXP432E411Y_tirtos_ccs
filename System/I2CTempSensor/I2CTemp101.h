@@ -23,6 +23,7 @@ extern "C"  {
 
 SYSTEM_I2CTEMPSENSOR_I2CTEMP101_EXT
 int16_t g_i16I2CTempSensor;
+//float g_fI2CTempSensor;
 
 SYSTEM_I2CTEMPSENSOR_I2CTEMP101_EXT
 void vI2CTemp101_init();
