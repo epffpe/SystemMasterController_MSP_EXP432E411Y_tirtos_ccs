@@ -173,12 +173,12 @@ void *SMC_initThread(void *arg0)
     vDevice_init();
 
     vIFS_init();
-//    vIFS_loadStartUpConfiguration(NULL);
+    vIFS_loadStartUpConfiguration(NULL);
 
 //    vEFS_loadStartUpConfiguration(NULL);
 
-    vEFS_init();
-    vEFS_loadStartUpConfigurationTest(NULL);
+//    vEFS_init();
+//    vEFS_loadStartUpConfigurationTest(NULL);
 
     vSPIDAC101_init(25e3, 25e3);
     vSPIDAC_setRawValue(0);
