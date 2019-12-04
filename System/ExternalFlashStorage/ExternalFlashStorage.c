@@ -286,7 +286,7 @@ void vEFS_loadStartUpConfigurationTest(void *arg0)
         }
 
         Display_printf(g_SMCDisplay, 0, 0, "Writing to %s...", IFS_STARTUP_CONF_FILE_NAME);
-
+        Task_sleep((unsigned int)150);
         if (SPIFFS_write(&g_EFSfs, fd, (void *) &g_EFSmessage, MESSAGE_LENGTH) < 0) {
             Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_STARTUP_CONF_FILE_NAME);
 

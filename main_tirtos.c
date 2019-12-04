@@ -145,7 +145,7 @@ int main(void)
         while (1) {}
     }
 
-    ti_ndk_config_Global_startupFxn();
+//    ti_ndk_config_Global_startupFxn();
 
     System_printf("Starting the System Master Controller\nSystem provider is set to SysMin. "
                   "Halt the target to view any SysMin contents in ROV.\n"
