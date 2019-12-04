@@ -27,7 +27,8 @@ Void vI2CTemp101Fxn(UArg arg0, UArg arg1)
 
     /* Turn on user LED */
 //    GPIO_write(Board_GPIO_LED0, Board_GPIO_LED_ON);
-    Display_printf(g_SMCDisplay, 0, 0, "Starting the i2ctmp116 example\n");
+//    Display_printf(g_SMCDisplay, 0, 0, "Starting the i2ctmp116 example\n");
+    Display_printf(g_SMCDisplay, 0, 0, "Starting the vI2CTemp101Fxn\n");
 
     /* Create I2C for usage */
     I2C_Params_init(&i2cParams);

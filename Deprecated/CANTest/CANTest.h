@@ -8,7 +8,7 @@
 #ifndef DEPRECATED_CANTEST_CANTEST_H_
 #define DEPRECATED_CANTEST_CANTEST_H_
 
-#define DUT
+//#define DUT
 //#define TEST_FIXTURE
 
 

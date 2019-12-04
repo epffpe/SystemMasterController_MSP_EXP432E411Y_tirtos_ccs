@@ -142,10 +142,12 @@ void *SMC_initThread(void *arg0)
     CAN_init();
     // Watchdog_init();
 
-//    SMCDisplay_init();
+    SMCDisplay_init();
     GPIO_write(SMC_SERIAL0_DE, 1);
     Display_printf(g_SMCDisplay, 0, 0, "Starting the System Master Controller\n"
                    "-- Compiled: "__DATE__" "__TIME__" --\n");
+
+
 
     vDiscreteIO_init();
     vHeartBeat_init();
@@ -173,7 +175,7 @@ void *SMC_initThread(void *arg0)
     vDevice_init();
 
     vIFS_init();
-//    vIFS_loadStartUpConfiguration(NULL);
+    vIFS_loadStartUpConfiguration(NULL);
 
 //    vEFS_loadStartUpConfiguration(NULL);
 
@@ -183,6 +185,7 @@ void *SMC_initThread(void *arg0)
     vSPIDAC101_init(25e3, 25e3);
     vSPIDAC_setRawValue(0);
     vMAX1301_init();
+
 
     //    test4();
 //    test2();
@@ -253,6 +256,8 @@ void *SMC_initThread(void *arg0)
     xDevice_add(&deviceParams, &eb);
 
 #endif
+
+    ti_ndk_config_Global_startupFxn();
     return 0;
 }
 
