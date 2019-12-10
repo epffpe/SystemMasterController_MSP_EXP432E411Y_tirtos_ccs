@@ -163,8 +163,8 @@ void vCANTest_init()
     Display_printf(g_SMCDisplay, 0, 0, "Initializing canRXTestFxn\n");
     /* Construct heartBeat Task  thread */
     Task_Params_init(&taskParams);
-    taskParams.stackSize = 1024;
-    taskParams.priority = 8;
+    taskParams.stackSize = DEPRECATED_CANTEST_CANTEST_TASK_STACK_SIZE;
+    taskParams.priority = DEPRECATED_CANTEST_CANTEST_TASK_PRIORITY;
     taskParams.arg0 = 0;
     Task_create((Task_FuncPtr)vCANTest_canRXTestFxn, &taskParams, NULL);
     taskParams.arg0 = 1;

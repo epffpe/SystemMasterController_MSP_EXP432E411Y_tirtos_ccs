@@ -9,6 +9,7 @@
 #define SYSTEM_INTERNALFLASHSTORAGE_INTERNALFLASHSTORAGE_H_
 
 #define IFS_STARTUP_CONF_FILE_NAME          "startUpConfigFile"
+#define IFS_MEM_TEST_FILE_NAME              "memTestFile"
 #define IFS_STARTUP_DEVICE_0_FILE_NAME      "devices/dev000"
 #define IFS_STARTUP_DEVICE_1_FILE_NAME      "devices/dev001"
 #define IFS_STARTUP_DEVICE_2_FILE_NAME      "devices/dev002"
@@ -56,6 +57,9 @@ void vIFS_removeFileNameEthernet(int clientfd, char *payload);
 
 __SYSTEM_INTERNALFLASHSTORAGE_EXT
 void vIFS_getFlashConfigurationFileEthernet(int clientfd);
+
+__SYSTEM_INTERNALFLASHSTORAGE_EXT
+uint32_t vIFS_testMemoryEthernet(int clientfd);
 
 #ifdef __cplusplus
 }

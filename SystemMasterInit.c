@@ -142,7 +142,9 @@ void *SMC_initThread(void *arg0)
     CAN_init();
     // Watchdog_init();
 
+#if !(defined(TEST_FIXTURE) || defined(DUT))
     SMCDisplay_init();
+#endif
     GPIO_write(SMC_SERIAL0_DE, 1);
     Display_printf(g_SMCDisplay, 0, 0, "Starting the System Master Controller\n"
                    "-- Compiled: "__DATE__" "__TIME__" --\n");

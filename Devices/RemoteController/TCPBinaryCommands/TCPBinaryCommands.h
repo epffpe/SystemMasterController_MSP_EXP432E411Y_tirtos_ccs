@@ -202,6 +202,13 @@ typedef enum {
     TCP_CMD_TEST_getGPIOInputValue,
     TCP_CMD_TEST_getGPIOInputValueResponse,
 
+    TCP_CMD_TEST_MemoryTestEEPROM,
+    TCP_CMD_TEST_MemoryTestEEPROMResponse,
+    TCP_CMD_TEST_MemoryTestInternalFlash,
+    TCP_CMD_TEST_MemoryTestInternalFlashResponse,
+    TCP_CMD_TEST_MemoryTestExternalFlash,
+    TCP_CMD_TEST_MemoryTestExternalFlashResponse,
+
     TCP_CMD_COUNT
 } TCPBin_CMD_types_te;
 

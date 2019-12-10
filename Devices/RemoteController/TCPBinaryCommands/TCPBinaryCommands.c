@@ -119,6 +119,9 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_TEST_setGPIOAsOutput] = vTCPRCBin_ProductionTest_setGPIOAsOutput,
  [TCP_CMD_TEST_setGPIOOutputValue] = vTCPRCBin_ProductionTest_setGPIOOutputValue,
  [TCP_CMD_TEST_getGPIOInputValue] = vTCPRCBin_ProductionTest_getGPIOInputValue,
+ [TCP_CMD_TEST_MemoryTestEEPROM] = vTCPRCBin_ProductionTest_MemoryTestEEPROM,
+ [TCP_CMD_TEST_MemoryTestInternalFlash] = vTCPRCBin_ProductionTest_MemoryTestInternalFlash,
+ [TCP_CMD_TEST_MemoryTestExternalFlash] = vTCPRCBin_ProductionTest_MemoryTestExternalFlash,
 
 
 };

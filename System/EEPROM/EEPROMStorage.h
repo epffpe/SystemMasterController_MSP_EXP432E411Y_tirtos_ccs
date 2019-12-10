@@ -42,6 +42,7 @@
 
 #define DEFAULT_EEPROM_ADDRESS              0x000
 #define DEFAULT_EEPROM_DIO_CONFG            0x080
+#define DEFAULT_EEPROM_MEM_TEST             0x200
 
 
 
@@ -96,6 +97,10 @@ typedef struct {
     tEEPROM_DOConfigData    doUSB0EPEn;
 
 }tEEPROM_DIOCfgData;
+
+typedef struct {
+    uint32_t                test;
+}tEEPROM_memoryTestData;
 
 #define EEPROM_DATA_PAYLOAD_SIZE      (sizeof(tEEPROM_Data) + 2 )
 

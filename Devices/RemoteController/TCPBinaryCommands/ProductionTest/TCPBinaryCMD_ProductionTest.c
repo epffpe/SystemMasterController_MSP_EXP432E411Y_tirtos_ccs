@@ -229,3 +229,86 @@ void vTCPRCBin_ProductionTest_getGPIOInputValue(int clientfd, char *payload, int
 }
 
 
+
+
+void vTCPRCBin_ProductionTest_MemoryTestEEPROM(int clientfd, char *payload, int32_t size)
+{
+    int bytesSent;
+    uint32_t retVal;
+    tEEPROM_memoryTestData testData;
+
+    char buffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(uint32_t)];
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+
+
+    pFrame->type = TCP_CMD_TEST_MemoryTestEEPROMResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
+    pFrame->retParamID = 1;
+
+    uint32_t *pFramePayload = (uint32_t *)pFrame->payload;
+
+    testData.test = TCPBINARYCOMMANDS_EEPROM_MEM_TEST_VALUE;
+//    EEPROMProgram returns 0 on success or non-zero values on failure. Failure codes are logical OR combinations
+//    of EEPROM_RC_WRBUSY, EEPROM_RC_NOPERM, EEPROM_RC_WKCOPY, EEPROM_RC_WKERASE, and EEPROM_RC_WORKING.
+    retVal = EEPROMProgram((uint32_t *)&testData, DEFAULT_EEPROM_MEM_TEST, sizeof(tEEPROM_memoryTestData));
+
+    *pFramePayload = retVal;
+    if (!retVal) {
+        testData.test = 0;
+        EEPROMRead((uint32_t *)&testData, DEFAULT_EEPROM_MEM_TEST, sizeof(tEEPROM_memoryTestData));
+        if (testData.test != TCPBINARYCOMMANDS_EEPROM_MEM_TEST_VALUE) {
+            *pFramePayload |= 0x00000040;
+        }
+    }
+
+    bytesSent = send(clientfd, buffer, sizeof(buffer), 0);
+    bytesSent = bytesSent;
+}
+
+void vTCPRCBin_ProductionTest_MemoryTestInternalFlash(int clientfd, char *payload, int32_t size)
+{
+    int bytesSent;
+    char buffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(uint32_t)];
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+
+
+    pFrame->type = TCP_CMD_TEST_MemoryTestInternalFlashResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
+    pFrame->retParamID = 1;
+
+    uint32_t *pFramePayload = (uint32_t *)pFrame->payload;
+
+    *pFramePayload = vIFS_testMemoryEthernet(clientfd);
+
+
+    bytesSent = send(clientfd, buffer, sizeof(buffer), 0);
+    bytesSent = bytesSent;
+}
+
+void vTCPRCBin_ProductionTest_MemoryTestExternalFlash(int clientfd, char *payload, int32_t size)
+{
+    int bytesSent;
+    char buffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(uint32_t)];
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+
+
+    pFrame->type = TCP_CMD_TEST_MemoryTestExternalFlashResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
+    pFrame->retParamID = 1;
+
+    uint32_t *pFramePayload = (uint32_t *)pFrame->payload;
+
+    *pFramePayload = vEFS_testMemoryEthernet(clientfd);
+
+    bytesSent = send(clientfd, buffer, sizeof(buffer), 0);
+    bytesSent = bytesSent;
+}
+
+
+
