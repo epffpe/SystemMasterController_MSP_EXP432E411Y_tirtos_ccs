@@ -209,6 +209,11 @@ typedef enum {
     TCP_CMD_TEST_MemoryTestExternalFlash,
     TCP_CMD_TEST_MemoryTestExternalFlashResponse,
 
+    TCP_CMD_TEST_setIROutputValue,
+    TCP_CMD_TEST_setIROutputValueResponse,
+    TCP_CMD_TEST_getIRInputValue,
+    TCP_CMD_TEST_getIRInputValueResponse,
+
     TCP_CMD_COUNT
 } TCPBin_CMD_types_te;
 

@@ -141,7 +141,10 @@ void vIFS_loadStartUpConfiguration(void *arg0)
                 while (1);
             }
 
+//            xIFS_createDefaultFiles();
+#if !(defined(TEST_FIXTURE) || defined(DUT))
             xIFS_createDefaultFiles();
+#endif
 
         }
         else {

@@ -188,6 +188,7 @@ void vTCPRCBin_ProductionTest_setGPIOOutputValue(int clientfd, char *payload, in
         DOSet (DIO_GPO_3, true);
         DOSet (DIO_GPO_4, true);
         DOSet (DIO_GPO_5, true);
+        DOSet (DIO_IRDA_TX, true);
     }else {
         DOSet (DIO_GPO_0, false);
         DOSet (DIO_GPO_1, false);
@@ -195,6 +196,7 @@ void vTCPRCBin_ProductionTest_setGPIOOutputValue(int clientfd, char *payload, in
         DOSet (DIO_GPO_3, false);
         DOSet (DIO_GPO_4, false);
         DOSet (DIO_GPO_5, false);
+        DOSet (DIO_IRDA_TX, false);
     }
 
     *pFramePayload = 1;
@@ -207,7 +209,7 @@ void vTCPRCBin_ProductionTest_setGPIOOutputValue(int clientfd, char *payload, in
 void vTCPRCBin_ProductionTest_getGPIOInputValue(int clientfd, char *payload, int32_t size)
 {
     int bytesSent;
-    char buffer[sizeof(TCPBin_CMD_retFrame_t) + 6 * sizeof(uint32_t)];
+    char buffer[sizeof(TCPBin_CMD_retFrame_t) + 7 * sizeof(uint32_t)];
 
     TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
 
@@ -222,6 +224,7 @@ void vTCPRCBin_ProductionTest_getGPIOInputValue(int clientfd, char *payload, int
     for(bytesSent = 0; bytesSent < 6; bytesSent++) {
         pFramePayload[bytesSent] = DIGet(DIO_GPI_0 + bytesSent);
     }
+    pFramePayload[6] = DIGet(DIO_IRDA_RX);
 
 
     bytesSent = send(clientfd, buffer, sizeof(buffer), 0);
@@ -311,4 +314,55 @@ void vTCPRCBin_ProductionTest_MemoryTestExternalFlash(int clientfd, char *payloa
 }
 
 
+void vTCPRCBin_ProductionTest_setIROutputValue(int clientfd, char *payload, int32_t size)
+{
+    int bytesSent;
+    char buffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(uint32_t)];
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+
+
+    pFrame->type = TCP_CMD_TEST_setIROutputValueResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
+    pFrame->retParamID = 1;
+
+    uint32_t *pFramePayload = (uint32_t *)pFrame->payload;
+
+    uint32_t *pValue = (uint32_t *)payload;
+
+    if(*pValue) {
+        DOSet (DIO_IRDA_TX, true);
+    }else {
+        DOSet (DIO_IRDA_TX, false);
+    }
+
+    *pFramePayload = 1;
+
+
+    bytesSent = send(clientfd, buffer, sizeof(buffer), 0);
+    bytesSent = bytesSent;
+}
+
+void vTCPRCBin_ProductionTest_getIRInputValue(int clientfd, char *payload, int32_t size)
+{
+    int bytesSent;
+    char buffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(uint32_t)];
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+
+
+    pFrame->type = TCP_CMD_TEST_getIRInputValueResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
+    pFrame->retParamID = 1;
+
+    uint32_t *pFramePayload = (uint32_t *)pFrame->payload;
+
+    *pFramePayload = DIGet(DIO_IRDA_RX);
+
+
+    bytesSent = send(clientfd, buffer, sizeof(buffer), 0);
+    bytesSent = bytesSent;
+}
 

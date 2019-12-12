@@ -123,6 +123,10 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_TEST_MemoryTestInternalFlash] = vTCPRCBin_ProductionTest_MemoryTestInternalFlash,
  [TCP_CMD_TEST_MemoryTestExternalFlash] = vTCPRCBin_ProductionTest_MemoryTestExternalFlash,
 
+//IR Test
+ [TCP_CMD_TEST_setIROutputValue] = vTCPRCBin_ProductionTest_setIROutputValue,
+ [TCP_CMD_TEST_getIRInputValue] = vTCPRCBin_ProductionTest_getIRInputValue,
+
 
 };
 #define TCPBIN_CMD_COUNT   (sizeof (g_apfTCPBinCmdTable) / sizeof (g_apfTCPBinCmdTable[0]))
