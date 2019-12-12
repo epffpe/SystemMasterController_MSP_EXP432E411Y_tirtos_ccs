@@ -141,7 +141,10 @@ void vIFS_loadStartUpConfiguration(void *arg0)
                 while (1);
             }
 
+//            xIFS_createDefaultFiles();
+#if !(defined(TEST_FIXTURE) || defined(DUT))
             xIFS_createDefaultFiles();
+#endif
 
         }
         else {
@@ -877,6 +880,66 @@ void vIFS_getFlashConfigurationFileEthernet(int clientfd)
         SPIFFS_unmount(&g_IFSfs);
     }
 
+}
+
+uint32_t vIFS_testMemoryEthernet(int clientfd)
+{
+    spiffs_file    fd;
+//    spiffs_config  fsConfig;
+    int32_t        status;
+//    uint32_t bufferSize;
+    uint32_t retVal;
+//    int res;
+//    char *fileName = "memoryTest";
+//    spiffs_stat s;
+    Error_Block eb;
+
+
+//    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
+
+    Error_init(&eb);
+
+    retVal = 0;
+
+    status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
+                          g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
+                          g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
+    if (status == SPIFFS_OK) {
+
+        /* Open a file */
+
+        /* File not found; create a new file & write g_IFSmessage to it */
+        Display_printf(g_SMCDisplay, 0, 0, "Creating %s...", IFS_MEM_TEST_FILE_NAME);
+
+        fd = SPIFFS_open(&g_IFSfs, IFS_MEM_TEST_FILE_NAME, SPIFFS_CREAT | SPIFFS_RDWR, 0);
+        if (fd < 0) {
+            Display_printf(g_SMCDisplay, 0, 0,
+                           "Error creating %s.\n", IFS_MEM_TEST_FILE_NAME);
+            retVal = 1;
+        }else {
+
+            Display_printf(g_SMCDisplay, 0, 0, "Writing to %s...", IFS_MEM_TEST_FILE_NAME);
+//            Task_sleep((unsigned int)150);
+            if (SPIFFS_write(&g_IFSfs, fd, (void *) &g_IFSmessage, IFS_MESSAGE_LENGTH) < 0) {
+                Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_MEM_TEST_FILE_NAME);
+                retVal = 2;
+            }else {
+                Display_printf(g_SMCDisplay, 0, 0, "Flushing %s...\n", IFS_MEM_TEST_FILE_NAME);
+                SPIFFS_fflush(&g_IFSfs, fd);
+                Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_MEM_TEST_FILE_NAME);
+                /* spiffsFile exists; read its contents & delete the file */
+                if (SPIFFS_read(&g_IFSfs, fd, g_IFSreadBuffer, IFS_MESSAGE_LENGTH) < 0) {
+                    Display_printf(g_SMCDisplay, 0, 0, "Error reading %s.\n", IFS_MEM_TEST_FILE_NAME);
+                    retVal = 3;
+                }
+            }
+            Display_printf(g_SMCDisplay, 0, 0, "%s: %s", IFS_MEM_TEST_FILE_NAME, g_IFSreadBuffer);
+            SPIFFS_close(&g_IFSfs, fd);
+
+        }
+        SPIFFS_unmount(&g_IFSfs);
+    }
+    return retVal;
 }
 
 
