@@ -194,6 +194,45 @@ void vEFS_init()
     }
 }
 
+
+
+int xEFS_createDefaultTestFiles()
+{
+    spiffs_file    fd;
+    int retVal = 0;
+
+    /**************************************************************************************************/
+    /* File not found; create a new file & write g_IFSmessage to it */
+    Display_printf(g_SMCDisplay, 0, 0, "Creating %s...", IFS_MEM_TEST_FILE_NAME);
+
+    fd = SPIFFS_open(&g_EFSfs, IFS_MEM_TEST_FILE_NAME, SPIFFS_CREAT | SPIFFS_RDWR, 0);
+    if (fd < 0) {
+        Display_printf(g_SMCDisplay, 0, 0,
+                       "Error creating %s.\n", IFS_MEM_TEST_FILE_NAME);
+        retVal = 1;
+    }else {
+        Display_printf(g_SMCDisplay, 0, 0, "Writing to %s...", IFS_MEM_TEST_FILE_NAME);
+        //            Task_sleep((unsigned int)150);
+        if (SPIFFS_write(&g_EFSfs, fd, (void *) &g_EFSmessage, MESSAGE_LENGTH) < 0) {
+            Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_MEM_TEST_FILE_NAME);
+            retVal = 2;
+        }else {
+            Display_printf(g_SMCDisplay, 0, 0, "Flushing %s...\n", IFS_MEM_TEST_FILE_NAME);
+            SPIFFS_fflush(&g_EFSfs, fd);
+            Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_MEM_TEST_FILE_NAME);
+            /* spiffsFile exists; read its contents & delete the file */
+            if (SPIFFS_read(&g_EFSfs, fd, g_EFSreadBuffer, MESSAGE_LENGTH) < 0) {
+                Display_printf(g_SMCDisplay, 0, 0, "Error reading %s.\n", IFS_MEM_TEST_FILE_NAME);
+                retVal = 3;
+            }
+        }
+        Display_printf(g_SMCDisplay, 0, 0, "%s: %s", IFS_MEM_TEST_FILE_NAME, g_EFSreadBuffer);
+        SPIFFS_close(&g_EFSfs, fd);
+    }
+
+    return retVal;
+}
+
 void vEFS_loadStartUpConfigurationTest(void *arg0)
 {
     spiffs_file    fd;
@@ -260,6 +299,8 @@ void vEFS_loadStartUpConfigurationTest(void *arg0)
 
                 while (1);
             }
+
+            xEFS_createDefaultTestFiles();
         }
         else {
             /* Received an unexpected error when mounting file system  */

@@ -287,7 +287,6 @@ static void initIp(void *hCfg)
     strcpy(netAddr.Domain, domainName);
     netAddr.NetType = 0;
 
-//    Task_sleep((unsigned int)100);
 
     CfgAddEntry(hCfg, CFGTAG_IPNET, 1, 0, sizeof(netAddr), (unsigned char *)&netAddr, NULL);
 
