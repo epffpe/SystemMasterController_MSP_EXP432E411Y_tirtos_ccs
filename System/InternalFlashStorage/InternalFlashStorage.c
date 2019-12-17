@@ -75,7 +75,7 @@ void vIFS_init()
         Display_printf(g_SMCDisplay, 0, 0,
             "Error with SPIFFS configuration.\n");
 
-        while (1);
+//        while (1);
     }
 }
 
@@ -83,38 +83,16 @@ void vIFS_init()
 void vIFS_loadStartUpConfiguration(void *arg0)
 {
     spiffs_file    fd;
-//    spiffs_config  fsConfig;
     int32_t        status;
-
-//    spiffs_DIR d;
-//    struct spiffs_dirent e;
-//    struct spiffs_dirent *pe = &e;
-
     u32_t total, used;
     int res;
 
-//    Display_printf(g_SMCDisplay, 0, 0,
-//            "==================================================");
-//
-//    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
-//    Display_printf(g_SMCDisplay, 0, 0, "Loading Initial Configuration");
-//
-//    /* Initialize spiffs, spiffs_config & spiffsnvsdata structures Board_NVSINTERNAL, Board_NVSEXTERNAL*/
-//    status = SPIFFSNVS_config(&g_IFSspiffsnvsData, Board_NVSINTERNAL, &g_IFSfs, &g_fsConfig,
-//        IFS_SPIFFS_LOGICAL_BLOCK_SIZE, IFS_SPIFFS_LOGICAL_PAGE_SIZE);
-//    if (status != SPIFFSNVS_STATUS_SUCCESS) {
-//        Display_printf(g_SMCDisplay, 0, 0,
-//            "Error with SPIFFS configuration.\n");
-//
-//        while (1);
-//    }
 
     Display_printf(g_SMCDisplay, 0, 0, "Mounting Internal Flash file system...");
 
     status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
         g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
         g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
-//    status = SPIFFS_ERR_NOT_A_FS;
     if (status != SPIFFS_OK) {
         /*
          * If SPIFFS_ERR_NOT_A_FS is returned; it means there is no existing
@@ -130,7 +108,7 @@ void vIFS_loadStartUpConfiguration(void *arg0)
             if (status != SPIFFS_OK) {
                 Display_printf(g_SMCDisplay, 0, 0,
                     "Error formatting memory.\n");
-                while (1);
+//                while (1);
             }
 
             status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
@@ -139,7 +117,7 @@ void vIFS_loadStartUpConfiguration(void *arg0)
             if (status != SPIFFS_OK) {
                 Display_printf(g_SMCDisplay, 0, 0,
                     "Error mounting file system.\n");
-                while (1);
+//                while (1);
             }
 
 //            xIFS_createDefaultFiles();
@@ -155,112 +133,78 @@ void vIFS_loadStartUpConfiguration(void *arg0)
             Display_printf(g_SMCDisplay, 0, 0,
                 "Error mounting file system: %d.\n", status);
 
-            while (1);
+//            while (1);
         }
     }
 
+    if (status == SPIFFS_OK) {
+        /* Open a file */
+        fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_RDWR, 0);
+        if (fd < 0) {
+            /* File not found; create a new file & write g_IFSmessage to it */
+            Display_printf(g_SMCDisplay, 0, 0, "Creating %s...", IFS_STARTUP_CONF_FILE_NAME);
 
-    /* Open a file */
-    fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_RDWR, 0);
-    if (fd < 0) {
-        /* File not found; create a new file & write g_IFSmessage to it */
-        Display_printf(g_SMCDisplay, 0, 0, "Creating %s...", IFS_STARTUP_CONF_FILE_NAME);
+            fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_CREAT | SPIFFS_RDWR, 0);
+            if (fd < 0) {
+                Display_printf(g_SMCDisplay, 0, 0,
+                               "Error creating %s.\n", IFS_STARTUP_CONF_FILE_NAME);
 
-        fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_CREAT | SPIFFS_RDWR, 0);
+                //                while (1);
+            }else{
+                Display_printf(g_SMCDisplay, 0, 0, "Writing to %s...", IFS_STARTUP_CONF_FILE_NAME);
+                Task_sleep((unsigned int)150);
+                if (SPIFFS_write(&g_IFSfs, fd, (void *) &g_IFSmessage, IFS_MESSAGE_LENGTH) < 0) {
+                    Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_STARTUP_CONF_FILE_NAME);
+//                    while (1) ;
+                }
+                SPIFFS_close(&g_IFSfs, fd);
+            }
+        }else {
+            Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_STARTUP_CONF_FILE_NAME);
+            /* spiffsFile exists; read its contents & delete the file */
+            if (SPIFFS_read(&g_IFSfs, fd, g_IFSreadBuffer, IFS_MESSAGE_LENGTH) < 0) {
+                Display_printf(g_SMCDisplay, 0, 0, "Error reading %s.\n", IFS_STARTUP_CONF_FILE_NAME);
+//                while (1) ;
+            }else{
+                Display_printf(g_SMCDisplay, 0, 0, "%s: %s", IFS_STARTUP_CONF_FILE_NAME, g_IFSreadBuffer);
+            }
+            Display_printf(g_SMCDisplay, 0, 0, "closing %s...", IFS_STARTUP_CONF_FILE_NAME);
+            SPIFFS_close(&g_IFSfs, fd);
+        }
+
+        xIFS_findDevicesAtStartUp();
+
+
+        fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_RDWR, 0);
         if (fd < 0) {
             Display_printf(g_SMCDisplay, 0, 0,
-                "Error creating %s.\n", IFS_STARTUP_CONF_FILE_NAME);
-
-            while (1);
-        }
-
-        Display_printf(g_SMCDisplay, 0, 0, "Writing to %s...", IFS_STARTUP_CONF_FILE_NAME);
-        Task_sleep((unsigned int)150);
-        if (SPIFFS_write(&g_IFSfs, fd, (void *) &g_IFSmessage, IFS_MESSAGE_LENGTH) < 0) {
-            Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_STARTUP_CONF_FILE_NAME);
-
-            while (1) ;
-        }
-
-//        Display_printf(g_SMCDisplay, 0, 0, "Flushing %s...\n", EFS_STARTUP_CONF_FILE_NAME);
-//        SPIFFS_fflush(&g_IFSfs, fd);
-//
-//        Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", EFS_STARTUP_CONF_FILE_NAME);
-//
-//        /* spiffsFile exists; read its contents & delete the file */
-//        if (SPIFFS_read(&g_IFSfs, fd, g_IFSreadBuffer, IFS_MESSAGE_LENGTH) < 0) {
-//            Display_printf(g_SMCDisplay, 0, 0, "Error reading %s.\n", EFS_STARTUP_CONF_FILE_NAME);
-//
-//            while (1) ;
-//        }
-//
-//        Display_printf(g_SMCDisplay, 0, 0, "%s: %s", EFS_STARTUP_CONF_FILE_NAME, g_IFSreadBuffer);
-
-        SPIFFS_close(&g_IFSfs, fd);
-    }
-    else {
-
-
-        Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_STARTUP_CONF_FILE_NAME);
-
-        /* spiffsFile exists; read its contents & delete the file */
-        if (SPIFFS_read(&g_IFSfs, fd, g_IFSreadBuffer, IFS_MESSAGE_LENGTH) < 0) {
-            Display_printf(g_SMCDisplay, 0, 0, "Error reading %s.\n", IFS_STARTUP_CONF_FILE_NAME);
-
-            while (1) ;
-        }
-
-        Display_printf(g_SMCDisplay, 0, 0, "%s: %s", IFS_STARTUP_CONF_FILE_NAME, g_IFSreadBuffer);
-
-
-//        Display_printf(g_SMCDisplay, 0, 0, "Erasing %s...", EFS_STARTUP_CONF_FILE_NAME);
-//
-//        status = SPIFFS_fremove(&g_IFSfs, fd);
-//        if (status != SPIFFS_OK) {
-//            Display_printf(g_SMCDisplay, 0, 0, "Error removing spiffsFile.\n");
-//
+                           "Error creating %s.\n", IFS_STARTUP_CONF_FILE_NAME);
 //            while (1);
-//        }
+        }else{
+            Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_STARTUP_CONF_FILE_NAME);
+            /* spiffsFile exists; read its contents & delete the file */
+            while (SPIFFS_read(&g_IFSfs, fd, g_IFSreadBuffer, IFS_MESSAGE_LENGTH) > 0) {
+                Display_printf(g_SMCDisplay, 0, 0, "--> %s", g_IFSreadBuffer);
+            }
+            Display_printf(g_SMCDisplay, 0, 0, "closing %s...", IFS_STARTUP_CONF_FILE_NAME);
+            SPIFFS_close(&g_IFSfs, fd);
+        }
+        /***********************************************************************/
+        Display_printf(g_SMCDisplay, 0, 0, "SPIFFS_stat...");
+        spiffs_stat s;
+        res = SPIFFS_stat(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, &s);
+        Display_printf(g_SMCDisplay, 0, 0, "%s [%04x] size:%i\n", s.name, s.obj_id, s.size);
+        /***********************************************************************/
 
-        Display_printf(g_SMCDisplay, 0, 0, "closing %s...", IFS_STARTUP_CONF_FILE_NAME);
-        SPIFFS_close(&g_IFSfs, fd);
+        res = SPIFFS_info(&g_IFSfs, &total, &used);
+        Display_printf(g_SMCDisplay, 0, 0, "File System total:%i used:%i\n", total, used);
     }
-
-    xIFS_findDevicesAtStartUp();
-
-    fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_RDWR, 0);
-    if (fd < 0) {
-        Display_printf(g_SMCDisplay, 0, 0,
-                       "Error creating %s.\n", IFS_STARTUP_CONF_FILE_NAME);
-
-        while (1);
-    }
-
-    Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_STARTUP_CONF_FILE_NAME);
-
-    /* spiffsFile exists; read its contents & delete the file */
-    while (SPIFFS_read(&g_IFSfs, fd, g_IFSreadBuffer, IFS_MESSAGE_LENGTH) > 0) {
-        Display_printf(g_SMCDisplay, 0, 0, "--> %s", g_IFSreadBuffer);
-    }
-
-
-    Display_printf(g_SMCDisplay, 0, 0, "closing %s...", IFS_STARTUP_CONF_FILE_NAME);
-    SPIFFS_close(&g_IFSfs, fd);
-    /***********************************************************************/
-    Display_printf(g_SMCDisplay, 0, 0, "SPIFFS_stat...");
-    spiffs_stat s;
-    res = SPIFFS_stat(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, &s);
-    Display_printf(g_SMCDisplay, 0, 0, "%s [%04x] size:%i\n", s.name, s.obj_id, s.size);
-    /***********************************************************************/
-
-    res = SPIFFS_info(&g_IFSfs, &total, &used);
-    Display_printf(g_SMCDisplay, 0, 0, "File System total:%i used:%i\n", total, used);
 
     Display_printf(g_SMCDisplay, 0, 0, "Unmounting the fs.");
     SPIFFS_unmount(&g_IFSfs);
 
     Display_printf(g_SMCDisplay, 0, 0,
-        "==================================================\n\n");
+                   "==================================================\n\n");
 
 }
 
@@ -378,7 +322,6 @@ int xIFS_createDefaultTestFiles()
 int xIFS_findDevicesAtStartUp()
 {
     spiffs_file    fd;
-
     spiffs_DIR d;
     struct spiffs_dirent e;
     struct spiffs_dirent *pe = &e;
@@ -386,9 +329,7 @@ int xIFS_findDevicesAtStartUp()
     Device_Params deviceParams;
     int res;
     IFS_deviceInfoFile_t devInfo;
-
     int retVal = 0;
-
     Error_init(&eb);
 
     Display_printf(g_SMCDisplay, 0, 0, "\nReading files in directory /");
@@ -396,67 +337,60 @@ int xIFS_findDevicesAtStartUp()
     SPIFFS_opendir(&g_IFSfs, "/", &d);
     while ((pe = SPIFFS_readdir(&d, pe))) {
         Display_printf(g_SMCDisplay, 0, 0, "%s [%04x] size:%i", pe->name, pe->obj_id, pe->size);
-
         //        if (0 == strncmp(EFS_STARTUP_CONF_FILE_NAME, (char *)pe->name, strlen(EFS_STARTUP_CONF_FILE_NAME))) {
         if (0 == strncmp(IFS_DEVICES_FOLDER_NAME, (char *)pe->name, sizeof(IFS_DEVICES_FOLDER_NAME) - 1)) {
-//            Display_printf(g_SMCDisplay, 0, 0, "* Device found");
-
+            //            Display_printf(g_SMCDisplay, 0, 0, "* Device found");
             if (pe->size >= sizeof(IFS_deviceInfoFile_t)) {
                 /*********************************************************************/
                 /* Do note that if the any file is modified (except for fully removing)
                  * within the dirent iterator, the iterator may become invalid.
                  */
                 /*********************************************************************/
-
-
                 fd = SPIFFS_open_by_dirent(&g_IFSfs, pe, SPIFFS_RDWR, 0);
                 if (fd < 0) {
                     Display_printf(g_SMCDisplay, 0, 0, "Error SPIFFS_open_by_dirent %i.\n", SPIFFS_errno(&g_IFSfs));
-                    while (1) ;
-                }
-
-                if (SPIFFS_read(&g_IFSfs, fd, (void *)&devInfo, sizeof(IFS_deviceInfoFile_t)) < 0) {
-                    Display_printf(g_SMCDisplay, 0, 0, "Error reading %s.\n", IFS_STARTUP_CONF_FILE_NAME);
-                    while (1) ;
-                }
-                res = SPIFFS_close(&g_IFSfs, fd);
-                if (res < 0) {
-                    Display_printf(g_SMCDisplay, 0, 0, "errno %i\n", SPIFFS_errno(&g_IFSfs));
-                    while (1) ;
-                }
-                if (devInfo.params.deviceType < DEVICE_TYPE_COUNT) {
-                    Display_printf(g_SMCDisplay, 0, 0,
-                                   "-> Loading Device: %s\n"
-                                   "   Type: %s\n"
-                                   "   DeviceId: %d"
-                                   , devInfo.description,
-                                   g_Device_nameByType[devInfo.params.deviceType],
-                                   devInfo.params.deviceID);
-//                    Display_printf(g_SMCDisplay, 0, 0, "   Type: %s", g_Device_nameByType[devInfo.params.deviceType]);
-//                    Display_printf(g_SMCDisplay, 0, 0, "   DeviceId: %d", devInfo.params.deviceID);
-                    switch(devInfo.params.deviceType) {
-                    case DEVICE_TYPE_ALTO_AMP:
-                        Display_printf(g_SMCDisplay, 0, 0, "   Serial Port: %d", (uint32_t)devInfo.params.arg0);
-                        vALTOAmpDevice_Params_init(&deviceParams, devInfo.params.deviceID);
-                        deviceParams.arg0 = devInfo.params.arg0;
-                        xDevice_add(&deviceParams, &eb);
-                        break;
-                    case DEVICE_TYPE_ALTO_MULTINET:
-                        Display_printf(g_SMCDisplay, 0, 0, "   Serial Port: %d", (uint32_t)devInfo.params.arg0);
-                        vALTOMultinetDevice_Params_init(&deviceParams, devInfo.params.deviceID);
-                        deviceParams.arg0 = devInfo.params.arg0;
-                        xDevice_add(&deviceParams, &eb);
-                        break;
-                    default:
-                        Display_printf(g_SMCDisplay, 0, 0, "***Couldn't load device");
-                        break;
+                    //                    while (1);
+                }else{
+                    if (SPIFFS_read(&g_IFSfs, fd, (void *)&devInfo, sizeof(IFS_deviceInfoFile_t)) < 0) {
+                        Display_printf(g_SMCDisplay, 0, 0, "Error reading %s.\n", IFS_STARTUP_CONF_FILE_NAME);
+                        //                        while (1);
+                    }
+                    res = SPIFFS_close(&g_IFSfs, fd);
+                    if (res < 0) {
+                        Display_printf(g_SMCDisplay, 0, 0, "errno %i\n", SPIFFS_errno(&g_IFSfs));
+                        //                        while (1);
+                    }
+                    if (devInfo.params.deviceType < DEVICE_TYPE_COUNT) {
+                        Display_printf(g_SMCDisplay, 0, 0,
+                                       "-> Loading Device: %s\n"
+                                       "   Type: %s\n"
+                                       "   DeviceId: %d"
+                                       , devInfo.description,
+                                       g_Device_nameByType[devInfo.params.deviceType],
+                                       devInfo.params.deviceID);
+                        //                    Display_printf(g_SMCDisplay, 0, 0, "   Type: %s", g_Device_nameByType[devInfo.params.deviceType]);
+                        //                    Display_printf(g_SMCDisplay, 0, 0, "   DeviceId: %d", devInfo.params.deviceID);
+                        switch(devInfo.params.deviceType) {
+                        case DEVICE_TYPE_ALTO_AMP:
+                            Display_printf(g_SMCDisplay, 0, 0, "   Serial Port: %d", (uint32_t)devInfo.params.arg0);
+                            vALTOAmpDevice_Params_init(&deviceParams, devInfo.params.deviceID);
+                            deviceParams.arg0 = devInfo.params.arg0;
+                            xDevice_add(&deviceParams, &eb);
+                            break;
+                        case DEVICE_TYPE_ALTO_MULTINET:
+                            Display_printf(g_SMCDisplay, 0, 0, "   Serial Port: %d", (uint32_t)devInfo.params.arg0);
+                            vALTOMultinetDevice_Params_init(&deviceParams, devInfo.params.deviceID);
+                            deviceParams.arg0 = devInfo.params.arg0;
+                            xDevice_add(&deviceParams, &eb);
+                            break;
+                        default:
+                            Display_printf(g_SMCDisplay, 0, 0, "***Couldn't load device");
+                            break;
+                        }
                     }
                 }
-
-
             }
         }
-
 
     }
     SPIFFS_closedir(&d);
