@@ -12,8 +12,8 @@
 #define DEPRECATED_CANTEST_CANTEST_TASK_PRIORITY          8
 
 
-//#define DUT
-#define TEST_FIXTURE
+#define DUT
+//#define TEST_FIXTURE
 
 
 #ifdef  __DEPRECATED_CANTEST_GLOBAL
