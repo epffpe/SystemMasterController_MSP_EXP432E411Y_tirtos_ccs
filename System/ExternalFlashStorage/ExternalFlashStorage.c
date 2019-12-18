@@ -293,38 +293,38 @@ void vEFS_loadStartUpConfigurationTest(void *arg0)
 
     if (status == SPIFFS_OK) {
         /* Open a file */
-        fd = SPIFFS_open(&g_EFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_RDWR, 0);
-        if (fd < 0) {
-            /* File not found; create a new file & write message to it */
-            Display_printf(g_SMCDisplay, 0, 0, "Creating %s...", IFS_STARTUP_CONF_FILE_NAME);
-
-            fd = SPIFFS_open(&g_EFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_CREAT | SPIFFS_RDWR, 0);
-            if (fd < 0) {
-                Display_printf(g_SMCDisplay, 0, 0,
-                               "Error creating %s.\n", IFS_STARTUP_CONF_FILE_NAME);
-//                while (1);
-            }else{
-                Display_printf(g_SMCDisplay, 0, 0, "Writing to %s...", IFS_STARTUP_CONF_FILE_NAME);
-                Task_sleep((unsigned int)150);
-                if (SPIFFS_write(&g_EFSfs, fd, (void *) &g_EFSmessage, MESSAGE_LENGTH) < 0) {
-                    Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_STARTUP_CONF_FILE_NAME);
-                    //                while (1) ;
-                }
-                SPIFFS_close(&g_EFSfs, fd);
-            }
-        }
-        else {
-            Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_STARTUP_CONF_FILE_NAME);
-            /* spiffsFile exists; read its contents & delete the file */
-            if (SPIFFS_read(&g_EFSfs, fd, g_EFSreadBuffer, MESSAGE_LENGTH) < 0) {
-                Display_printf(g_SMCDisplay, 0, 0, "Error reading %s.\n", IFS_STARTUP_CONF_FILE_NAME);
-//                while (1) ;
-            }else{
-                Display_printf(g_SMCDisplay, 0, 0, "%s: %s", IFS_STARTUP_CONF_FILE_NAME, g_EFSreadBuffer);
-            }
-            Display_printf(g_SMCDisplay, 0, 0, "closing %s...", IFS_STARTUP_CONF_FILE_NAME);
-            SPIFFS_close(&g_EFSfs, fd);
-        }
+//        fd = SPIFFS_open(&g_EFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_RDWR, 0);
+//        if (fd < 0) {
+//            /* File not found; create a new file & write message to it */
+//            Display_printf(g_SMCDisplay, 0, 0, "Creating %s...", IFS_STARTUP_CONF_FILE_NAME);
+//
+//            fd = SPIFFS_open(&g_EFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_CREAT | SPIFFS_RDWR, 0);
+//            if (fd < 0) {
+//                Display_printf(g_SMCDisplay, 0, 0,
+//                               "Error creating %s.\n", IFS_STARTUP_CONF_FILE_NAME);
+////                while (1);
+//            }else{
+//                Display_printf(g_SMCDisplay, 0, 0, "Writing to %s...", IFS_STARTUP_CONF_FILE_NAME);
+//                Task_sleep((unsigned int)150);
+//                if (SPIFFS_write(&g_EFSfs, fd, (void *) &g_EFSmessage, MESSAGE_LENGTH) < 0) {
+//                    Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_STARTUP_CONF_FILE_NAME);
+//                    //                while (1) ;
+//                }
+//                SPIFFS_close(&g_EFSfs, fd);
+//            }
+//        }
+//        else {
+//            Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_STARTUP_CONF_FILE_NAME);
+//            /* spiffsFile exists; read its contents & delete the file */
+//            if (SPIFFS_read(&g_EFSfs, fd, g_EFSreadBuffer, MESSAGE_LENGTH) < 0) {
+//                Display_printf(g_SMCDisplay, 0, 0, "Error reading %s.\n", IFS_STARTUP_CONF_FILE_NAME);
+////                while (1) ;
+//            }else{
+//                Display_printf(g_SMCDisplay, 0, 0, "%s: %s", IFS_STARTUP_CONF_FILE_NAME, g_EFSreadBuffer);
+//            }
+//            Display_printf(g_SMCDisplay, 0, 0, "closing %s...", IFS_STARTUP_CONF_FILE_NAME);
+//            SPIFFS_close(&g_EFSfs, fd);
+//        }
 
 
         Display_printf(g_SMCDisplay, 0, 0, "\nReading files in directory /");
@@ -392,7 +392,7 @@ void vEFS_loadStartUpConfigurationTest(void *arg0)
             Display_printf(g_SMCDisplay, 0, 0,
                            "Error creating %s.\n", IFS_STARTUP_CONF_FILE_NAME);
 
-            while (1);
+//            while (1);
         }else {
             Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_STARTUP_CONF_FILE_NAME);
             /* spiffsFile exists; read its contents & delete the file */
@@ -753,4 +753,47 @@ uint32_t vEFS_testMemoryEthernet(int clientfd)
     return retVal;
 }
 
+
+int32_t vEFS_getStatus()
+{
+    int32_t        status;
+    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
+    status = SPIFFS_mount(&g_EFSfs, &g_EFSfsConfig, g_EFSspiffsWorkBuffer,
+                          g_EFSspiffsFileDescriptorCache, sizeof(g_EFSspiffsFileDescriptorCache),
+                          g_EFSspiffsReadWriteCache, sizeof(g_EFSspiffsReadWriteCache), NULL);
+
+    SPIFFS_unmount(&g_EFSfs);
+    return status;
+}
+
+int32_t vEFS_format()
+{
+    int32_t        status;
+    Int prevPri;
+    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
+
+//    if (SPIFFS_mounted(&g_IFSfs))
+
+    SPIFFS_unmount(&g_EFSfs);
+
+    prevPri = Task_setPri( Task_self(), 11);
+    status = SPIFFS_format(&g_EFSfs);
+    prevPri = Task_setPri( Task_self(), prevPri);
+    if (status != SPIFFS_OK) {
+        Display_printf(g_SMCDisplay, 0, 0, "Error formatting memory.\n");
+    }
+
+    Display_printf(g_SMCDisplay, 0, 0, "Mounting External Flash file system...");
+
+    status = SPIFFS_mount(&g_EFSfs, &g_EFSfsConfig, g_EFSspiffsWorkBuffer,
+        g_EFSspiffsFileDescriptorCache, sizeof(g_EFSspiffsFileDescriptorCache),
+        g_EFSspiffsReadWriteCache, sizeof(g_EFSspiffsReadWriteCache), NULL);
+    if (status != SPIFFS_OK) {
+        xEFS_createDefaultTestFiles();
+    }
+
+    Display_printf(g_SMCDisplay, 0, 0, "Unmounting the fs.");
+    SPIFFS_unmount(&g_EFSfs);
+    return status;
+}
 

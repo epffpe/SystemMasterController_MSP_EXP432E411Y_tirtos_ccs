@@ -156,6 +156,16 @@ typedef enum {
     TCP_CMD_System_setConfigurationFile,
     TCP_CMD_System_setConfigurationFileResponse,
 
+// Flash Memory Manager
+    TCP_CMD_FlashMM_IFS_getStatus = 290,
+    TCP_CMD_FlashMM_IFS_getStatusResponse,
+    TCP_CMD_FlashMM_IFS_format,
+    TCP_CMD_FlashMM_IFS_formatResponse,
+    TCP_CMD_FlashMM_EFS_getStatus,
+    TCP_CMD_FlashMM_EFS_getStatusResponse,
+    TCP_CMD_FlashMM_EFS_format,
+    TCP_CMD_FlashMM_EFS_formatResponse,
+
 //DiscreteIO
     TCP_CMD_DiscreteIO_get5VOutputPowerStatus = 320,
     TCP_CMD_DiscreteIO_get5VOutputPowerStatusResponse,

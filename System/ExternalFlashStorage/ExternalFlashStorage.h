@@ -36,6 +36,12 @@ void vEFS_getFlashDataFileNameHTTP(int clientfd, char *fileName);
 __SYSTEM_EXTERNALFLASHSTORAGE_EXT
 uint32_t vEFS_testMemoryEthernet(int clientfd);
 
+__SYSTEM_EXTERNALFLASHSTORAGE_EXT
+int32_t vEFS_getStatus();
+
+__SYSTEM_EXTERNALFLASHSTORAGE_EXT
+int32_t vEFS_format();
+
 
 #ifdef __cplusplus
 }
