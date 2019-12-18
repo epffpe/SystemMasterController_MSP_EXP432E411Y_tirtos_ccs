@@ -61,6 +61,12 @@ void vIFS_getFlashConfigurationFileEthernet(int clientfd);
 __SYSTEM_INTERNALFLASHSTORAGE_EXT
 uint32_t vIFS_testMemoryEthernet(int clientfd);
 
+__SYSTEM_INTERNALFLASHSTORAGE_EXT
+int32_t vIFS_getStatus();
+
+__SYSTEM_INTERNALFLASHSTORAGE_EXT
+int32_t vIFS_format();
+
 #ifdef __cplusplus
 }
 #endif

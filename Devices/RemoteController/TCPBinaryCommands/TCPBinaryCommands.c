@@ -128,6 +128,17 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_TEST_getIRInputValue] = vTCPRCBin_ProductionTest_getIRInputValue,
 
 
+// Flash Memory Manager
+ [TCP_CMD_FlashMM_IFS_getStatus] = vTCPRCBin_FlashFileSystem_getInternalFlashStatus,
+ [TCP_CMD_FlashMM_IFS_format] = vTCPRCBin_FlashFileSystem_formatInternalFlashStatus,
+ [TCP_CMD_FlashMM_EFS_getStatus] = vTCPRCBin_FlashFileSystem_getExternalFlashStatus,
+ [TCP_CMD_FlashMM_EFS_format] = vTCPRCBin_FlashFileSystem_formatExternalFlashStatus,
+
+
+
+
+
+
 };
 #define TCPBIN_CMD_COUNT   (sizeof (g_apfTCPBinCmdTable) / sizeof (g_apfTCPBinCmdTable[0]))
 

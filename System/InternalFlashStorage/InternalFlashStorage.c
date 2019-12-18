@@ -123,9 +123,8 @@ void vIFS_loadStartUpConfiguration(void *arg0)
 //            xIFS_createDefaultFiles();
 #if !(defined(TEST_FIXTURE) || defined(DUT))
             xIFS_createDefaultFiles();
-#else
-            xIFS_createDefaultTestFiles();
 #endif
+            xIFS_createDefaultTestFiles();
 
         }
         else {
@@ -139,56 +138,56 @@ void vIFS_loadStartUpConfiguration(void *arg0)
 
     if (status == SPIFFS_OK) {
         /* Open a file */
-        fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_RDWR, 0);
-        if (fd < 0) {
-            /* File not found; create a new file & write g_IFSmessage to it */
-            Display_printf(g_SMCDisplay, 0, 0, "Creating %s...", IFS_STARTUP_CONF_FILE_NAME);
-
-            fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_CREAT | SPIFFS_RDWR, 0);
-            if (fd < 0) {
-                Display_printf(g_SMCDisplay, 0, 0,
-                               "Error creating %s.\n", IFS_STARTUP_CONF_FILE_NAME);
-
-                //                while (1);
-            }else{
-                Display_printf(g_SMCDisplay, 0, 0, "Writing to %s...", IFS_STARTUP_CONF_FILE_NAME);
-                Task_sleep((unsigned int)150);
-                if (SPIFFS_write(&g_IFSfs, fd, (void *) &g_IFSmessage, IFS_MESSAGE_LENGTH) < 0) {
-                    Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_STARTUP_CONF_FILE_NAME);
-//                    while (1) ;
-                }
-                SPIFFS_close(&g_IFSfs, fd);
-            }
-        }else {
-            Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_STARTUP_CONF_FILE_NAME);
-            /* spiffsFile exists; read its contents & delete the file */
-            if (SPIFFS_read(&g_IFSfs, fd, g_IFSreadBuffer, IFS_MESSAGE_LENGTH) < 0) {
-                Display_printf(g_SMCDisplay, 0, 0, "Error reading %s.\n", IFS_STARTUP_CONF_FILE_NAME);
-//                while (1) ;
-            }else{
-                Display_printf(g_SMCDisplay, 0, 0, "%s: %s", IFS_STARTUP_CONF_FILE_NAME, g_IFSreadBuffer);
-            }
-            Display_printf(g_SMCDisplay, 0, 0, "closing %s...", IFS_STARTUP_CONF_FILE_NAME);
-            SPIFFS_close(&g_IFSfs, fd);
-        }
+//        fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_RDWR, 0);
+//        if (fd < 0) {
+//            /* File not found; create a new file & write g_IFSmessage to it */
+//            Display_printf(g_SMCDisplay, 0, 0, "Creating %s...", IFS_STARTUP_CONF_FILE_NAME);
+//
+//            fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_CREAT | SPIFFS_RDWR, 0);
+//            if (fd < 0) {
+//                Display_printf(g_SMCDisplay, 0, 0,
+//                               "Error creating %s.\n", IFS_STARTUP_CONF_FILE_NAME);
+//
+//                //                while (1);
+//            }else{
+//                Display_printf(g_SMCDisplay, 0, 0, "Writing to %s...", IFS_STARTUP_CONF_FILE_NAME);
+//                Task_sleep((unsigned int)150);
+//                if (SPIFFS_write(&g_IFSfs, fd, (void *) &g_IFSmessage, IFS_MESSAGE_LENGTH) < 0) {
+//                    Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_STARTUP_CONF_FILE_NAME);
+////                    while (1) ;
+//                }
+//                SPIFFS_close(&g_IFSfs, fd);
+//            }
+//        }else {
+//            Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_STARTUP_CONF_FILE_NAME);
+//            /* spiffsFile exists; read its contents & delete the file */
+//            if (SPIFFS_read(&g_IFSfs, fd, g_IFSreadBuffer, IFS_MESSAGE_LENGTH) < 0) {
+//                Display_printf(g_SMCDisplay, 0, 0, "Error reading %s.\n", IFS_STARTUP_CONF_FILE_NAME);
+////                while (1) ;
+//            }else{
+//                Display_printf(g_SMCDisplay, 0, 0, "%s: %s", IFS_STARTUP_CONF_FILE_NAME, g_IFSreadBuffer);
+//            }
+//            Display_printf(g_SMCDisplay, 0, 0, "closing %s...", IFS_STARTUP_CONF_FILE_NAME);
+//            SPIFFS_close(&g_IFSfs, fd);
+//        }
 
         xIFS_findDevicesAtStartUp();
 
 
-        fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_RDWR, 0);
-        if (fd < 0) {
-            Display_printf(g_SMCDisplay, 0, 0,
-                           "Error creating %s.\n", IFS_STARTUP_CONF_FILE_NAME);
-//            while (1);
-        }else{
-            Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_STARTUP_CONF_FILE_NAME);
-            /* spiffsFile exists; read its contents & delete the file */
-            while (SPIFFS_read(&g_IFSfs, fd, g_IFSreadBuffer, IFS_MESSAGE_LENGTH) > 0) {
-                Display_printf(g_SMCDisplay, 0, 0, "--> %s", g_IFSreadBuffer);
-            }
-            Display_printf(g_SMCDisplay, 0, 0, "closing %s...", IFS_STARTUP_CONF_FILE_NAME);
-            SPIFFS_close(&g_IFSfs, fd);
-        }
+//        fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_CONF_FILE_NAME, SPIFFS_RDWR, 0);
+//        if (fd < 0) {
+//            Display_printf(g_SMCDisplay, 0, 0,
+//                           "Error creating %s.\n", IFS_STARTUP_CONF_FILE_NAME);
+////            while (1);
+//        }else{
+//            Display_printf(g_SMCDisplay, 0, 0, "Reading %s...\n", IFS_STARTUP_CONF_FILE_NAME);
+//            /* spiffsFile exists; read its contents & delete the file */
+//            while (SPIFFS_read(&g_IFSfs, fd, g_IFSreadBuffer, IFS_MESSAGE_LENGTH) > 0) {
+//                Display_printf(g_SMCDisplay, 0, 0, "--> %s", g_IFSreadBuffer);
+//            }
+//            Display_printf(g_SMCDisplay, 0, 0, "closing %s...", IFS_STARTUP_CONF_FILE_NAME);
+//            SPIFFS_close(&g_IFSfs, fd);
+//        }
         /***********************************************************************/
         Display_printf(g_SMCDisplay, 0, 0, "SPIFFS_stat...");
         spiffs_stat s;
@@ -909,5 +908,54 @@ uint32_t vIFS_testMemoryEthernet(int clientfd)
     }
     return retVal;
 }
+
+
+int32_t vIFS_getStatus()
+{
+    int32_t        status;
+    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
+    status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
+                          g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
+                          g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
+
+    SPIFFS_unmount(&g_IFSfs);
+    /**
+     * Runs a consistency check on given filesystem.
+     * @param fs            the file system struct
+     */
+//    s32_t SPIFFS_check(spiffs *fs);
+//    status = SPIFFS_check(&g_IFSfs);
+    return status;
+}
+
+int32_t vIFS_format()
+{
+    int32_t        status;
+    Int prevPri;
+    Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
+
+//    if (SPIFFS_mounted(&g_IFSfs))
+
+    SPIFFS_unmount(&g_IFSfs);
+
+    prevPri = Task_setPri( Task_self(), 11);
+    status = SPIFFS_format(&g_IFSfs);
+    prevPri = Task_setPri( Task_self(), prevPri);
+    if (status != SPIFFS_OK) {
+        Display_printf(g_SMCDisplay, 0, 0, "Error formatting memory.\n");
+    }
+
+    Display_printf(g_SMCDisplay, 0, 0, "Mounting Internal Flash file system...");
+    status = SPIFFS_mount(&g_IFSfs, &g_fsConfig, g_IFSspiffsWorkBuffer,
+        g_IFSspiffsFileDescriptorCache, sizeof(g_IFSspiffsFileDescriptorCache),
+        g_IFSspiffsReadWriteCache, sizeof(g_IFSspiffsReadWriteCache), NULL);
+    if (status == SPIFFS_OK) {
+        xIFS_createDefaultTestFiles();
+    }
+    Display_printf(g_SMCDisplay, 0, 0, "Unmounting the fs.");
+    SPIFFS_unmount(&g_IFSfs);
+    return status;
+}
+
 
 
