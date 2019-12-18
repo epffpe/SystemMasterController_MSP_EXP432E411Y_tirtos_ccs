@@ -269,7 +269,7 @@ static void initTcp(void *hCfg)
 
 static void initIp(void *hCfg)
 {
-    const char *localIPAddr = "192.168.1.3";
+    const char *localIPAddr = "192.168.1.2";
     const char *localIPMask = "255.255.255.0";
     const char *gatewayIP   = "192.168.1.1";
     const char *domainName  = "ALTOTECH.net";
