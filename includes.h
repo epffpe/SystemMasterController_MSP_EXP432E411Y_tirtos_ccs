@@ -260,7 +260,7 @@
 
 
 #define ARRSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
-
+#define MAX_SYSTEM_PRIORITY         10
 
 /*
  *

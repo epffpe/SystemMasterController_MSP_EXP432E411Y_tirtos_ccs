@@ -776,7 +776,7 @@ int32_t vEFS_format()
 
     SPIFFS_unmount(&g_EFSfs);
 
-    prevPri = Task_setPri( Task_self(), 11);
+    prevPri = Task_setPri( Task_self(), MAX_SYSTEM_PRIORITY + 1);
     status = SPIFFS_format(&g_EFSfs);
     prevPri = Task_setPri( Task_self(), prevPri);
     if (status != SPIFFS_OK) {

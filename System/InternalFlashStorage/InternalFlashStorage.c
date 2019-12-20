@@ -82,7 +82,7 @@ void vIFS_init()
 
 void vIFS_loadStartUpConfiguration(void *arg0)
 {
-    spiffs_file    fd;
+//    spiffs_file    fd;
     int32_t        status;
     u32_t total, used;
     int res;
@@ -938,7 +938,7 @@ int32_t vIFS_format()
 
     SPIFFS_unmount(&g_IFSfs);
 
-    prevPri = Task_setPri( Task_self(), 11);
+    prevPri = Task_setPri( Task_self(), MAX_SYSTEM_PRIORITY + 1);
     status = SPIFFS_format(&g_IFSfs);
     prevPri = Task_setPri( Task_self(), prevPri);
     if (status != SPIFFS_OK) {
