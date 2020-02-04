@@ -201,6 +201,9 @@ void *SMC_initThread(void *arg0)
     Error_init(&eb);
     Device_Params deviceParams;
 
+    vForteManagerDevice_Params_init(&deviceParams, 301, IF_SERIAL_0);
+//    xDevice_add(&deviceParams, &eb);
+
 #ifdef TEST_FIXTURE
     /* Test Fixture */
     vTFUartTestDevice_Params_init(&deviceParams, 100, IF_SERIAL_0);
