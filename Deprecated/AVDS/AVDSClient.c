@@ -70,12 +70,12 @@ Void vAVDSechoFxn(UArg arg0, UArg arg1)
                 bytesRcvd = recvfrom(server, buffer, UDPPACKETSIZE, 0,
                                      (struct sockaddr *)&clientAddr, &addrlen);
                 if (bytesRcvd > 0) {
-                    bytesSent = sendto(server, buffer, bytesRcvd, 0,
-                                       (struct sockaddr *)&clientAddr, addrlen);
-                    if (bytesSent < 0 || bytesSent != bytesRcvd) {
-                        System_printf("Error: sendto failed.\n");
-//                        goto shutdown;
-                    }
+//                    bytesSent = sendto(server, buffer, bytesRcvd, 0,
+//                                       (struct sockaddr *)&clientAddr, addrlen);
+//                    if (bytesSent < 0 || bytesSent != bytesRcvd) {
+//                        System_printf("Error: sendto failed.\n");
+////                        goto shutdown;
+//                    }
                     ptsAVDSInfo = (tsAVDSInfoMsg *)buffer;
                     vAVDSTestTcpCommand(ptsAVDSInfo);
 //                    vAVDSTestTcpCommandSetChannel(ptsAVDSInfo);

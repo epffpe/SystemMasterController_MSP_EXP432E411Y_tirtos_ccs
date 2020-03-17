@@ -72,6 +72,7 @@ extern void *tcpHandler(void *arg0);
 extern void *UDPFinder_task(void *arg0);
 extern Void udpHandlerFxn(UArg arg0, UArg arg1);
 extern Void echoFxn(UArg arg0, UArg arg1);
+extern void *UDPAVDSFinder_task(void *arg0);
 
 extern Display_Handle g_SMCDisplay;
 
@@ -143,6 +144,7 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
 //        }
 
 
+
         /* Set priority and stack size attributes */
         pthread_attr_init(&attrs);
         priParam.sched_priority = 2;
@@ -185,6 +187,15 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
         }
         arg0 = UDPPORT;
         retc = pthread_create(&thread, &attrs, UDPFinder_task, (void *)&arg0);
+//        retc = pthread_create(&thread, &attrs, echoFxn, (void *)&arg0);
+        if (retc != 0) {
+            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_create() failed\n");
+//            System_printf("netIPAddrHook: pthread_create() failed\n");
+            while (1);
+        }
+
+        arg0 = 2010;
+        retc = pthread_create(&thread, &attrs, UDPAVDSFinder_task, (void *)&arg0);
 //        retc = pthread_create(&thread, &attrs, echoFxn, (void *)&arg0);
         if (retc != 0) {
             Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_create() failed\n");
