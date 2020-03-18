@@ -227,6 +227,7 @@ void *UDPAVDSFinder_task(void *arg0)
     int                status;
     int                server;
     int n;
+    tsAVDSInfoMsg *ptsAVDSInfo;
     fd_set             readSet;
     struct sockaddr_in localAddr;
     struct sockaddr_in clientAddr;
@@ -283,7 +284,7 @@ void *UDPAVDSFinder_task(void *arg0)
                                    (uint8_t)IPTmp&0xFF,
                                    clientAddr.sin_port
                     );
-                    tsAVDSInfoMsg *ptsAVDSInfo;
+
                     ptsAVDSInfo = (tsAVDSInfoMsg *)buffer;
 //                    System_printf("remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
 //                                  (uint8_t)(IPTmp>>16)&0xFF,

@@ -22,7 +22,7 @@ const GenericDevice_hookParams g_GenericDevice_defaultHookTable =
  .setupFxn = NULL,
  .setupArg0 = NULL,
  .eventFxns = {[0 ... 31] = NULL},
- .eventFxnArg0 = {NULL},
+ .eventFxnArg0 = {[0 ... 31] = NULL},
 };
 
 const Device_FxnTable g_GeneticDevice_fxnTable =
