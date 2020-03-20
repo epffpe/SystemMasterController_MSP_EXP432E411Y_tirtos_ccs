@@ -73,7 +73,8 @@ typedef enum
 
 typedef enum
 {
-    CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_ID = 0x01,
+    CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND1_ID = 0x01,
+    CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND2_ID,
 } ALTOAmp_service_direct_command_characteristics_t;
 
 typedef struct {
@@ -91,6 +92,22 @@ typedef struct {
     uint8_t hpNum;
     uint8_t value;
 }ALTOAmp_headphoneData_t;
+
+typedef struct {
+    uint8_t classID;
+    uint8_t operationID;
+    uint8_t functionID;
+    union {
+        uint8_t sequence;
+        uint8_t ui8MultinetAddress;
+        struct {
+            uint8_t ui4address      : 5;
+            uint8_t uin4unitType     : 3;
+        };
+    };
+    uint8_t length;
+    uint8_t data[ALTO_FRAME_DATA_PAYLOAD_SIZE];
+}ALTOAmp_directCommandData_t;
 
 #ifdef __cplusplus
 extern "C"  {

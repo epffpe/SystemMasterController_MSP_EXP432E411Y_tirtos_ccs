@@ -597,7 +597,7 @@ static void vALTOAmp_ALTODirectCommandService_ValueChangeHandler(char_data_t *pC
     IF_Transaction ifTransaction;
     bool transferOk;
     ALTO_Frame_t tFrameTx, tFrameRx;
-    ALTO_Frame_t *pRxData = (ALTO_Frame_t *)pCharData->data;
+    ALTOAmp_directCommandData_t *pRxData = (ALTOAmp_directCommandData_t *)pCharData->data;
 
 
     /*
@@ -630,7 +630,7 @@ static void vALTOAmp_ALTODirectCommandService_ValueChangeHandler(char_data_t *pC
 
 
     switch (pCharData->paramID) {
-    case CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_ID:
+    case CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND1_ID:
         vALTOFrame_BCC_fill(&tFrameTx);
         vALTOFrame_create_ASCII(txbuff, &tFrameTx);
 
@@ -647,14 +647,14 @@ static void vALTOAmp_ALTODirectCommandService_ValueChangeHandler(char_data_t *pC
                                          pCharData->connHandle,
                                          pCharData->retSvcUUID, pCharData->retParamID,
                                          myDeviceID,
-                                         SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_ID,
+                                         SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND1_ID,
                                          (uint8_t *)&tFrameRx, sizeof(ALTO_Frame_t));
             }else{
                 xDevice_sendErrorMsg (pCharData->retDeviceID,
                                       pCharData->connHandle,
                                       pCharData->retSvcUUID, pCharData->retParamID,
                                       myDeviceID,
-                                      SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_ID,
+                                      SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND1_ID,
                                       APP_MSG_ERROR_CRC);
             }
         }else {
@@ -662,7 +662,43 @@ static void vALTOAmp_ALTODirectCommandService_ValueChangeHandler(char_data_t *pC
                                   pCharData->connHandle,
                                   pCharData->retSvcUUID, pCharData->retParamID,
                                   myDeviceID,
-                                  SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_ID,
+                                  SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND1_ID,
+                                  APP_MSG_ERROR_TRANSFER_FAILED);
+        }
+        break;
+    case CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND2_ID:
+        vALTOFrame_BCC_fill(&tFrameTx);
+        vALTOFrame_create_ASCII(txbuff, &tFrameTx);
+
+        ifTransaction.readCount = 64;
+        ifTransaction.writeCount = 70;
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+            int8_t i8bcc;
+            xALTOFrame_convert_ASCII_to_binary(rxbuff, &tFrameRx);
+            i8bcc = cALTOFrame_BCC_check(&tFrameRx);
+            if (!i8bcc) {
+                vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                         APP_MSG_SERVICE_WRITE,
+                                         pCharData->connHandle,
+                                         pCharData->retSvcUUID, pCharData->retParamID,
+                                         myDeviceID,
+                                         SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND2_ID,
+                                         (uint8_t *)&tFrameRx, sizeof(ALTO_Frame_t));
+            }else{
+                xDevice_sendErrorMsg (pCharData->retDeviceID,
+                                      pCharData->connHandle,
+                                      pCharData->retSvcUUID, pCharData->retParamID,
+                                      myDeviceID,
+                                      SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND2_ID,
+                                      APP_MSG_ERROR_CRC);
+            }
+        }else {
+            xDevice_sendErrorMsg (pCharData->retDeviceID,
+                                  pCharData->connHandle,
+                                  pCharData->retSvcUUID, pCharData->retParamID,
+                                  myDeviceID,
+                                  SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND2_ID,
                                   APP_MSG_ERROR_TRANSFER_FAILED);
         }
         break;

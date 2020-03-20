@@ -39,6 +39,11 @@ typedef struct {
     ALTOAmp_headphoneData_t headphone;
 }TCP_CMD_ALTOAmp_setHeadPhone_payload_t;
 
+typedef struct {
+    uint32_t deviceID;
+    ALTOAmp_directCommandData_t directCMD;
+}TCP_CMD_ALTOAmp_directCommand_payload_t;
+
 typedef struct
 {
     uint32_t    errorDescription;
@@ -133,7 +138,7 @@ void TCPBin_ALTOAmpHPMuteGet(int clientfd, char *payload, int32_t size);
 
 
 __TCPBINARYCOMMANDS_ALTOAMP_EXT
-void TCPBin_ALTOAmpDirectCommand(int clientfd, char *payload, int32_t size);
+void TCPBin_ALTOAmpDirectCommand1(int clientfd, char *payload, int32_t size);
 
 
 //*****************************************************************************

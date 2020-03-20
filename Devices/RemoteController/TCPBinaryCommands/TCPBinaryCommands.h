@@ -226,8 +226,10 @@ typedef enum {
     TCP_CMD_TEST_getIRInputValueResponse,
 
 // ALTO AMPLIFIER EXTENDED COMMANDS
-    TCP_CMD_ALTOAmp_DirectCommand = 500,
-    TCP_CMD_ALTOAmp_DirectCommandResponse,
+    TCP_CMD_ALTOAmp_DirectCommand1 = 500,
+    TCP_CMD_ALTOAmp_DirectCommand1Response,
+    TCP_CMD_ALTOAmp_DirectCommand2,
+    TCP_CMD_ALTOAmp_DirectCommand2Response,
     TCP_CMD_ALTOAmp_ActiveConfigDatabase,
     TCP_CMD_ALTOAmp_ActiveConfigDatabaseResponse,
     TCP_CMD_ALTOAmp_SoftChangeConfigDatabase,
