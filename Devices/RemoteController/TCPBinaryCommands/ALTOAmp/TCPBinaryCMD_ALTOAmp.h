@@ -14,6 +14,7 @@ typedef enum
 {
     CHARACTERISTIC_ALTO_AMP_AMPLIFIER_CLASS_ID = 0x01,
     CHARACTERISTIC_ALTO_AMP_HEADPHONE_CLASS_ID,
+    CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_CLASS_ID,
 } TCP_CMD_ALTOAmp_service_characteristics_t;
 
 typedef struct {
@@ -128,6 +129,11 @@ __TCPBINARYCOMMANDS_ALTOAMP_EXT
 void TCPBin_ALTOAmpHPMuteSet(int clientfd, char *payload, int32_t size);
 __TCPBINARYCOMMANDS_ALTOAMP_EXT
 void TCPBin_ALTOAmpHPMuteGet(int clientfd, char *payload, int32_t size);
+
+
+
+__TCPBINARYCOMMANDS_ALTOAMP_EXT
+void TCPBin_ALTOAmpDirectCommand(int clientfd, char *payload, int32_t size);
 
 
 //*****************************************************************************

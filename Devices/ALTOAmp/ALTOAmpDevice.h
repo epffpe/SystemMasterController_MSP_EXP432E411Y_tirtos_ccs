@@ -58,6 +58,7 @@ typedef enum
     SERVICE_ALTO_AMP_HP_INPUT_SELECT_UUID = 0x0709,
     SERVICE_ALTO_AMP_HP_VOLUME_UUID = 0x0711,
     SERVICE_ALTO_AMP_HP_MUTE_UUID = 0x0714,
+    SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID = 0xFFFF,
 } ALTOAmp_service_UUID_t;
 
 
@@ -69,6 +70,11 @@ typedef enum
     CHARACTERISTIC_ALTO_AMP_INC_ID,
     CHARACTERISTIC_ALTO_AMP_DEC_ID,
 } ALTOAmp_service_alto_volume_characteristics_t;
+
+typedef enum
+{
+    CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_ID = 0x01,
+} ALTOAmp_service_direct_command_characteristics_t;
 
 typedef struct {
     uint8_t zone;

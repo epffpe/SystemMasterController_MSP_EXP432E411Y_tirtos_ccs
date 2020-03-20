@@ -107,6 +107,7 @@ typedef enum {
     TCP_CMD_setALTOAmpHPMute,
     TCP_CMD_setALTOAmpHPMuteResponse,
 
+
 // Light Class
     TCP_CMD_ALTOMultinet_getRelay = 150,
     TCP_CMD_ALTOMultinet_getRelayResponse,
@@ -223,6 +224,24 @@ typedef enum {
     TCP_CMD_TEST_setIROutputValueResponse,
     TCP_CMD_TEST_getIRInputValue,
     TCP_CMD_TEST_getIRInputValueResponse,
+
+// ALTO AMPLIFIER EXTENDED COMMANDS
+    TCP_CMD_ALTOAmp_DirectCommand = 500,
+    TCP_CMD_ALTOAmp_DirectCommandResponse,
+    TCP_CMD_ALTOAmp_ActiveConfigDatabase,
+    TCP_CMD_ALTOAmp_ActiveConfigDatabaseResponse,
+    TCP_CMD_ALTOAmp_SoftChangeConfigDatabase,
+    TCP_CMD_ALTOAmp_SoftChangeConfigDatabaseResponse,
+    TCP_CMD_ALTOAmp_AnalogSelectAB_1,
+    TCP_CMD_ALTOAmp_AnalogSelectAB_1Response,
+    TCP_CMD_ALTOAmp_AnalogSelectAB_2,
+    TCP_CMD_ALTOAmp_AnalogSelectAB_2Response,
+    TCP_CMD_ALTOAmp_AudioFormat,
+    TCP_CMD_ALTOAmp_AudioFormatResponse,
+    TCP_CMD_ALTOAmp_SurroundEnable,
+    TCP_CMD_ALTOAmp_SurroundEnableResponse,
+    TCP_CMD_ALTOAmp_DSPRegisterRW,
+    TCP_CMD_ALTOAmp_DSPRegisterRWResponse,
 
     TCP_CMD_COUNT
 } TCPBin_CMD_types_te;

@@ -16,6 +16,7 @@ static void vALTOAmp_ALTOAmplifierClassService_ValueChangeHandler(char_data_t *p
 static void vALTOAmp_ALTOHPClassService_ValueChangeHandler(char_data_t *pCharData, uint32_t myDeviceID, IF_Handle ifHandle, char *txbuff, char *rxbuff, uint8_t functionID);
 //static void vALTOAmp_ALTOVolumeService_ValueChangeHandler(char_data_t *pCharData, uint32_t myDeviceID, IF_Handle ifHandle, char *txbuff, char *rxbuff);
 //static void vALTOAmp_ALTOBassService_ValueChangeHandler(char_data_t *pCharData, uint32_t myDeviceID, IF_Handle ifHandle, char *txbuff, char *rxbuff);
+static void vALTOAmp_ALTODirectCommandService_ValueChangeHandler(char_data_t *pCharData, uint32_t myDeviceID, IF_Handle ifHandle, char *txbuff, char *rxbuff);
 
 const Device_FxnTable g_ALTOAmpDevice_fxnTable =
 {
@@ -236,6 +237,9 @@ static void vALTOAmp_processApplicationMessage(device_msg_t *pMsg, uint32_t myDe
           break;
       case SERVICE_ALTO_AMP_HP_MUTE_UUID:
           vALTOAmp_ALTOHPClassService_ValueChangeHandler(pCharData, myDeviceID, ifHandle, txbuff, rxbuff, ALTO_Function_Mute);
+          break;
+      case SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID:
+          vALTOAmp_ALTODirectCommandService_ValueChangeHandler(pCharData, myDeviceID, ifHandle, txbuff, rxbuff);
           break;
       default:
           break;
@@ -585,6 +589,90 @@ static void vALTOAmp_ALTOHPClassService_ValueChangeHandler(char_data_t *pCharDat
         break;
     }
 }
+
+
+
+static void vALTOAmp_ALTODirectCommandService_ValueChangeHandler(char_data_t *pCharData, uint32_t myDeviceID, IF_Handle ifHandle, char *txbuff, char *rxbuff)
+{
+    IF_Transaction ifTransaction;
+    bool transferOk;
+    ALTO_Frame_t tFrameTx, tFrameRx;
+    ALTO_Frame_t *pRxData = (ALTO_Frame_t *)pCharData->data;
+
+
+    /*
+     * Fill the tx frame
+     */
+    vALTOFrame_Params_init(&tFrameTx);
+    tFrameTx.classID = pRxData->classID;
+    tFrameTx.functionID = pRxData->functionID;
+    tFrameTx.operationID = pRxData->operationID;
+    tFrameTx.length = pRxData->length;
+    tFrameTx.sequence = pRxData->sequence;
+    memset(tFrameTx.data, 0, sizeof(tFrameTx.data));
+    if (pRxData->length <= ALTO_FRAME_DATA_PAYLOAD_SIZE) {
+        memcpy(tFrameTx.data, pRxData->data, pRxData->length);
+    }else{
+        memcpy(tFrameTx.data, pRxData->data, ALTO_FRAME_DATA_PAYLOAD_SIZE);
+    }
+    /*
+     * Prepare the transfer
+     */
+    memset(&ifTransaction, 0, sizeof(IF_Transaction));
+    ifTransaction.readCount = 70;
+    ifTransaction.readBuf = rxbuff;
+    ifTransaction.readTimeout = 30;
+    ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_ALTO_MULTINET;
+    ifTransaction.writeBuf = txbuff;
+    ifTransaction.writeCount = 70;
+    ifTransaction.writeTimeout = BIOS_WAIT_FOREVER;
+    ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
+
+
+    switch (pCharData->paramID) {
+    case CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_ID:
+        vALTOFrame_BCC_fill(&tFrameTx);
+        vALTOFrame_create_ASCII(txbuff, &tFrameTx);
+
+        ifTransaction.readCount = 64;
+        ifTransaction.writeCount = 70;
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+            int8_t i8bcc;
+            xALTOFrame_convert_ASCII_to_binary(rxbuff, &tFrameRx);
+            i8bcc = cALTOFrame_BCC_check(&tFrameRx);
+            if (!i8bcc) {
+                vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                         APP_MSG_SERVICE_WRITE,
+                                         pCharData->connHandle,
+                                         pCharData->retSvcUUID, pCharData->retParamID,
+                                         myDeviceID,
+                                         SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_ID,
+                                         (uint8_t *)&tFrameRx, sizeof(ALTO_Frame_t));
+            }else{
+                xDevice_sendErrorMsg (pCharData->retDeviceID,
+                                      pCharData->connHandle,
+                                      pCharData->retSvcUUID, pCharData->retParamID,
+                                      myDeviceID,
+                                      SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_ID,
+                                      APP_MSG_ERROR_CRC);
+            }
+        }else {
+            xDevice_sendErrorMsg (pCharData->retDeviceID,
+                                  pCharData->connHandle,
+                                  pCharData->retSvcUUID, pCharData->retParamID,
+                                  myDeviceID,
+                                  SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_ID,
+                                  APP_MSG_ERROR_TRANSFER_FAILED);
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+
+/*************************************/
 
 void vALTOAmpDevice_clockHandler(UArg arg)
 {

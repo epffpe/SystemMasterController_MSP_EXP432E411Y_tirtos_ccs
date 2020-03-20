@@ -236,6 +236,7 @@ void *UDPAVDSFinder_task(void *arg0)
     uint16_t           portNumber = *(uint16_t *)arg0;
     uint32_t IPTmp;
     char response[64];
+//    int err;
 
     volatile tEEPROM_Data *pManufacturerInformation;
 
@@ -256,6 +257,8 @@ void *UDPAVDSFinder_task(void *arg0)
 
     status = bind(server, (struct sockaddr *)&localAddr, sizeof(localAddr));
     if (status == -1) {
+//        err = fdError();
+//        Display_printf(g_SMCDisplay, 0, 0, "Error: bind failed. err=%d\n", err);
         Display_printf(g_SMCDisplay, 0, 0, "Error: bind failed.\n");
         goto shutdown;
     }
