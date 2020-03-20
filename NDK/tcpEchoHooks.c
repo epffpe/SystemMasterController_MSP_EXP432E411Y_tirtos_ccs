@@ -194,14 +194,14 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
             while (1);
         }
 
-        arg0 = 2010;
-        retc = pthread_create(&thread, &attrs, UDPAVDSFinder_task, (void *)&arg0);
-//        retc = pthread_create(&thread, &attrs, echoFxn, (void *)&arg0);
-        if (retc != 0) {
-            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_create() failed\n");
-//            System_printf("netIPAddrHook: pthread_create() failed\n");
-            while (1);
-        }
+//        arg0 = 2010;
+//        retc = pthread_create(&thread, &attrs, UDPAVDSFinder_task, (void *)&arg0);
+////        retc = pthread_create(&thread, &attrs, echoFxn, (void *)&arg0);
+//        if (retc != 0) {
+//            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_create() failed\n");
+////            System_printf("netIPAddrHook: pthread_create() failed\n");
+//            while (1);
+//        }
 
         /*
          * **************************************************************************

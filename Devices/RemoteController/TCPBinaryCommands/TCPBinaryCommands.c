@@ -40,7 +40,7 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
 {
 // [TCP_CMD_doNothing]        = TCPBin_doNothing,
 
-// ALTO Ampliefier
+// ALTO Amplifier
 
  [TCP_CMD_RAW_CharDataMsg] = TCPBin_RAWCharacteristicData,
  [TCP_CMD_getALTOAmpInputSelect] = TCPBin_ALTOAmpInputSelectGet,
@@ -67,6 +67,18 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
 
  [TCP_CMD_getALTOAmpHPMute] = TCPBin_ALTOAmpHPMuteGet,
  [TCP_CMD_setALTOAmpHPMute] = TCPBin_ALTOAmpHPMuteSet,
+
+ // ALTO Amplifier EXTENDED COMMANDS
+ [TCP_CMD_ALTOAmp_DirectCommand] = TCPBin_ALTOAmpDirectCommand,
+ [TCP_CMD_ALTOAmp_ActiveConfigDatabase] = TCPBin_ALTOAmpDirectCommand,
+ [TCP_CMD_ALTOAmp_SoftChangeConfigDatabase] = TCPBin_ALTOAmpDirectCommand,
+ [TCP_CMD_ALTOAmp_AnalogSelectAB_1] = TCPBin_ALTOAmpDirectCommand,
+ [TCP_CMD_ALTOAmp_AnalogSelectAB_2] = TCPBin_ALTOAmpDirectCommand,
+ [TCP_CMD_ALTOAmp_AudioFormat] = TCPBin_ALTOAmpDirectCommand,
+ [TCP_CMD_ALTOAmp_SurroundEnable] = TCPBin_ALTOAmpDirectCommand,
+ [TCP_CMD_ALTOAmp_DSPRegisterRW] = TCPBin_ALTOAmpDirectCommand,
+
+
 
 // ALTO Relay boxes
  [TCP_CMD_ALTOMultinet_getRelay] = TCPBin_ALTOMultinetRelayGet,

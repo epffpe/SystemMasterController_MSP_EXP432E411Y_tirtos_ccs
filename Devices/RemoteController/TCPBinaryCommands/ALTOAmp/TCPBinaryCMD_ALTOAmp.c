@@ -31,6 +31,8 @@ int xTCPRCBin_ALTOAmp_AmplifierClass_GetValueChangeHandler(char_data_t *pCharDat
 int xTCPRCBin_ALTOAmp_AmplifierClass_SetValueChangeHandler(char_data_t *pCharData);
 int xTCPRCBin_ALTOAmp_HeadPhoneClass_GetValueChangeHandler(char_data_t *pCharData);
 int xTCPRCBin_ALTOAmp_HeadPhoneClass_SetValueChangeHandler(char_data_t *pCharData);
+int xTCPRCBin_ALTOAmp_DirectCommandClass_Handler(char_data_t *pCharData);
+
 
 
 void vTCPRCBin_ALTOVolumeReturnService_ValueChangeHandler(char_data_t *pCharData)
@@ -58,6 +60,17 @@ void vTCPRCBin_ALTOVolumeReturnService_ValueChangeHandler(char_data_t *pCharData
                 break;
             case CHARACTERISTIC_ALTO_AMP_SET_ID:
                 xTCPRCBin_ALTOAmp_HeadPhoneClass_SetValueChangeHandler(pCharData);
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_CLASS_ID:
+        if(pCharData->dataLen) {
+            switch(pCharData->retParamID) {
+            case CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_ID:
+                xTCPRCBin_ALTOAmp_DirectCommandClass_Handler(pCharData);
                 break;
             default:
                 break;
@@ -244,6 +257,32 @@ int xTCPRCBin_ALTOAmp_HeadPhoneClass_SetValueChangeHandler(char_data_t *pCharDat
     return bytesSent;
 }
 
+
+int xTCPRCBin_ALTOAmp_DirectCommandClass_Handler(char_data_t *pCharData)
+{
+    int bytesSent;
+    char buffer[sizeof(TCPBin_CMD_retFrame_t) + sizeof(ALTO_Frame_t)];
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+    pFrame->retDeviceID = pCharData->retDeviceID;
+    pFrame->retSvcUUID = pCharData->retSvcUUID;
+    pFrame->retParamID = pCharData->retParamID;
+
+    switch(pCharData->retSvcUUID) {
+    case SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID:
+        pFrame->type = TCP_CMD_ALTOAmp_DirectCommandResponse | 0x80000000;
+        break;
+    default:
+        pFrame->type = 0 | 0x80000000;
+        break;
+    }
+
+    ALTO_Frame_t *pFramePayload = (ALTO_Frame_t *)pFrame->payload;
+    ALTO_Frame_t *pDataPayload = (ALTO_Frame_t *)pCharData->data;
+    *pFramePayload = *pDataPayload;
+    bytesSent = send(pCharData->connHandle, buffer, sizeof(buffer), 0);
+
+    return bytesSent;
+}
 
 
 /*****************************************************************************************************************
@@ -579,6 +618,24 @@ void TCPBin_ALTOAmpHPMuteGet(int clientfd, char *payload, int32_t size)
                                  SERVICE_TCPBIN_REMOTECONTROL_AMPLIFIER_CLASS_RETURN_UUID, CHARACTERISTIC_ALTO_AMP_HEADPHONE_CLASS_ID,
                                  (uint8_t *)&ptPayload->hpNum, sizeof(uint8_t) )) {
         TCPBin_sendDeviceIdError(clientfd, TCP_CMD_getALTOAmpHPMute, ptPayload->deviceID);
+    }
+}
+
+/*****************************************************************************************************************
+ * Extended commands
+ */
+
+void TCPBin_ALTOAmpDirectCommand(int clientfd, char *payload, int32_t size)
+{
+    TCP_CMD_ALTOAmp_setHeadPhone_payload_t *ptPayload = (TCP_CMD_ALTOAmp_setHeadPhone_payload_t *)payload;
+    if(!xDevice_sendCharDataMsg( ptPayload->deviceID,
+                                 APP_MSG_SERVICE_WRITE,
+                                 clientfd,
+                                 SERVICE_ALTO_AMP_DIRECT_COMMAND_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_ID,
+                                 TCPRCBINDEVICE_ID,
+                                 SERVICE_TCPBIN_REMOTECONTROL_AMPLIFIER_CLASS_RETURN_UUID, CHARACTERISTIC_ALTO_AMP_DIRECT_COMMAND_CLASS_ID,
+                                 (uint8_t *)&ptPayload->headphone, sizeof(ALTOAmp_headphoneData_t))) {
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_ALTOAmp_DirectCommand, ptPayload->deviceID);
     }
 }
 
