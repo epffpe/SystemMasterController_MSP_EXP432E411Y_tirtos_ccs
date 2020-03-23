@@ -51,6 +51,7 @@
 
 #define TCPPORT 2000
 #define UDPPORT 1001
+#define AVDSUDPPORT 2010
 
 
 #define TCPHANDLERSTACK 4096
@@ -87,16 +88,17 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
     struct sched_param  priParam;
     int                 retc;
     int                 detachState;
-    uint32_t            hostByteAddr;
-    static uint16_t arg0 = TCPPORT;
+//    uint32_t            hostByteAddr;
+    static uint16_t arg0 = UDPPORT;
+    static uint16_t arg1 = AVDSUDPPORT;
     static bool createTask = true;
     int32_t             status = 0;
     static uint16_t     http_port = SERVER_PORT;
-    static uint16_t     https_port = SEC_SERVER_PORT;
+//    static uint16_t     https_port = SEC_SERVER_PORT;
 //    int32_t status = 0;
 
-    Task_Handle taskHandle;
-    Task_Params taskParams;
+//    Task_Handle taskHandle;
+//    Task_Params taskParams;
     Error_Block eb;
     Device_Params deviceParams;
 
@@ -130,14 +132,22 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
          *  arg0 will be the port that this task listens to.
          */
 
+        /*
+         * TCP Server. Command receiver
+         */
         vTCPRCBinDevice_Params_init(&deviceParams, TCPRCBINDEVICE_ID);
         xDevice_add(&deviceParams, &eb);
 
+
+        /*
+         * UDP server
+         */
+
         Display_printf(g_SMCDisplay, 0, 0, "Adding UDP Server on port (%d)\n", UDPPORT);
-        Task_Params_init(&taskParams);
-        taskParams.stackSize = UDPHANDLERSTACK;
-        taskParams.priority = 2;
-        taskParams.arg0 = UDPPORT;
+//        Task_Params_init(&taskParams);
+//        taskParams.stackSize = UDPHANDLERSTACK;
+//        taskParams.priority = 2;
+//        taskParams.arg0 = UDPPORT;
 //        taskHandle = Task_create((Task_FuncPtr)udpHandlerFxn, &taskParams, &eb);
 //        if (taskHandle == NULL) {
 //            System_printf("main: Failed to create udpHandler Task\n");
@@ -194,17 +204,18 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
             while (1);
         }
 
-//        arg0 = 2010;
-//        retc = pthread_create(&thread, &attrs, UDPAVDSFinder_task, (void *)&arg0);
-////        retc = pthread_create(&thread, &attrs, echoFxn, (void *)&arg0);
-//        if (retc != 0) {
-//            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_create() failed\n");
-////            System_printf("netIPAddrHook: pthread_create() failed\n");
-//            while (1);
-//        }
+        arg1 = AVDSUDPPORT;
+        retc = pthread_create(&thread, &attrs, UDPAVDSFinder_task, (void *)&arg1);
+//        retc = pthread_create(&thread, &attrs, UDPFinder_task, (void *)&arg1);
+        if (retc != 0) {
+            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_create() failed\n");
+//            System_printf("netIPAddrHook: pthread_create() failed\n");
+            while (1);
+        }
 
         /*
          * **************************************************************************
+         * HTTP Server
          */
 
         /* Set priority and stack size attributes */

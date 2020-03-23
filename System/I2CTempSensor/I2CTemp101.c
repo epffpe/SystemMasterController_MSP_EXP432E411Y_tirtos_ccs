@@ -50,7 +50,7 @@ Void vI2CTemp101Fxn(UArg arg0, UArg arg1)
     i2cTransaction.readBuf = rxBuffer;
     i2cTransaction.readCount = 2;
 
-    /* Take 20 samples and print them out onto the console */
+
     for (sample = 0;; sample++) {
 //    for (;;) {
         if (I2C_transfer(i2c, &i2cTransaction)) {
@@ -83,8 +83,8 @@ Void vI2CTemp101Fxn(UArg arg0, UArg arg1)
         sleep(1);
     }
 
-    I2C_close(i2c);
-    Display_printf(g_SMCDisplay, 0, 0, "I2C closed!");
+//    I2C_close(i2c);
+//    Display_printf(g_SMCDisplay, 0, 0, "I2C closed!");
 
 }
 

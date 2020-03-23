@@ -137,7 +137,7 @@ void vSPIDAC_setRawValue(uint16_t value)
     if (pMsg != NULL)
     {
         pMsg->heap = NULL;
-        pMsg->type = 0;
+        pMsg->type = APP_MSG_SERVICE_WRITE;
         pMsg->pduLen = sizeof(device_msg_t) + sizeof(uint16_t);
 
         // Copy data into message

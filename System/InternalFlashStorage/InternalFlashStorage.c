@@ -144,6 +144,7 @@ void vIFS_loadStartUpConfiguration(void *arg0)
 
         res = SPIFFS_info(&g_IFSfs, &total, &used);
         Display_printf(g_SMCDisplay, 0, 0, "File System total:%i used:%i\n", total, used);
+        res = res;
     }
 
     Display_printf(g_SMCDisplay, 0, 0, "Unmounting the fs.");

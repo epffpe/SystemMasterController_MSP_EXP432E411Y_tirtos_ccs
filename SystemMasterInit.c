@@ -37,8 +37,7 @@
 #include "includes.h"
 
 
-/* Example/Board Header files */
-
+extern void ti_ndk_config_Global_startupFxn();
 void vDiscreteIO_init();
 void vHeartBeat_init();
 void test();

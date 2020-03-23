@@ -230,20 +230,41 @@ typedef enum {
     TCP_CMD_ALTOAmp_DirectCommand1Response,
     TCP_CMD_ALTOAmp_DirectCommand2,
     TCP_CMD_ALTOAmp_DirectCommand2Response,
-    TCP_CMD_ALTOAmp_ActiveConfigDatabase,
-    TCP_CMD_ALTOAmp_ActiveConfigDatabaseResponse,
-    TCP_CMD_ALTOAmp_SoftChangeConfigDatabase,
-    TCP_CMD_ALTOAmp_SoftChangeConfigDatabaseResponse,
-    TCP_CMD_ALTOAmp_AnalogSelectAB_1,
-    TCP_CMD_ALTOAmp_AnalogSelectAB_1Response,
-    TCP_CMD_ALTOAmp_AnalogSelectAB_2,
-    TCP_CMD_ALTOAmp_AnalogSelectAB_2Response,
-    TCP_CMD_ALTOAmp_AudioFormat,
-    TCP_CMD_ALTOAmp_AudioFormatResponse,
-    TCP_CMD_ALTOAmp_SurroundEnable,
-    TCP_CMD_ALTOAmp_SurroundEnableResponse,
-    TCP_CMD_ALTOAmp_DSPRegisterRW,
-    TCP_CMD_ALTOAmp_DSPRegisterRWResponse,
+
+    TCP_CMD_ALTOAmp_getActiveConfigDatabase,
+    TCP_CMD_ALTOAmp_getActiveConfigDatabaseResponse,
+    TCP_CMD_ALTOAmp_setActiveConfigDatabase,
+    TCP_CMD_ALTOAmp_setActiveConfigDatabaseResponse,
+
+    TCP_CMD_ALTOAmp_getSoftChangeConfigDatabase,
+    TCP_CMD_ALTOAmp_getSoftChangeConfigDatabaseResponse,
+    TCP_CMD_ALTOAmp_setSoftChangeConfigDatabase,
+    TCP_CMD_ALTOAmp_setSoftChangeConfigDatabaseResponse,
+
+    TCP_CMD_ALTOAmp_getAnalogSelectAB_1,
+    TCP_CMD_ALTOAmp_getAnalogSelectAB_1Response,
+    TCP_CMD_ALTOAmp_setAnalogSelectAB_1,
+    TCP_CMD_ALTOAmp_setAnalogSelectAB_1Response,
+
+    TCP_CMD_ALTOAmp_getAnalogSelectAB_2,
+    TCP_CMD_ALTOAmp_getAnalogSelectAB_2Response,
+    TCP_CMD_ALTOAmp_setAnalogSelectAB_2,
+    TCP_CMD_ALTOAmp_setAnalogSelectAB_2Response,
+
+    TCP_CMD_ALTOAmp_getAudioFormat,
+    TCP_CMD_ALTOAmp_getAudioFormatResponse,
+    TCP_CMD_ALTOAmp_setAudioFormat,
+    TCP_CMD_ALTOAmp_setAudioFormatResponse,
+
+    TCP_CMD_ALTOAmp_getSurroundEnable,
+    TCP_CMD_ALTOAmp_getSurroundEnableResponse,
+    TCP_CMD_ALTOAmp_setSurroundEnable,
+    TCP_CMD_ALTOAmp_setSurroundEnableResponse,
+
+    TCP_CMD_ALTOAmp_getDSPRegisterRW,
+    TCP_CMD_ALTOAmp_getDSPRegisterRWResponse,
+    TCP_CMD_ALTOAmp_setDSPRegisterRW,
+    TCP_CMD_ALTOAmp_setDSPRegisterRWResponse,
 
     TCP_CMD_COUNT
 } TCPBin_CMD_types_te;

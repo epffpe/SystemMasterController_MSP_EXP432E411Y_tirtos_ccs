@@ -223,10 +223,10 @@ typedef struct {
 void *UDPAVDSFinder_task(void *arg0)
 {
     int                bytesRcvd;
-    int                bytesSent;
+//    int                bytesSent;
     int                status;
     int                server;
-    int n;
+//    int n;
     tsAVDSInfoMsg *ptsAVDSInfo;
     fd_set             readSet;
     struct sockaddr_in localAddr;
@@ -289,6 +289,7 @@ void *UDPAVDSFinder_task(void *arg0)
                     );
 
                     ptsAVDSInfo = (tsAVDSInfoMsg *)buffer;
+                    ptsAVDSInfo = ptsAVDSInfo;
 //                    System_printf("remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
 //                                  (uint8_t)(IPTmp>>16)&0xFF,
 //                                  (uint8_t)(IPTmp>>8)&0xFF,

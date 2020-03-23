@@ -71,13 +71,27 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  // ALTO Amplifier EXTENDED COMMANDS
  [TCP_CMD_ALTOAmp_DirectCommand1] = TCPBin_ALTOAmpDirectCommand1,
  [TCP_CMD_ALTOAmp_DirectCommand2] = TCPBin_ALTOAmpDirectCommand1,
- [TCP_CMD_ALTOAmp_ActiveConfigDatabase] = TCPBin_ALTOAmpDirectCommand1,
- [TCP_CMD_ALTOAmp_SoftChangeConfigDatabase] = TCPBin_ALTOAmpDirectCommand1,
- [TCP_CMD_ALTOAmp_AnalogSelectAB_1] = TCPBin_ALTOAmpDirectCommand1,
- [TCP_CMD_ALTOAmp_AnalogSelectAB_2] = TCPBin_ALTOAmpDirectCommand1,
- [TCP_CMD_ALTOAmp_AudioFormat] = TCPBin_ALTOAmpDirectCommand1,
- [TCP_CMD_ALTOAmp_SurroundEnable] = TCPBin_ALTOAmpDirectCommand1,
- [TCP_CMD_ALTOAmp_DSPRegisterRW] = TCPBin_ALTOAmpDirectCommand1,
+
+ [TCP_CMD_ALTOAmp_getActiveConfigDatabase] = TCPBin_ALTOAmpDirectCommand1,
+ [TCP_CMD_ALTOAmp_setActiveConfigDatabase] = TCPBin_ALTOAmpDirectCommand1,
+
+ [TCP_CMD_ALTOAmp_getSoftChangeConfigDatabase] = TCPBin_ALTOAmpDirectCommand1,
+ [TCP_CMD_ALTOAmp_setSoftChangeConfigDatabase] = TCPBin_ALTOAmpDirectCommand1,
+
+ [TCP_CMD_ALTOAmp_getAnalogSelectAB_1] = TCPBin_ALTOAmpDirectCommand1,
+ [TCP_CMD_ALTOAmp_setAnalogSelectAB_1] = TCPBin_ALTOAmpDirectCommand1,
+
+ [TCP_CMD_ALTOAmp_getAnalogSelectAB_2] = TCPBin_ALTOAmpDirectCommand1,
+ [TCP_CMD_ALTOAmp_setAnalogSelectAB_2] = TCPBin_ALTOAmpDirectCommand1,
+
+ [TCP_CMD_ALTOAmp_getAudioFormat] = TCPBin_ALTOAmpDirectCommand1,
+ [TCP_CMD_ALTOAmp_setAudioFormat] = TCPBin_ALTOAmpDirectCommand1,
+
+ [TCP_CMD_ALTOAmp_getSurroundEnable] = TCPBin_ALTOAmpDirectCommand1,
+ [TCP_CMD_ALTOAmp_setSurroundEnable] = TCPBin_ALTOAmpDirectCommand1,
+
+ [TCP_CMD_ALTOAmp_getDSPRegisterRW] = TCPBin_ALTOAmpDirectCommand1,
+ [TCP_CMD_ALTOAmp_setDSPRegisterRW] = TCPBin_ALTOAmpDirectCommand1,
 
 
 

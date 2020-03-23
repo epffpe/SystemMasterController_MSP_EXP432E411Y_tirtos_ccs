@@ -39,6 +39,7 @@ Void vCANTest_canTXTestFxn(UArg arg0, UArg arg1)
         pui32FrameSent = &g_ui32CANTestFramesSent1;
         Task_sleep((unsigned int)150);
     }
+    pui32Error = pui32Error;
 
     while (1) {
         Task_sleep((unsigned int)100);
@@ -106,6 +107,7 @@ Void vCANTest_canRXTestFxn(UArg arg0, UArg arg1)
         pui32Error = &g_ui32CANTestFrameError1;
         pui32FrameSent = &g_ui32CANTestFramesSent1;
     }
+    pui32Error = pui32Error;
 
 #ifdef TEST_FIXTURE
     Task_Params taskParams;
@@ -129,8 +131,10 @@ Void vCANTest_canRXTestFxn(UArg arg0, UArg arg1)
     CAN_Frame canFrame = {0};
     while (1) {
         result = CAN_read(canHandler, &canFrame, sizeof(canFrame));
+        result = result;
         DOSet(DIO_LED_D20, DOGet(DIO_LED_D20));
         pui32Data = (uint32_t *)canFrame.data;
+        pui32Data = pui32Data;
 #ifdef DUT
         canFrame.id = 2; // DUT is sending
         canFrame.err = 0;
