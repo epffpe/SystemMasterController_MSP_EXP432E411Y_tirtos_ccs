@@ -348,15 +348,58 @@ static void vForteManagerDevice_processAppRXMsgEvent(device_msg_t *pMsg, DeviceL
             if ((ui32AmpSerialPort < IF_COUNT) && (ui32AmpSerialPort != ifIndex)) {
                 ifHandle = hIF_open((uint32_t)ui32AmpSerialPort, &params);
                 vALTOFrame_create_ASCII(txbuff, &tALTOFrameTx);
-                transferOk = bIF_transfer(ifHandle, &ifTransaction);
-                if (transferOk) {
-                    xALTOFrame_convert_ASCII_to_binary((char *)rxbuff, &tALTOFrameRx);
-                    vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
-                    ui32retValue = xIFUART_sendData(ifHandleFM,
-                                     (const char *)txbuff,
-                                     sizeof(txbuff),
-                                     BIOS_WAIT_FOREVER);
-                    ui32retValue = ui32retValue;
+                if (!((tALTOFrameTx.classID == ALTO_Class_Diagnostic) && (tALTOFrameTx.functionID == ALTO_Function_TuningDatabaseInfo))) {
+                    transferOk = bIF_transfer(ifHandle, &ifTransaction);
+                    if (transferOk) {
+                        xALTOFrame_convert_ASCII_to_binary((char *)rxbuff, &tALTOFrameRx);
+                        vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
+                        ui32retValue = xIFUART_sendData(ifHandleFM,
+                                         (const char *)txbuff,
+                                         sizeof(txbuff),
+                                         BIOS_WAIT_FOREVER);
+                        ui32retValue = ui32retValue;
+                    }
+                }else{
+                    char rxbuff2[70];
+                    char rxbuff3[70];
+                    uint32_t ui32retValue2;
+                    uint32_t ui32retValue3;
+                    ui32retValue2 = 0;
+                    transferOk = bIF_transfer(ifHandle, &ifTransaction);
+                    ui32retValue2 = xIFUART_receiveALTOFrame(ifHandle,
+                                                             (char *)rxbuff2,
+                                                             50);
+                    ui32retValue3 = xIFUART_receiveALTOFrame(ifHandle,
+                                                             (char *)rxbuff3,
+                                                             50);
+
+                    if (transferOk) {
+                        xALTOFrame_convert_ASCII_to_binary((char *)rxbuff, &tALTOFrameRx);
+                        vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
+                        ui32retValue = xIFUART_sendData(ifHandleFM,
+                                                        (const char *)txbuff,
+                                                        sizeof(txbuff),
+                                                        BIOS_WAIT_FOREVER);
+                        ui32retValue = ui32retValue;
+                    }
+
+                    if (ui32retValue2 == IF_ALTO_SERIAL_FRAME_SIZE) {
+                        xALTOFrame_convert_ASCII_to_binary((char *)rxbuff2, &tALTOFrameRx);
+                        vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
+                        ui32retValue = xIFUART_sendData(ifHandleFM,
+                                                        (const char *)txbuff,
+                                                        sizeof(txbuff),
+                                                        BIOS_WAIT_FOREVER);
+                    }
+
+                    if (ui32retValue3 == IF_ALTO_SERIAL_FRAME_SIZE) {
+                        xALTOFrame_convert_ASCII_to_binary((char *)rxbuff3, &tALTOFrameRx);
+                        vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
+                        ui32retValue = xIFUART_sendData(ifHandleFM,
+                                                        (const char *)txbuff,
+                                                        sizeof(txbuff),
+                                                        BIOS_WAIT_FOREVER);
+                    }
                 }
             }
             break;

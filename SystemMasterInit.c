@@ -142,7 +142,7 @@ void *SMC_initThread(void *arg0)
     // Watchdog_init();
 
 #if !(defined(TEST_FIXTURE) || defined(DUT))
-    SMCDisplay_init();
+//    SMCDisplay_init();
 #endif
     GPIO_write(SMC_SERIAL0_DE, 1);
     Display_printf(g_SMCDisplay, 0, 0, "Starting the System Master Controller\n"
@@ -201,7 +201,7 @@ void *SMC_initThread(void *arg0)
     Device_Params deviceParams;
 
     vForteManagerDevice_Params_init(&deviceParams, 301, IF_SERIAL_0);
-//    xDevice_add(&deviceParams, &eb);
+    xDevice_add(&deviceParams, &eb);
 
 #ifdef TEST_FIXTURE
     /* Test Fixture */

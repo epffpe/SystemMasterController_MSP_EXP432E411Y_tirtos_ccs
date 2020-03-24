@@ -235,10 +235,10 @@ void *UDPAVDSFinder_task(void *arg0)
     char               buffer[UDPPACKETSIZE];
     uint16_t           portNumber = *(uint16_t *)arg0;
     uint32_t IPTmp;
-    char response[64];
+//    char response[64];
 //    int err;
 
-    volatile tEEPROM_Data *pManufacturerInformation;
+//    volatile tEEPROM_Data *pManufacturerInformation;
 
     fdOpenSession(TaskSelf());
 

@@ -184,7 +184,7 @@ void vSPIDAC_clockHandler(UArg arg)
 void vSPIDAC101_init(uint32_t r46, uint32_t r47)
 {
     Task_Params     taskParams;
-    Clock_Params    clockParams;
+//    Clock_Params    clockParams;
     Error_Block eb;
     /* Make sure Error_Block is initialized */
     Error_init(&eb);

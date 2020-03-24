@@ -100,6 +100,9 @@ typedef enum {
     ALTO_Function_ConfigDataParameter = 0x40,
     ALTO_Function_DiagRestart = 0x63,
     ALTO_Function_ManufacturingInformation = 0x70,
+    ALTO_Function_TuningDatabaseInfo = 0x74,
+    ALTO_Function_TuningDBRecordInfo = 0x75,
+    ALTO_Function_ActiveConfigDatabase = 0x78,
 
     // Functions for SoftwareTransfer Class 0x02
     ALTO_Function_DownloadStart = 0x10,
@@ -119,6 +122,7 @@ typedef enum {
     ALTO_Function_AnalogSelect_Diag = 0x03,
 
     // Functions for Amplifier Class 0x08
+    ALTO_Function_DiagInputSelect = 0x03,
     ALTO_Function_AudioFormat = 0x08,
     ALTO_Function_InputSelect = 0x09,
     ALTO_Function_Volume = 0x11,
