@@ -149,7 +149,8 @@ typedef struct __attribute__ ((__packed__)) {
     uint8_t indicator16;
     uint16_t inputL;
     uint8_t inputH;
-    uint32_t pin;
+    uint16_t pin;
+    uint8_t pin16;
     uint8_t pot1Step;
     uint8_t pot2Step;
     uint8_t dac1Step;
