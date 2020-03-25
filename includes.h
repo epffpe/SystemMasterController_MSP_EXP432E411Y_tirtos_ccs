@@ -196,6 +196,7 @@
 //#include "USB/USBTTYbin.h"
 //#include "USB/packettype.h"
 //#include "NDK/UDPServer.h"
+#include "NDK/UDPAVDSServer.h"
 #include <Deprecated/BSPSerial.h>
 #include <Deprecated/ALTO/ALTOInterface.h>
 #include <Deprecated/ALTO/ForteManager/ComputerBridge.h>

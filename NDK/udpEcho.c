@@ -133,11 +133,11 @@ void *UDPFinder_task(void *arg0)
                 buffer[bytesRcvd] = 0;
                 if (bytesRcvd > 0) {
                     IPTmp = ntohl(clientAddr.sin_addr.s_addr);
-                    Display_printf(g_SMCDisplay, 0, 0, "remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
+                    Display_printf(g_SMCDisplay, 0, 0, "UDP remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
                                    (uint8_t)(IPTmp>>16)&0xFF,
                                    (uint8_t)(IPTmp>>8)&0xFF,
                                    (uint8_t)IPTmp&0xFF,
-                                   clientAddr.sin_port
+                                   ntohs(clientAddr.sin_port)
                     );
 //                    System_printf("remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
 //                                  (uint8_t)(IPTmp>>16)&0xFF,
@@ -168,151 +168,6 @@ void *UDPFinder_task(void *arg0)
 //                                "Error: sendto failed.\n");
 //                        goto shutdown;
 //                    }
-                }
-            }
-        }
-    } while (status > 0);
-
-shutdown:
-    if (server != -1) {
-        close(server);
-    }
-
-    fdCloseSession(TaskSelf());
-
-    return (NULL);
-}
-
-/*
- *  ======== echoFxn ========
- *  Echoes UDP messages.
- *
- */
-
-typedef struct {
-    uint16_t zone;
-    union {
-        uint16_t bitmapPAState;
-        struct {
-            uint16_t softwareChime      : 1;
-            uint16_t softwareBriefer    : 1;
-            uint16_t aux2PTT            : 1;
-            uint16_t aux1PTT            : 1;
-            uint16_t mic3PTT            : 1;
-            uint16_t mic2PTT            : 1;
-            uint16_t mic1PTT            : 1;
-            uint16_t ordinance6         : 1;
-            uint16_t ordinance5         : 1;
-            uint16_t ordinance4         : 1;
-            uint16_t ordinance3         : 1;
-            uint16_t ordinance2         : 1;
-            uint16_t ordinance1         : 1;
-            uint16_t reserved           : 3;
-        };
-    };
-}tsAVDSPAState;
-
-typedef struct {
-    uint32_t ipAddress;
-    uint16_t portNumber;
-    uint8_t systemStatus;
-    uint8_t numPAStateEntries;
-    tsAVDSPAState ptsPAStateInfo[];
-}tsAVDSInfoMsg;
-
-void *UDPAVDSFinder_task(void *arg0)
-{
-    int                bytesRcvd;
-//    int                bytesSent;
-    int                status;
-    int                server;
-//    int n;
-    tsAVDSInfoMsg *ptsAVDSInfo;
-    fd_set             readSet;
-    struct sockaddr_in localAddr;
-    struct sockaddr_in clientAddr;
-    socklen_t          addrlen;
-    char               buffer[UDPPACKETSIZE];
-    uint16_t           portNumber = *(uint16_t *)arg0;
-    uint32_t IPTmp;
-//    char response[64];
-//    int err;
-
-//    volatile tEEPROM_Data *pManufacturerInformation;
-
-    fdOpenSession(TaskSelf());
-
-    Display_printf(g_SMCDisplay, 0, 0, "UDP Server Started on Port (%d)\n", portNumber);
-
-    server = socket(AF_INET, SOCK_DGRAM, 0);
-    if (server == -1) {
-        Display_printf(g_SMCDisplay, 0, 0, "Error: socket not created.\n");
-        goto shutdown;
-    }
-
-    memset(&localAddr, 0, sizeof(localAddr));
-    localAddr.sin_family = AF_INET;
-    localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    localAddr.sin_port = htons(portNumber);
-
-    status = bind(server, (struct sockaddr *)&localAddr, sizeof(localAddr));
-    if (status == -1) {
-//        err = fdError();
-//        Display_printf(g_SMCDisplay, 0, 0, "Error: bind failed. err=%d\n", err);
-        Display_printf(g_SMCDisplay, 0, 0, "Error: bind failed.\n");
-        goto shutdown;
-    }
-
-    do {
-        /*
-         *  readSet and addrlen are value-result arguments, which must be reset
-         *  in between each select() and recvfrom() call
-         */
-        FD_ZERO(&readSet);
-        FD_SET(server, &readSet);
-        addrlen = sizeof(clientAddr);
-
-        /* Wait forever for the reply */
-        status = select(server + 1, &readSet, NULL, NULL, NULL);
-        if (status > 0) {
-            if (FD_ISSET(server, &readSet)) {
-                bytesRcvd = recvfrom(server, buffer, UDPPACKETSIZE, 0,
-                        (struct sockaddr *)&clientAddr, &addrlen);
-                buffer[bytesRcvd] = 0;
-                if (bytesRcvd > 0) {
-                    IPTmp = ntohl(clientAddr.sin_addr.s_addr);
-                    Display_printf(g_SMCDisplay, 0, 0, "remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
-                                   (uint8_t)(IPTmp>>16)&0xFF,
-                                   (uint8_t)(IPTmp>>8)&0xFF,
-                                   (uint8_t)IPTmp&0xFF,
-                                   clientAddr.sin_port
-                    );
-
-                    ptsAVDSInfo = (tsAVDSInfoMsg *)buffer;
-                    ptsAVDSInfo = ptsAVDSInfo;
-//                    System_printf("remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
-//                                  (uint8_t)(IPTmp>>16)&0xFF,
-//                                  (uint8_t)(IPTmp>>8)&0xFF,
-//                                  (uint8_t)IPTmp&0xFF,
-//                                  clientAddr.sin_port);
-//                    System_flush();
-//
-//                    pManufacturerInformation = INFO_get();
-////                    n = sprintf(response, "System Master Controller ID: %06d", pManufacturerInformation->unitSerialNumber);
-//#ifdef TEST_FIXTURE
-//                    n = sprintf(response, "SMC Test Fixture ID: %06d", pManufacturerInformation->unitSerialNumber);
-//#else
-//                    n = sprintf(response, "System Master Controller ID: %06d", pManufacturerInformation->unitSerialNumber);
-//#endif
-//                    bytesSent = sendto(server, response, n, 0, (struct sockaddr *)&clientAddr, addrlen);
-////                    bytesSent = sendto(server, response, n, 0, (struct sockaddr *)&clientAddr, sizeof(struct sockaddr));
-//                    if(bytesSent != n){
-//                        Display_printf(g_SMCDisplay, 0, 0, "Error: sendto failed.\n");
-////                        System_printf("Error: udp sendto failed.\n");
-////                        System_flush();
-//
-//                    }
-
                 }
             }
         }
