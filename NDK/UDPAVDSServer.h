@@ -32,6 +32,9 @@ extern "C"  {
 
 
 __NDK_UDPAVDSSERVER_EXT void *pvUDPAVDSFinder_taskFxn(void *arg0);
+__NDK_UDPAVDSSERVER_EXT bool bAVDSUDP_isIPValid();
+__NDK_UDPAVDSSERVER_EXT uint32_t xAVDSUDP_getIPAddress();
+__NDK_UDPAVDSSERVER_EXT uint16_t xsAVDSUDP_getPortNumber();
 
 #ifdef __cplusplus
 }

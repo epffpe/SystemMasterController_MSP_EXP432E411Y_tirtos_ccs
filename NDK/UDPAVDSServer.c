@@ -44,6 +44,12 @@
 #include <ti/sysbios/knl/Task.h>
 #include <ti/sysbios/knl/Swi.h>
 #include <ti/sysbios/knl/Clock.h>
+#include <ti/sysbios/knl/Semaphore.h>
+#include <ti/sysbios/knl/MailBox.h>
+#include <ti/sysbios/knl/Queue.h>
+#include <ti/sysbios/knl/Event.h>
+#include <ti/sysbios/gates/GateMutex.h>
+#include <ti/sysbios/gates/GateMutexPri.h>
 
 //#include <ti/drivers/Board.h>
 
@@ -66,6 +72,8 @@ extern Display_Handle g_SMCDisplay;
 
 Void vAVDSUDP_clockHandlerFxn(UArg arg0);
 
+
+GateMutexPri_Handle g_hAVDSUDP_gate;
 /*
  *  ======== echoFxn ========
  *  Echoes UDP messages.
@@ -81,6 +89,7 @@ tsUDPAVDSInfoMsg g_sUDPAVDSConnectionInfo =
 
 void *pvUDPAVDSFinder_taskFxn(void *arg0)
 {
+    unsigned int        key;
     int                bytesRcvd;
 //    int                bytesSent;
     int                status;
@@ -134,6 +143,11 @@ void *pvUDPAVDSFinder_taskFxn(void *arg0)
         System_abort("Clock create failed");
     }
 
+    g_hAVDSUDP_gate = GateMutexPri_create(NULL, &eb);
+    if (g_hAVDSUDP_gate == NULL) {
+        System_abort("Could not create AVDS UDP gate");
+    }
+
     do {
         /*
          *  readSet and addrlen are value-result arguments, which must be reset
@@ -152,8 +166,8 @@ void *pvUDPAVDSFinder_taskFxn(void *arg0)
 //                buffer[bytesRcvd] = 0;
                 if (bytesRcvd > 0) {
                     IPTmp = ntohl(clientAddr.sin_addr.s_addr);
-                    IPTmp = ntohl(ptsAVDSInfo->ipAddress);
                     ptsAVDSInfo = (tsAVDSInfoMsg *)buffer;
+                    IPTmp = ntohl(ptsAVDSInfo->ipAddress);
 
                     Display_printf(g_SMCDisplay, 0, 0, "AVDS remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
                                    (uint8_t)(IPTmp>>16)&0xFF,
@@ -171,9 +185,12 @@ void *pvUDPAVDSFinder_taskFxn(void *arg0)
                     System_flush();
 
                     Clock_stop(clkHandle);
+                    /* Need exclusive access to prevent a race condition */
+                    key = GateMutexPri_enter(g_hAVDSUDP_gate);
                     g_sUDPAVDSConnectionInfo.ipAddress = ntohl(ptsAVDSInfo->ipAddress);
                     g_sUDPAVDSConnectionInfo.portNumber = ntohs(ptsAVDSInfo->portNumber);
                     g_sUDPAVDSConnectionInfo.isValid = true;
+                    GateMutexPri_leave(g_hAVDSUDP_gate, key);
                     Clock_start(clkHandle);
 
 
@@ -201,4 +218,37 @@ Void vAVDSUDP_clockHandlerFxn(UArg arg)
 //        return;
 //    }
     g_sUDPAVDSConnectionInfo.isValid = false;
+}
+
+bool bAVDSUDP_isIPValid()
+{
+    unsigned int key;
+    bool retVal;
+    /* Need exclusive access to prevent a race condition */
+    key = GateMutexPri_enter(g_hAVDSUDP_gate);
+    retVal = g_sUDPAVDSConnectionInfo.isValid;
+    GateMutexPri_leave(g_hAVDSUDP_gate, key);
+    return retVal;
+}
+
+uint32_t xAVDSUDP_getIPAddress()
+{
+    unsigned int key;
+    uint32_t retVal;
+    /* Need exclusive access to prevent a race condition */
+    key = GateMutexPri_enter(g_hAVDSUDP_gate);
+    retVal = g_sUDPAVDSConnectionInfo.ipAddress;
+    GateMutexPri_leave(g_hAVDSUDP_gate, key);
+    return retVal;
+}
+
+uint16_t xsAVDSUDP_getPortNumber()
+{
+    unsigned int key;
+    uint16_t retVal;
+    /* Need exclusive access to prevent a race condition */
+    key = GateMutexPri_enter(g_hAVDSUDP_gate);
+    retVal = g_sUDPAVDSConnectionInfo.portNumber;
+    GateMutexPri_leave(g_hAVDSUDP_gate, key);
+    return retVal;
 }
