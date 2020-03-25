@@ -256,6 +256,8 @@
 #include "Devices/GenericDevice/TFTest/TFUARTTestDevice.h"
 #include "Devices/GenericDevice/DUTTest/DUTUartTestDevice.h"
 
+#include "Devices/AVDS/AVDSDevice.h"
+
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"
 

@@ -16,7 +16,7 @@
 Void vI2CTemp101Fxn(UArg arg0, UArg arg1)
 {
 
-    uint16_t        sample;
+//    uint16_t        sample;
     int16_t         temperature;
     uint8_t         txBuffer[1];
     uint8_t         rxBuffer[2];
@@ -51,8 +51,8 @@ Void vI2CTemp101Fxn(UArg arg0, UArg arg1)
     i2cTransaction.readCount = 2;
 
 
-    for (sample = 0;; sample++) {
-//    for (;;) {
+//    for (sample = 0;; sample++) {
+    for (;;) {
         if (I2C_transfer(i2c, &i2cTransaction)) {
             /* Extract degrees C from the received data; see TMP116 datasheet */
             temperature = (rxBuffer[0] << 4) | (rxBuffer[1] >> 4);

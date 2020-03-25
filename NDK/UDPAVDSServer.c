@@ -169,7 +169,8 @@ void *pvUDPAVDSFinder_taskFxn(void *arg0)
                     ptsAVDSInfo = (tsAVDSInfoMsg *)buffer;
                     IPTmp = ntohl(ptsAVDSInfo->ipAddress);
 
-                    Display_printf(g_SMCDisplay, 0, 0, "AVDS remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
+                    Display_printf(g_SMCDisplay, 0, 0, "AVDS remoteIp:\t:%d.%d.%d.%d:%d\n",
+                                   (uint8_t)(IPTmp>>24)&0xFF,
                                    (uint8_t)(IPTmp>>16)&0xFF,
                                    (uint8_t)(IPTmp>>8)&0xFF,
                                    (uint8_t)IPTmp&0xFF,
@@ -177,12 +178,12 @@ void *pvUDPAVDSFinder_taskFxn(void *arg0)
                                    ntohs(ptsAVDSInfo->portNumber)
                     );
 
-                    System_printf("AVDS remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
-                                  (uint8_t)(IPTmp>>16)&0xFF,
-                                  (uint8_t)(IPTmp>>8)&0xFF,
-                                  (uint8_t)IPTmp&0xFF,
-                                  ntohs(ptsAVDSInfo->portNumber));
-                    System_flush();
+//                    System_printf("AVDS remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
+//                                  (uint8_t)(IPTmp>>16)&0xFF,
+//                                  (uint8_t)(IPTmp>>8)&0xFF,
+//                                  (uint8_t)IPTmp&0xFF,
+//                                  ntohs(ptsAVDSInfo->portNumber));
+//                    System_flush();
 
                     Clock_stop(clkHandle);
                     /* Need exclusive access to prevent a race condition */
@@ -192,8 +193,6 @@ void *pvUDPAVDSFinder_taskFxn(void *arg0)
                     g_sUDPAVDSConnectionInfo.isValid = true;
                     GateMutexPri_leave(g_hAVDSUDP_gate, key);
                     Clock_start(clkHandle);
-
-
                 }
             }
         }
