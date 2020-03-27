@@ -302,17 +302,29 @@ static void vAVDSDevice_processApplicationMessage(device_msg_t *pMsg, UArg arg0,
 
 static void vAVDSDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1)
 {
-    int sockfd, numbytes, status;
-    char buf[AVDS_MAX_PACKET_SIZE];
+    int sockfd;
+    int numbytes;
+    int status;
+    uint32_t myDeviceID;
+    DeviceList_Handler devHandle;
+    struct sockaddr_in servaddr;
 //    struct hostent *he;
-    struct sockaddr_in servaddr; /* connector's address information */
-    tsAVDSCommad *psAVDSCmd;
+//    tsAVDSCommad *psAVDSCmd;
+
+    char buf[AVDS_MAX_PACKET_SIZE];
 
     ASSERT(pCharData != NULL);
+    ASSERT(arg1 != NULL);
 
     if (pCharData == NULL) {
         return;
     }
+    if (arg1 == NULL) {
+        return;
+    }
+
+    devHandle = (DeviceList_Handler)arg1;
+    myDeviceID = devHandle->deviceID;
 
 //    if ((he=gethostbyname(argv[1])) == NULL) {  /* get the host info */
 //        herror("gethostbyname");
@@ -337,13 +349,16 @@ static void vAVDSDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t 
         goto shutdown;
     }
 
-    psAVDSCmd = (tsAVDSCommad *)buf;
-    psAVDSCmd->commandID = AVDS_CMD_Get_Channel;
 
-    tsAVDSCommandGetChannel *pGetChannelCmd = (tsAVDSCommandGetChannel *)psAVDSCmd->commandData;
-    pGetChannelCmd->outputChannel = htons(0x0001);
+//    psAVDSCmd = (tsAVDSCommad *)buf;
+//    psAVDSCmd->commandID = AVDS_CMD_Get_Channel;
+//
+//    tsAVDSCommandGetChannel *pGetChannelCmd = (tsAVDSCommandGetChannel *)psAVDSCmd->commandData;
+//    pGetChannelCmd->outputChannel = htons(0x0001);
+//
+//    status = send(sockfd, buf, sizeof(tsAVDSCommad) + sizeof(tsAVDSCommandGetChannel), 0);
 
-    status = send(sockfd, buf, sizeof(tsAVDSCommad) + sizeof(tsAVDSCommandGetChannel), 0);
+    status = send(sockfd, pCharData->data, pCharData->dataLen, 0);
     if (status == -1){
         goto shutdown;
     }
@@ -354,11 +369,30 @@ static void vAVDSDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t 
         goto shutdown;
     }
 
-//    buf[numbytes] = '\0';
+    switch (pCharData->paramID) {
+    case CHARACTERISTIC_AVDS_ALTO_EMULATOR_GET_ID:
+        vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                 APP_MSG_SERVICE_WRITE,
+                                 pCharData->connHandle,
+                                 pCharData->retSvcUUID, pCharData->retParamID,
+                                 myDeviceID,
+                                 SERVICE_AVDS_ALTO_EMULATOR_UUID, CHARACTERISTIC_AVDS_ALTO_EMULATOR_GET_ID,
+                                 (uint8_t *)buf, numbytes);
+        break;
+    case CHARACTERISTIC_AVDS_ALTO_EMULATOR_SET_ID:
+        vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                 APP_MSG_SERVICE_WRITE,
+                                 pCharData->connHandle,
+                                 pCharData->retSvcUUID, pCharData->retParamID,
+                                 myDeviceID,
+                                 SERVICE_AVDS_ALTO_EMULATOR_UUID, CHARACTERISTIC_AVDS_ALTO_EMULATOR_SET_ID,
+                                 (uint8_t *)buf, numbytes);
+        break;
+    default:
+        break;
+    }
 
-    //        printf("Received in pid=%d, text=: %s \n",getpid(), buf);
-
-    shutdown:
+shutdown:
     if (sockfd != -1) {
         close(sockfd);
     }
