@@ -15,7 +15,7 @@
 #define DEVICES_AVDS_AVDSDEVICE_CLOCK_TIMEOUT       1000
 #define DEVICES_AVDS_AVDSDEVICE_CLOCK_PERIOD        100
 
-
+#define AVDS_MAX_PACKET_SIZE            64
 
 typedef enum
 {

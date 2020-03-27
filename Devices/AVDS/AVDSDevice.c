@@ -302,11 +302,17 @@ static void vAVDSDevice_processApplicationMessage(device_msg_t *pMsg, UArg arg0,
 
 static void vAVDSDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1)
 {
-    int sockfd, numbytes;
-    char buf[128];
+    int sockfd, numbytes, status;
+    char buf[AVDS_MAX_PACKET_SIZE];
 //    struct hostent *he;
     struct sockaddr_in servaddr; /* connector's address information */
+    tsAVDSCommad *psAVDSCmd;
 
+    ASSERT(pCharData != NULL);
+
+    if (pCharData == NULL) {
+        return;
+    }
 
 //    if ((he=gethostbyname(argv[1])) == NULL) {  /* get the host info */
 //        herror("gethostbyname");
@@ -314,42 +320,48 @@ static void vAVDSDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t 
 //    }
     if(!bAVDSUDP_isIPValid()) return;
 
-    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        return;
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
+        goto shutdown;
     }
 
+    memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;      /* host byte order */
-    servaddr.sin_port = htons(2000);    /* short, network byte order */
+    servaddr.sin_port = htons(xsAVDSUDP_getPortNumber());    /* short, network byte order */
 //    servaddr.sin_addr = *((struct in_addr *)he->h_addr);
 //    servaddr.sin_addr.s_addr = inet_addr("10.0.0.13");
     servaddr.sin_addr.s_addr = htonl(xAVDSUDP_getIPAddress());
 //    bzero(&(servaddr.sin_zero), 8);     /* zero the rest of the struct */
 
-    if (connect(sockfd, (struct sockaddr *)&servaddr, \
-                sizeof(struct sockaddr)) == -1) {
-        close(sockfd);
-        return;
+    status = connect(sockfd, (struct sockaddr *)&servaddr, sizeof(struct sockaddr));
+    if ( status == -1) {
+        goto shutdown;
     }
-    buf[0] = 0x11;
-    buf[1] = 0x01;
-    buf[3] = 0x00;
-    if (send(sockfd, buf, 3, 0) == -1){
-        //            perror("send");
-        return;
+
+    psAVDSCmd = (tsAVDSCommad *)buf;
+    psAVDSCmd->commandID = AVDS_CMD_Get_Channel;
+
+    tsAVDSCommandGetChannel *pGetChannelCmd = (tsAVDSCommandGetChannel *)psAVDSCmd->commandData;
+    pGetChannelCmd->outputChannel = htons(0x0001);
+
+    status = send(sockfd, buf, sizeof(tsAVDSCommad) + sizeof(tsAVDSCommandGetChannel), 0);
+    if (status == -1){
+        goto shutdown;
     }
     //        printf("After the send function \n");
 
-    if ((numbytes=recv(sockfd, buf, 128, 0)) == -1) {
-//        perror("recv");
-        return;
+    numbytes = recv(sockfd, buf, AVDS_MAX_PACKET_SIZE, 0);
+    if ( numbytes == -1) {
+        goto shutdown;
     }
 
-    buf[numbytes] = '\0';
+//    buf[numbytes] = '\0';
 
     //        printf("Received in pid=%d, text=: %s \n",getpid(), buf);
 
-
-    close(sockfd);
+    shutdown:
+    if (sockfd != -1) {
+        close(sockfd);
+    }
 }
 
 

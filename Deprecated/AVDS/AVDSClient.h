@@ -165,6 +165,7 @@ typedef struct {
 }tsAVDSCommandGetChannel;
 
 //#pragma pack(push,1)
+//typedef struct __attribute__ ((__packed__)) {
 typedef struct {
     uint32_t result;
     uint16_t audioInputChannel;
