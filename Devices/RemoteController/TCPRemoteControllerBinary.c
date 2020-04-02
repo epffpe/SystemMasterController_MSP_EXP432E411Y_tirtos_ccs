@@ -312,6 +312,9 @@ static void vTCPRCBin_processApplicationMessage(device_msg_t *pMsg)
       case SERVICE_TCPBIN_REMOTECONTROL_RAWCHARACTERISTICDATA_CLASS_RETURN_UUID:
           vTCPRCBin_RAWCharacteristicData_returnMsg(pCharData);
           break;
+      case SERVICE_TCPBIN_REMOTECONTROL_AVDS_CLASS_RETURN_UUID:
+          vTCPRCBin_AVDSService_ValueChangeHandler(pCharData);
+          break;
       }
       break;
   }

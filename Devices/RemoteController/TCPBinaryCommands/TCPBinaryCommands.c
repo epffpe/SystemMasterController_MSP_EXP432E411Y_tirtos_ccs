@@ -162,6 +162,9 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_FlashMM_EFS_format] = vTCPRCBin_FlashFileSystem_formatExternalFlashStatus,
 
 
+// AVDS COMMANDS
+ [TCP_CMD_AVDS_DirectCommand1] = TCPBin_AVDSGenericDirectCommand1,
+ [TCP_CMD_AVDS_DirectCommand1] = TCPBin_AVDSGenericDirectCommand2,
 
 
 

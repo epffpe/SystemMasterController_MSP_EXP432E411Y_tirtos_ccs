@@ -269,8 +269,8 @@ static void vAVDSDevice_processApplicationMessage(device_msg_t *pMsg, UArg arg0,
       switch(pCharData->svcUUID) {
       case SERVICE_AVDS_ALTO_EMULATOR_UUID:
           switch (pCharData->paramID) {
-          case CHARACTERISTIC_AVDS_ALTO_EMULATOR_GET_ID:
-          case CHARACTERISTIC_AVDS_ALTO_EMULATOR_SET_ID:
+          case CHARACTERISTIC_TCPRCBIN_ADVS_DIRECT_COMMAND1_ID:
+          case CHARACTERISTIC_TCPRCBIN_ADVS_DIRECT_COMMAND2_ID:
               vAVDSDevice_ALTOEmulatorClassService_ValueChangeHandler(pCharData, arg0, arg1);
               break;
           default:
@@ -370,22 +370,13 @@ static void vAVDSDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t 
     }
 
     switch (pCharData->paramID) {
-    case CHARACTERISTIC_AVDS_ALTO_EMULATOR_GET_ID:
+    case CHARACTERISTIC_AVDS_ALTO_EMULATOR_DIRECT_COMMAND_ID:
         vDevice_sendCharDataMsg (pCharData->retDeviceID,
                                  APP_MSG_SERVICE_WRITE,
                                  pCharData->connHandle,
                                  pCharData->retSvcUUID, pCharData->retParamID,
                                  myDeviceID,
-                                 SERVICE_AVDS_ALTO_EMULATOR_UUID, CHARACTERISTIC_AVDS_ALTO_EMULATOR_GET_ID,
-                                 (uint8_t *)buf, numbytes);
-        break;
-    case CHARACTERISTIC_AVDS_ALTO_EMULATOR_SET_ID:
-        vDevice_sendCharDataMsg (pCharData->retDeviceID,
-                                 APP_MSG_SERVICE_WRITE,
-                                 pCharData->connHandle,
-                                 pCharData->retSvcUUID, pCharData->retParamID,
-                                 myDeviceID,
-                                 SERVICE_AVDS_ALTO_EMULATOR_UUID, CHARACTERISTIC_AVDS_ALTO_EMULATOR_SET_ID,
+                                 SERVICE_AVDS_ALTO_EMULATOR_UUID, CHARACTERISTIC_AVDS_ALTO_EMULATOR_DIRECT_COMMAND_ID,
                                  (uint8_t *)buf, numbytes);
         break;
     default:

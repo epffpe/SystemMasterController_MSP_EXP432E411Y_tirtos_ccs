@@ -35,6 +35,8 @@ encoding//Debug/Devices/RemoteController/TCPBinaryCommands/ALTOAmp/subdir_rules.
 encoding//Debug/Devices/RemoteController/TCPBinaryCommands/ALTOAmp/subdir_vars.mk=UTF-8
 encoding//Debug/Devices/RemoteController/TCPBinaryCommands/ALTOMultinet/subdir_rules.mk=UTF-8
 encoding//Debug/Devices/RemoteController/TCPBinaryCommands/ALTOMultinet/subdir_vars.mk=UTF-8
+encoding//Debug/Devices/RemoteController/TCPBinaryCommands/AVDS/subdir_rules.mk=UTF-8
+encoding//Debug/Devices/RemoteController/TCPBinaryCommands/AVDS/subdir_vars.mk=UTF-8
 encoding//Debug/Devices/RemoteController/TCPBinaryCommands/DAC/subdir_rules.mk=UTF-8
 encoding//Debug/Devices/RemoteController/TCPBinaryCommands/DAC/subdir_vars.mk=UTF-8
 encoding//Debug/Devices/RemoteController/TCPBinaryCommands/DiscreteIO/subdir_rules.mk=UTF-8

@@ -246,6 +246,7 @@
 #include "Devices/RemoteController/TCPRemoteControllerBinary.h"
 #include "Devices/RemoteController/TCPBinaryCommands/TCPBinaryCommands.h"
 #include "Devices/RemoteController/TCPBinaryCommands/ALTOAmp/TCPBinaryCMD_ALTOAmp.h"
+#include "Devices/RemoteController/TCPBinaryCommands/AVDS/TCPBinaryCMD_AVDS.h"
 #include "Devices/RemoteController/TCPBinaryCommands/ALTOMultinet/TCPBinaryCMD_ALTOMultinet.h"
 #include "Devices/RemoteController/TCPBinaryCommands/RAWCharacteristicData/TCPBinaryCMD_RAWCharacteristicData.h"
 #include "Devices/RemoteController/TCPBinaryCommands/DiscreteIO/TCPBinaryCMD_DiscreteIO.h"

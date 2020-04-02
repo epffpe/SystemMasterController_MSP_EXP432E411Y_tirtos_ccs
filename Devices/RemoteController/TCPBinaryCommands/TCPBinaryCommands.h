@@ -266,6 +266,14 @@ typedef enum {
     TCP_CMD_ALTOAmp_setDSPRegisterRW,
     TCP_CMD_ALTOAmp_setDSPRegisterRWResponse,
 
+
+// AVDS COMMANDS
+    TCP_CMD_AVDS_DirectCommand1 = 700,
+    TCP_CMD_AVDS_DirectCommand1Response,
+    TCP_CMD_AVDS_DirectCommand2,
+    TCP_CMD_AVDS_DirectCommand2Response,
+
+
     TCP_CMD_COUNT
 } TCPBin_CMD_types_te;
 
