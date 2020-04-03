@@ -26,7 +26,7 @@ typedef enum
 //Characteristic defines
 typedef enum
 {
-    CHARACTERISTIC_AVDS_ALTO_EMULATOR_DIRECT_COMMAND_ID = 0x01,
+    CHARACTERISTIC_AVDS_ALTO_EMULATOR_DIRECT_COMMAND_ID = 0x01
 } AVDSDevice_service_alto_emulator_characteristics_t;
 
 typedef enum

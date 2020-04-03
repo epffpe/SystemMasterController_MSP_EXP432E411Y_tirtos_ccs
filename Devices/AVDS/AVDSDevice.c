@@ -98,7 +98,7 @@ Void vAVDSDevice_taskFxn(UArg arg0, UArg arg1)
 
         if (events & DEVICE_PERIODIC_EVT) {
             events &= ~DEVICE_PERIODIC_EVT;
-            vAVDSDevice_ALTOEmulatorClassService_ValueChangeHandler(NULL, NULL, NULL);
+//            vAVDSDevice_ALTOEmulatorClassService_ValueChangeHandler(NULL, NULL, NULL);
         }
 
         if (events & DEVICE_APP_KILL_EVT) {
@@ -269,8 +269,7 @@ static void vAVDSDevice_processApplicationMessage(device_msg_t *pMsg, UArg arg0,
       switch(pCharData->svcUUID) {
       case SERVICE_AVDS_ALTO_EMULATOR_UUID:
           switch (pCharData->paramID) {
-          case CHARACTERISTIC_TCPRCBIN_ADVS_DIRECT_COMMAND1_ID:
-          case CHARACTERISTIC_TCPRCBIN_ADVS_DIRECT_COMMAND2_ID:
+          case CHARACTERISTIC_AVDS_ALTO_EMULATOR_DIRECT_COMMAND_ID:
               vAVDSDevice_ALTOEmulatorClassService_ValueChangeHandler(pCharData, arg0, arg1);
               break;
           default:

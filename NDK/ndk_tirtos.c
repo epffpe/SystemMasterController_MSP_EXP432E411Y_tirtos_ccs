@@ -247,58 +247,58 @@ static void initTcp(void *hCfg)
  *  ======== initIp ========
  *  Configure the stack's IP settings
  */
-//static void initIp(void *hCfg)
-//{
-//    CI_SERVICE_DHCPC dhcpc;
-//    unsigned char DHCP_OPTIONS[] = { DHCPOPT_SUBNET_MASK };
-//
-//    /* Add global hostname to hCfg (to be claimed in all connected domains) */
-//    CfgAddEntry(hCfg, CFGTAG_SYSINFO, CFGITEM_DHCP_HOSTNAME, 0,
-//            strlen(hostName), (unsigned char *)hostName, NULL);
-//
-//    /* Use DHCP to obtain IP address on interface 1 */
-//    memset(&dhcpc, 0, sizeof(dhcpc));
-//    dhcpc.cisargs.Mode   = CIS_FLG_IFIDXVALID;
-//    dhcpc.cisargs.IfIdx  = 1;
-//    dhcpc.cisargs.pCbSrv = &serviceReport;
-//    dhcpc.param.pOptions = DHCP_OPTIONS;
-//    dhcpc.param.len = 1;
-//    CfgAddEntry(hCfg, CFGTAG_SERVICE, CFGITEM_SERVICE_DHCPCLIENT, 0,
-//            sizeof(dhcpc), (unsigned char *)&dhcpc, NULL);
-//}
-
 static void initIp(void *hCfg)
 {
-//    const char *localIPAddr = "192.168.1.3";
-    const char *localIPAddr = "10.0.0.3";
-    const char *localIPMask = "255.0.0.0";
-    const char *gatewayIP   = "10.0.0.1";
-    const char *domainName  = "ALTOTECH.net";
-    CI_IPNET netAddr;
-    CI_ROUTE route;
+    CI_SERVICE_DHCPC dhcpc;
+    unsigned char DHCP_OPTIONS[] = { DHCPOPT_SUBNET_MASK };
 
     /* Add global hostname to hCfg (to be claimed in all connected domains) */
     CfgAddEntry(hCfg, CFGTAG_SYSINFO, CFGITEM_DHCP_HOSTNAME, 0,
             strlen(hostName), (unsigned char *)hostName, NULL);
 
-    /* Configure static IP address on interface 1 */
-    memset(&netAddr, 0, sizeof(netAddr));
-    netAddr.IPAddr = inet_addr(localIPAddr);
-    netAddr.IPMask = inet_addr(localIPMask);
-    strcpy(netAddr.Domain, domainName);
-    netAddr.NetType = 0;
-
-
-    CfgAddEntry(hCfg, CFGTAG_IPNET, 1, 0, sizeof(netAddr), (unsigned char *)&netAddr, NULL);
-
-    /* Add default gateway.  Since it's the default gateway, the destination
-     * address and mask are both zero. */
-    memset(&route, 0, sizeof(route));
-    route.IPDestAddr = 0;
-    route.IPDestMask = 0;
-    route.IPGateAddr = inet_addr(gatewayIP);
-    CfgAddEntry(hCfg, CFGTAG_ROUTE, 0, 0, sizeof(route), (unsigned char *)&route, NULL);
+    /* Use DHCP to obtain IP address on interface 1 */
+    memset(&dhcpc, 0, sizeof(dhcpc));
+    dhcpc.cisargs.Mode   = CIS_FLG_IFIDXVALID;
+    dhcpc.cisargs.IfIdx  = 1;
+    dhcpc.cisargs.pCbSrv = &serviceReport;
+    dhcpc.param.pOptions = DHCP_OPTIONS;
+    dhcpc.param.len = 1;
+    CfgAddEntry(hCfg, CFGTAG_SERVICE, CFGITEM_SERVICE_DHCPCLIENT, 0,
+            sizeof(dhcpc), (unsigned char *)&dhcpc, NULL);
 }
+
+//static void initIp(void *hCfg)
+//{
+////    const char *localIPAddr = "192.168.1.3";
+//    const char *localIPAddr = "10.0.0.3";
+//    const char *localIPMask = "255.0.0.0";
+//    const char *gatewayIP   = "10.0.0.1";
+//    const char *domainName  = "ALTOTECH.net";
+//    CI_IPNET netAddr;
+//    CI_ROUTE route;
+//
+//    /* Add global hostname to hCfg (to be claimed in all connected domains) */
+//    CfgAddEntry(hCfg, CFGTAG_SYSINFO, CFGITEM_DHCP_HOSTNAME, 0,
+//            strlen(hostName), (unsigned char *)hostName, NULL);
+//
+//    /* Configure static IP address on interface 1 */
+//    memset(&netAddr, 0, sizeof(netAddr));
+//    netAddr.IPAddr = inet_addr(localIPAddr);
+//    netAddr.IPMask = inet_addr(localIPMask);
+//    strcpy(netAddr.Domain, domainName);
+//    netAddr.NetType = 0;
+//
+//
+//    CfgAddEntry(hCfg, CFGTAG_IPNET, 1, 0, sizeof(netAddr), (unsigned char *)&netAddr, NULL);
+//
+//    /* Add default gateway.  Since it's the default gateway, the destination
+//     * address and mask are both zero. */
+//    memset(&route, 0, sizeof(route));
+//    route.IPDestAddr = 0;
+//    route.IPDestMask = 0;
+//    route.IPGateAddr = inet_addr(gatewayIP);
+//    CfgAddEntry(hCfg, CFGTAG_ROUTE, 0, 0, sizeof(route), (unsigned char *)&route, NULL);
+//}
 
 
 /*

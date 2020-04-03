@@ -258,6 +258,7 @@
 #include "Devices/GenericDevice/DUTTest/DUTUartTestDevice.h"
 
 #include "Devices/AVDS/AVDSDevice.h"
+#include "Devices/Rosen/RosenDevice.h"
 
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"

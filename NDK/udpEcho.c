@@ -169,6 +169,7 @@ void *UDPFinder_task(void *arg0)
 //                        goto shutdown;
 //                    }
                 }
+                FD_CLR(server, &readSet);
             }
         }
     } while (status > 0);

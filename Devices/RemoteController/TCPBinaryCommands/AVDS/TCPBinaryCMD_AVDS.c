@@ -121,7 +121,7 @@ void TCPBin_AVDSGenericDirectCommand1(int clientfd, char *payload, int32_t size)
     if(!xDevice_sendCharDataMsg( ptPayload->deviceID,
                                  APP_MSG_SERVICE_WRITE,
                                  clientfd,
-                                 SERVICE_AVDS_ALTO_EMULATOR_UUID, CHARACTERISTIC_TCPRCBIN_ADVS_DIRECT_COMMAND1_ID,
+                                 SERVICE_AVDS_ALTO_EMULATOR_UUID, CHARACTERISTIC_AVDS_ALTO_EMULATOR_DIRECT_COMMAND_ID,
                                  TCPRCBINDEVICE_ID,
                                  SERVICE_TCPBIN_REMOTECONTROL_AMPLIFIER_CLASS_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ADVS_DIRECT_COMMAND1_ID,
                                  (uint8_t *)ptPayload->data, ptPayload->dataLen )) {
@@ -136,7 +136,7 @@ void TCPBin_AVDSGenericDirectCommand2(int clientfd, char *payload, int32_t size)
     if(!xDevice_sendCharDataMsg( ptPayload->deviceID,
                                  APP_MSG_SERVICE_WRITE,
                                  clientfd,
-                                 SERVICE_AVDS_ALTO_EMULATOR_UUID, CHARACTERISTIC_TCPRCBIN_ADVS_DIRECT_COMMAND2_ID,
+                                 SERVICE_AVDS_ALTO_EMULATOR_UUID, CHARACTERISTIC_AVDS_ALTO_EMULATOR_DIRECT_COMMAND_ID,
                                  TCPRCBINDEVICE_ID,
                                  SERVICE_TCPBIN_REMOTECONTROL_AMPLIFIER_CLASS_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ADVS_DIRECT_COMMAND2_ID,
                                  (uint8_t *)ptPayload->data, ptPayload->dataLen )) {
