@@ -323,6 +323,7 @@ static void vRosenDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t
     memset(&clientAddr, 0, sizeof(clientAddr));
     clientAddr.sin_family = AF_INET;
     clientAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    clientAddr.sin_addr.s_addr = htonl(0xC0A8032A);
     clientAddr.sin_port = htons(7399);
 
 //    n = sprintf(buf, "System Master Controller ID: %06d", pManufacturerInformation->unitSerialNumber);
@@ -335,6 +336,7 @@ static void vRosenDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t
 
 
     n = sprintf(buffer, "do_down");
+    addrlen = sizeof(clientAddr);
 
     bytesSent = sendto(sockfd, buffer, n, 0, (struct sockaddr *)&clientAddr, addrlen);
 
@@ -351,7 +353,6 @@ static void vRosenDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t
      */
     FD_ZERO(&readSet);
     FD_SET(sockfd, &readSet);
-    addrlen = sizeof(clientAddr);
 
     struct timeval timeout;
     timeout.tv_sec = 0;
@@ -372,11 +373,12 @@ static void vRosenDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t
                                (uint8_t)IPTmp&0xFF,
                                ntohs(clientAddr.sin_port)
                 );
-                System_printf("remoteIp:\t:%d.%d.%d.%d:%d\n", (uint8_t)(IPTmp>>24)&0xFF,
+                System_printf("RosenIp:\t:%d.%d.%d.%d:%d -> ", (uint8_t)(IPTmp>>24)&0xFF,
                               (uint8_t)(IPTmp>>16)&0xFF,
                               (uint8_t)(IPTmp>>8)&0xFF,
                               (uint8_t)IPTmp&0xFF,
                               clientAddr.sin_port);
+                System_printf("%s\n", buffer);
                 System_flush();
             }
             FD_CLR(sockfd, &readSet);
