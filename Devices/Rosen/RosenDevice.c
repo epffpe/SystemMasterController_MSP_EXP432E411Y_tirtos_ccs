@@ -322,7 +322,6 @@ static void vRosenDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t
 
     memset(&clientAddr, 0, sizeof(clientAddr));
     clientAddr.sin_family = AF_INET;
-    clientAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     clientAddr.sin_addr.s_addr = htonl(0xC0A8032A);
     clientAddr.sin_port = htons(7399);
 
@@ -362,6 +361,11 @@ static void vRosenDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t
     status = select(sockfd + 1, &readSet, &write_fds, NULL, &timeout);
     if (status > 0) {
         if (FD_ISSET(sockfd, &readSet)) {
+            memset(&clientAddr, 0, sizeof(clientAddr));
+            clientAddr.sin_family = AF_INET;
+            clientAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+            clientAddr.sin_port = htons(7399);
+
             bytesRcvd = recvfrom(sockfd, buffer, ROSEN_MAX_PACKET_SIZE, 0,
                                  (struct sockaddr *)&clientAddr, &addrlen);
             buffer[bytesRcvd] = 0;
