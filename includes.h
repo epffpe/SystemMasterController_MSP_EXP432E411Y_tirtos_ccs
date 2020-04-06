@@ -259,6 +259,7 @@
 
 #include "Devices/AVDS/AVDSDevice.h"
 #include "Devices/Rosen/RosenDevice.h"
+#include "Devices/Rosen/RosenRS485Device.h"
 
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"

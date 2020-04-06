@@ -149,6 +149,7 @@ typedef enum
     DEVICE_TYPE_DUT_UART_TEST,
     DEVICE_TYPE_AVDS,
     DEVICE_TYPE_ROSEN,
+    DEVICE_TYPE_ROSEN485,
 
     DEVICE_TYPE_COUNT
 } device_types_t;
