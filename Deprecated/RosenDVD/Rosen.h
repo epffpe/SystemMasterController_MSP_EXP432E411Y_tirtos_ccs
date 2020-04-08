@@ -24,6 +24,7 @@ typedef enum {
     Rosen_Header_Display_Input_Source_Video = 0x83,
     Rosen_Header_Rosen_Control_Functions = 0x85,
     Rosen_Header_Universal_Lift = 0x97,
+    Rosen_Header_Universal_Lift_Status = 0x98,
     Rosen_Header_Rosen_View = 0xA0,
     Rosen_Header_Briefing = 0xA3,
     Rosen_Header_Status_request = 0xA8,
