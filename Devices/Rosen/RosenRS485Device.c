@@ -14,10 +14,11 @@
 static void vRosen485Device_processApplicationMessage(device_msg_t *pMsg, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff);
 static void vRosen485Device_ALTOEmulatorClassService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff);
 static void vRosen485Device_CommandsClassService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff);
-
-uint32_t xRosen485Device_createMsgFrame(tsROSENCommand *ptsCmdBuf, uint8_t header, uint8_t command, uint8_t address);
-uint32_t xRosen485Device_SingleBlueRayDVDCreateMsgFrame(tsROSENCommand *ptsCmdBuf, uint32_t command, uint32_t address);
 static void vRosen485Device_UniversalLiftService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff);
+static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff);
+
+uint32_t xRosen485Device_createMsgFrame(Rosen485Device_directCommandData_t *ptsCmdBuf, uint8_t header, uint8_t command, uint8_t address);
+uint32_t xRosen485Device_SingleBlueRayDVDCreateMsgFrame(Rosen485Device_directCommandData_t *ptsCmdBuf, uint32_t command, uint32_t address);
 
 
 void vRosen485Device_close(DeviceList_Handler handle);
@@ -50,6 +51,7 @@ Void vRosen485Device_taskFxn(UArg arg0, UArg arg1)
     uint32_t ui32SerialIndex;
     char rxbuff[70];
     char txbuff[70];
+    volatile tEEPROM_Data *psEEPROMData;
 
 //    Task_Handle taskTCPServerHandle;
 //    Task_Params taskParams;
@@ -68,6 +70,8 @@ Void vRosen485Device_taskFxn(UArg arg0, UArg arg1)
     clockHandle = devHandle->clockHandle;
     myDeviceID = devHandle->deviceID;
 
+    psEEPROMData = INFO_get();
+
     Display_printf(g_SMCDisplay, 0, 0, "Rosen DeviceId (%d) started\n", myDeviceID);
 
     vIF_Params_init(&params, IF_Params_Type_Uart);
@@ -75,7 +79,7 @@ Void vRosen485Device_taskFxn(UArg arg0, UArg arg1)
     params.uartParams.readDataMode = UART_DATA_BINARY;
     params.uartParams.readReturnMode = UART_RETURN_FULL;
     params.uartParams.readEcho = UART_ECHO_OFF;
-    params.uartParams.baudRate = 9600;
+    params.uartParams.baudRate = (uint32_t)arg0 < 8 ? psEEPROMData->serialBaudRate[(uint32_t)arg0] : DEFAULT_EEPROM_SERIAL_BAUDRATE;
 //    ifHandle = hIF_open(IF_SERIAL_4, &params);
     ifHandle = hIF_open((uint32_t)arg0, &params);
 
@@ -102,7 +106,12 @@ Void vRosen485Device_taskFxn(UArg arg0, UArg arg1)
 
         if (events & DEVICE_PERIODIC_EVT) {
             events &= ~DEVICE_PERIODIC_EVT;
-            vRosen485Device_ALTOEmulatorClassService_ValueChangeHandler(NULL, NULL, NULL, ifHandle, txbuff, rxbuff);
+            char_data_t pCharData;
+            Rosen485Device_SteveCommandData_t *pRxData = (Rosen485Device_SteveCommandData_t *)pCharData.data;
+            pCharData.paramID = CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_SET_ID;
+            pRxData->command = ROSENSingleBlueRayDVDCommand_Menu_Up;
+            pRxData->address = ROSSEN_BlueRayDVD_Network_Address_20;
+            vRosen485Device_SteveCommandsService_ValueChangeHandler(&pCharData, NULL, NULL, ifHandle, txbuff, rxbuff);
         }
 
         if (events & DEVICE_APP_KILL_EVT) {
@@ -244,7 +253,8 @@ DeviceList_Handler hRosen485Device_open(DeviceList_Handler handle, void *params)
     Task_Params_init(&paramsUnion.taskParams);
     paramsUnion.taskParams.stackSize = DEVICES_ROSEN_ROSENRS485DEVICE_TASK_STACK_SIZE;
     paramsUnion.taskParams.priority = DEVICES_ROSEN_ROSENRS485DEVICE_TASK_PRIORITY;
-    paramsUnion.taskParams.arg0 = (UArg)handle->deviceID;
+//    paramsUnion.taskParams.arg0 = (UArg)handle->deviceID;
+    paramsUnion.taskParams.arg0 = (UArg)deviceParams->arg0;
     paramsUnion.taskParams.arg1 = (UArg)handle;
     handle->taskHandle = Task_create((Task_FuncPtr)vRosen485Device_taskFxn, &paramsUnion.taskParams, &eb);
 
@@ -291,6 +301,9 @@ static void vRosen485Device_processApplicationMessage(device_msg_t *pMsg, UArg a
           break;
       case SERVICE_ROSENRS485DEVICE_DUAL_BLUERAY_DVD_UUID:
           break;
+      case SERVICE_ROSENRS485DEVICE_STEVE_COMMANDS_UUID:
+          vRosen485Device_SteveCommandsService_ValueChangeHandler(pCharData, arg0, arg1, ifHandle, txbuff, rxbuff);
+          break;
       default:
           break;
       }
@@ -313,12 +326,12 @@ static void vRosen485Device_processApplicationMessage(device_msg_t *pMsg, UArg a
 
 static void vRosen485Device_ALTOEmulatorClassService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff)
 {
-    tsROSENCommand cmd;
+    Rosen485Device_directCommandData_t cmd;
 
 //    IF_Params params;
     IF_Transaction ifTransaction;
-    uint8_t ui8NetworkId;
     bool transferOk;
+    Rosen485Device_directCommandData_t *pRxData = (Rosen485Device_directCommandData_t *)pCharData->data;
 
     /*
      * Prepare the transfer
@@ -330,37 +343,39 @@ static void vRosen485Device_ALTOEmulatorClassService_ValueChangeHandler(char_dat
     ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_NONE;
 //    ifTransaction.writeBuf = txbuff;
     ifTransaction.writeBuf = &cmd;
-    ifTransaction.writeCount = sizeof(tsROSENCommand);
+    ifTransaction.writeCount = sizeof(Rosen485Device_directCommandData_t);
     ifTransaction.writeTimeout = BIOS_WAIT_FOREVER;
     ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
 
 
-    ui8NetworkId = ((((uint32_t)arg0) & ROSENRS485DEVICE_NETWORKID_MASK) >> ROSENRS485DEVICE_NETWORKID_SHIFT);
-
-
     xRosen485Device_createMsgFrame(&cmd,
-                                   ui8NetworkId,
-                                   ROSENSingleBlueRayDVDCommand_Menu_Up,
-                                   ROSSEN_BlueRayDVD_Network_Address_20);
-    ifTransaction.readCount = 0;
-    ifTransaction.writeCount = sizeof(tsROSENCommand);
+                                   pRxData->header,
+                                   pRxData->command,
+                                   pRxData->address);
+    switch (pCharData->paramID) {
+    case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_ALTO_EMULATOR_GET_ID:
+        break;
+    case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_ALTO_EMULATOR_SET_ID:
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
 
-    transferOk = bIF_transfer(ifHandle, &ifTransaction);
-    if (transferOk) {
-
+        }
+        break;
+    default:
+        break;
     }
 }
 
 static void vRosen485Device_UniversalLiftService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff)
 {
-    tsROSENCommand cmd;
+    Rosen485Device_directCommandData_t cmd;
 
 //    IF_Params params;
     IF_Transaction ifTransaction;
     uint8_t ui8NetworkId;
     bool transferOk;
 
-    char_data_t *pCharData = (char_data_t *)pMsg->pdu;
+//    char_data_t *pCharData = (char_data_t *)pMsg->pdu;
     /*
      * Prepare the transfer
      */
@@ -371,7 +386,7 @@ static void vRosen485Device_UniversalLiftService_ValueChangeHandler(char_data_t 
     ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_NONE;
 //    ifTransaction.writeBuf = txbuff;
     ifTransaction.writeBuf = &cmd;
-    ifTransaction.writeCount = sizeof(tsROSENCommand);
+    ifTransaction.writeCount = sizeof(Rosen485Device_directCommandData_t);
     ifTransaction.writeTimeout = BIOS_WAIT_FOREVER;
     ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
 
@@ -409,12 +424,131 @@ static void vRosen485Device_UniversalLiftService_ValueChangeHandler(char_data_t 
     }
 }
 
+static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff)
+{
+    Rosen485Device_directCommandData_t cmd;
+
+//    IF_Params params;
+    IF_Transaction ifTransaction;
+    bool transferOk;
+    Rosen485Device_SteveCommandData_t *pRxData = (Rosen485Device_SteveCommandData_t *)pCharData->data;
+
+    if(pCharData == NULL) {
+        return;
+    }
+
+    if(ifHandle == NULL) {
+        return;
+    }
+
+    /*
+     * Prepare the transfer
+     */
+    memset(&ifTransaction, 0, sizeof(IF_Transaction));
+    ifTransaction.readCount = 0;
+    ifTransaction.readBuf = rxbuff;
+    ifTransaction.readTimeout = 30;
+    ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_NONE;
+//    ifTransaction.writeBuf = txbuff;
+    ifTransaction.writeBuf = &cmd;
+    ifTransaction.writeCount = sizeof(Rosen485Device_directCommandData_t);
+    ifTransaction.writeTimeout = BIOS_WAIT_FOREVER;
+    ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
+
+
+
+    switch (pCharData->paramID) {
+    case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_POWER_SET_ID:
+        xRosen485Device_createMsgFrame(&cmd,
+                                       Rosen485_Header_Display_Power,
+                                       pRxData->command,
+                                       pRxData->address);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+
+        }
+        break;
+    case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_POWER_GET_ID:
+        xRosen485Device_createMsgFrame(&cmd,
+                                       Rosen485_Header_Ping,
+                                       pRxData->command,
+                                       pRxData->address);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+
+        }
+        break;
+    case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_SOURCE_SET_ID:
+        xRosen485Device_createMsgFrame(&cmd,
+                                       Rosen485_Header_Display_Input_Source_Selection,
+                                       pRxData->command,
+                                       pRxData->address);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+
+        }
+        break;
+    case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_SOURCE_GET_ID:
+        xRosen485Device_createMsgFrame(&cmd,
+                                       Rosen485_Header_Ping,
+                                       pRxData->command,
+                                       pRxData->address);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+
+        }
+        break;
+    case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_SET_ID:
+        xRosen485Device_createMsgFrame(&cmd,
+                                       Rosen485_Header_Single_Disc_DVD,
+                                       pRxData->command,
+                                       pRxData->address);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+
+        }
+        break;
+    case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_GET_ID:
+        xRosen485Device_createMsgFrame(&cmd,
+                                       Rosen485_Header_DVD_General_Status_Request,
+                                       pRxData->command,
+                                       pRxData->address);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+
+        }
+        break;
+    case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_LOADED_GET_ID:
+        xRosen485Device_createMsgFrame(&cmd,
+                                       Rosen485_Header_DVD_General_Status_Request,
+                                       pRxData->command,
+                                       pRxData->address);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+
+        }
+        break;
+    case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_PLAYING_GET_ID:
+        xRosen485Device_createMsgFrame(&cmd,
+                                       Rosen485_Header_DVD_General_Status_Request,
+                                       pRxData->command,
+                                       pRxData->address);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+
+        }
+        break;
+    default:
+        break;
+    }
+}
+
 /* ==================================================================================
  * ==================================================================================
  *
  */
 
-uint32_t xRosen485Device_createMsgFrame(tsROSENCommand *ptsCmdBuf, uint8_t header, uint8_t command, uint8_t address)
+uint32_t xRosen485Device_createMsgFrame(Rosen485Device_directCommandData_t *ptsCmdBuf, uint8_t header, uint8_t command, uint8_t address)
 {
     ASSERT(ptsCmdBuf != NULL);
 
@@ -427,7 +561,7 @@ uint32_t xRosen485Device_createMsgFrame(tsROSENCommand *ptsCmdBuf, uint8_t heade
     return 3;
 }
 
-uint32_t xRosen485Device_SingleBlueRayDVDCreateMsgFrame(tsROSENCommand *ptsCmdBuf, uint32_t command, uint32_t address)
+uint32_t xRosen485Device_SingleBlueRayDVDCreateMsgFrame(Rosen485Device_directCommandData_t *ptsCmdBuf, uint32_t command, uint32_t address)
 {
     ASSERT(ptsCmdBuf != NULL);
     ASSERT(command <= 0xFF);

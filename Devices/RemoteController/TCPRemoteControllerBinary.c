@@ -315,6 +315,9 @@ static void vTCPRCBin_processApplicationMessage(device_msg_t *pMsg)
       case SERVICE_TCPBIN_REMOTECONTROL_AVDS_CLASS_RETURN_UUID:
           vTCPRCBin_AVDSService_ValueChangeHandler(pCharData);
           break;
+      case SERVICE_TCPBIN_REMOTECONTROL_ROSEN_SERVICE_RETURN_UUID:
+          vTCPRCBin_ROSENService_ValueChangeHandler(pCharData);
+          break;
       }
       break;
   }

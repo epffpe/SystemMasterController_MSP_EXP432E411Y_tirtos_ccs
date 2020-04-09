@@ -164,7 +164,19 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
 
 // AVDS COMMANDS
  [TCP_CMD_AVDS_DirectCommand1] = TCPBin_AVDSGenericDirectCommand1,
- [TCP_CMD_AVDS_DirectCommand1] = TCPBin_AVDSGenericDirectCommand2,
+ [TCP_CMD_AVDS_DirectCommand2] = TCPBin_AVDSGenericDirectCommand2,
+
+// ROSEN COMMANDS
+ [TCP_CMD_ROSEN_DirectCommand1] = TCPBin_ROSENGenericDirectCommand1,
+ [TCP_CMD_ROSEN_DirectCommand2] = TCPBin_ROSENGenericDirectCommand2,
+ [TCP_CMD_ROSEN_PowerSet] = TCPBin_ROSENPowerSetCommand,
+ [TCP_CMD_ROSEN_PowerGet] = TCPBin_ROSENPowerGetCommand,
+ [TCP_CMD_ROSEN_SourceSet] = TCPBin_ROSENSourceSetCommand,
+ [TCP_CMD_ROSEN_SourceGet] = TCPBin_ROSENSourceGetCommand,
+ [TCP_CMD_ROSEN_DVDControlSet] = TCPBin_ROSENDVDControlSetCommand,
+ [TCP_CMD_ROSEN_DVDControlGet] = TCPBin_ROSENDVDControlGetCommand,
+ [TCP_CMD_ROSEN_DVDLoadedGet] = TCPBin_ROSENDVDLoadedGetCommand,
+ [TCP_CMD_ROSEN_DVDPlayingGet] = TCPBin_ROSENDVDPlayingGetCommand,
 
 
 

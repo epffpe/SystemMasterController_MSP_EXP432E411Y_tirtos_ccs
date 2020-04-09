@@ -273,6 +273,28 @@ typedef enum {
     TCP_CMD_AVDS_DirectCommand2,
     TCP_CMD_AVDS_DirectCommand2Response,
 
+// ROSEN COMMANDS
+    TCP_CMD_ROSEN_DirectCommand1 = 800,
+    TCP_CMD_ROSEN_DirectCommand1Response,
+    TCP_CMD_ROSEN_DirectCommand2,
+    TCP_CMD_ROSEN_DirectCommand2Response,
+    TCP_CMD_ROSEN_PowerSet,
+    TCP_CMD_ROSEN_PowerSetResponse,
+    TCP_CMD_ROSEN_PowerGet,
+    TCP_CMD_ROSEN_PowerGetResponse,
+    TCP_CMD_ROSEN_SourceSet,
+    TCP_CMD_ROSEN_SourceSetResponse,
+    TCP_CMD_ROSEN_SourceGet,
+    TCP_CMD_ROSEN_SourceGetResponse,
+    TCP_CMD_ROSEN_DVDControlSet,
+    TCP_CMD_ROSEN_DVDControlSetResponse,
+    TCP_CMD_ROSEN_DVDControlGet,
+    TCP_CMD_ROSEN_DVDControlGetResponse,
+    TCP_CMD_ROSEN_DVDLoadedGet,
+    TCP_CMD_ROSEN_DVDLoadedGetResponse,
+    TCP_CMD_ROSEN_DVDPlayingGet,
+    TCP_CMD_ROSEN_DVDPlayingGetResponse,
+
 
     TCP_CMD_COUNT
 } TCPBin_CMD_types_te;

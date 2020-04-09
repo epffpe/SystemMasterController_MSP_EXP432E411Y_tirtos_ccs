@@ -47,6 +47,8 @@ encoding//Debug/Devices/RemoteController/TCPBinaryCommands/ProductionTest/subdir
 encoding//Debug/Devices/RemoteController/TCPBinaryCommands/ProductionTest/subdir_vars.mk=UTF-8
 encoding//Debug/Devices/RemoteController/TCPBinaryCommands/RAWCharacteristicData/subdir_rules.mk=UTF-8
 encoding//Debug/Devices/RemoteController/TCPBinaryCommands/RAWCharacteristicData/subdir_vars.mk=UTF-8
+encoding//Debug/Devices/RemoteController/TCPBinaryCommands/ROSEN/subdir_rules.mk=UTF-8
+encoding//Debug/Devices/RemoteController/TCPBinaryCommands/ROSEN/subdir_vars.mk=UTF-8
 encoding//Debug/Devices/RemoteController/TCPBinaryCommands/SystemControl/subdir_rules.mk=UTF-8
 encoding//Debug/Devices/RemoteController/TCPBinaryCommands/SystemControl/subdir_vars.mk=UTF-8
 encoding//Debug/Devices/RemoteController/TCPBinaryCommands/subdir_rules.mk=UTF-8

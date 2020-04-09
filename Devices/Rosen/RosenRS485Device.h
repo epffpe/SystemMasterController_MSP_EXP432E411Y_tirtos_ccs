@@ -19,6 +19,28 @@
 #define ROSENRS485DEVICE_NETWORKID_SHIFT                    24
 
 
+
+typedef enum {
+    Rosen485_Header_Display_Power = 0x81,
+    Rosen485_Header_Display_Input_Source_Selection = 0x82,
+    Rosen485_Header_Display_Input_Source_Video = 0x83,
+    Rosen485_Header_Rosen_Control_Functions = 0x85,
+    Rosen485_Header_Universal_Lift = 0x97,
+    Rosen485_Header_Universal_Lift_Status = 0x98,
+    Rosen485_Header_Rosen_View = 0xA0,
+    Rosen485_Header_Briefing = 0xA3,
+    Rosen485_Header_Status_request = 0xA8,
+    Rosen485_Header_RosenView_Status_response = 0xA9,
+    Rosen485_Header_Single_Disc_DVD = 0xB0,
+    Rosen485_Header_Single_BlueRay_DVD = 0xB0,
+    Rosen485_Header_Dual_BlueRay_DVD = 0xB0,
+    Rosen485_Header_DVD_General_Status_Request = 0xB8,
+    Rosen485_Header_DVD_Status_Response = 0xB9,
+    Rosen485_Header_Ping = 0x88,
+    Rosen485_Header_Ping_Response = 0x77,
+} Rosen485Device_ProductsHeader;
+
+
 typedef enum
 {
     SERVICE_ROSENRS485DEVICE_ALTO_EMULATOR_UUID = 0x0001,
@@ -28,6 +50,7 @@ typedef enum
     SERVICE_ROSENRS485DEVICE_SINGLE_DISC_DVD_UUID,
     SERVICE_ROSENRS485DEVICE_SINGLE_BLUERAY_DVD_UUID,
     SERVICE_ROSENRS485DEVICE_DUAL_BLUERAY_DVD_UUID,
+    SERVICE_ROSENRS485DEVICE_STEVE_COMMANDS_UUID,
 } Rosen485Device_service_UUID_t;
 
 
@@ -197,6 +220,31 @@ typedef enum
     CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_SINGLE_BLUERAY_DVD_CONTROL_COMMANDS_NUMERIC_VALUE_9_ID,
     CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_SINGLE_BLUERAY_DVD_CONTROL_COMMANDS_DVD_STATUS_RESPONSE_ID,
 } Rosen485Device_service_single_blu_ray_characteristics_t;
+
+
+typedef enum
+{
+    CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_POWER_SET_ID = 0x01,
+    CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_POWER_GET_ID,
+    CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_SOURCE_SET_ID,
+    CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_SOURCE_GET_ID,
+    CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_SET_ID,
+    CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_GET_ID,
+    CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_LOADED_GET_ID,
+    CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_PLAYING_GET_ID,
+} Rosen485Device_service_Steve_Command_characteristics_t;
+
+
+typedef struct {
+    uint8_t header;
+    uint8_t command;
+    uint8_t address;
+}Rosen485Device_directCommandData_t;
+
+typedef struct {
+    uint8_t command;
+    uint8_t address;
+}Rosen485Device_SteveCommandData_t;
 
 
 #ifdef  __DEVICES_ROSEN_ROSENRS485DEVICE_GLOBAL

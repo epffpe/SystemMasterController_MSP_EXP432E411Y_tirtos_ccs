@@ -207,6 +207,7 @@ void *SMC_initThread(void *arg0)
     xDevice_add(&deviceParams, &eb);
 
     vRosen485Device_Params_init(&deviceParams, 303);
+    deviceParams.arg0 = (void *)IF_SERIAL_1;
     xDevice_add(&deviceParams, &eb);
 
 #ifdef TEST_FIXTURE

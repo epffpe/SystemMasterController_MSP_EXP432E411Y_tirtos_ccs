@@ -254,6 +254,7 @@
 #include "Devices/RemoteController/TCPBinaryCommands/DAC/TCPBinaryCMD_DAC.h"
 #include "Devices/RemoteController/TCPBinaryCommands/ProductionTest/TCPBinaryCMD_ProductionTest.h"
 #include "Devices/RemoteController/TCPBinaryCommands/FlashFileSystem/TCPBinaryCMD_FlashFileSystem.h"
+#include "Devices/RemoteController/TCPBinaryCommands/ROSEN/TCPBinaryCMD_Rosen.h"
 #include "Devices/GenericDevice/TFTest/TFUARTTestDevice.h"
 #include "Devices/GenericDevice/DUTTest/DUTUartTestDevice.h"
 
