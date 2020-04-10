@@ -49,8 +49,8 @@ Void vRosen485Device_taskFxn(UArg arg0, UArg arg1)
 //    bool transferOk;
 
 //    uint32_t ui32SerialIndex;
-    char rxbuff[70];
-    char txbuff[70];
+//    char rxbuff[70];
+//    char txbuff[70];
     volatile tEEPROM_Data *psEEPROMData;
 
 //    Task_Handle taskTCPServerHandle;
@@ -111,8 +111,11 @@ Void vRosen485Device_taskFxn(UArg arg0, UArg arg1)
             pCharData.paramID = CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_POWER_GET_ID;
 //            pRxData->command = ROSENSingleBlueRayDVDCommand_Menu_Up;
             pRxData->command = 0x55;
+            pCharData.paramID = CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_POWER_GET_ID;
+            pRxData->command = 0x01;
             pRxData->address = ROSSEN_BlueRayDVD_Network_Address_20;
-            vRosen485Device_SteveCommandsService_ValueChangeHandler(&pCharData, NULL, NULL, ifHandle, txbuff, rxbuff);
+//            vRosen485Device_SteveCommandsService_ValueChangeHandler(&pCharData, NULL, NULL, ifHandle, txbuff, rxbuff);
+            vRosen485Device_SteveCommandsService_ValueChangeHandler(&pCharData, NULL, NULL, ifHandle, NULL, NULL);
         }
 
         if (events & DEVICE_APP_KILL_EVT) {
@@ -141,7 +144,8 @@ Void vRosen485Device_taskFxn(UArg arg0, UArg arg1)
         {
             pMsg = Queue_dequeue(msgQHandle);
 
-            vRosen485Device_processApplicationMessage(pMsg, arg0, arg1, ifHandle, txbuff, rxbuff);
+//            vRosen485Device_processApplicationMessage(pMsg, arg0, arg1, ifHandle, txbuff, rxbuff);
+            vRosen485Device_processApplicationMessage(pMsg, arg0, arg1, ifHandle, NULL, NULL);
 
             // Free the received message.
             Memory_free(pMsg->heap, pMsg, pMsg->pduLen);
@@ -429,6 +433,7 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
 {
     Rosen485Device_directCommandData_t cmd;
     Rosen485Device_pingResponse pingResponse;
+    Rosen485Device_generalStatusResponse statusResponse;
 
 //    IF_Params params;
     IF_Transaction ifTransaction;
@@ -493,6 +498,8 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
         }
         break;
     case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_SOURCE_GET_ID:
+        ifTransaction.readCount = sizeof(Rosen485Device_pingResponse);
+        ifTransaction.readBuf = &pingResponse;
         xRosen485Device_createMsgFrame(&cmd,
                                        Rosen485_Header_Ping,
                                        pRxData->command,
@@ -512,7 +519,9 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
 
         }
         break;
-    case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_GET_ID:
+    case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_POWER_GET_ID:
+        ifTransaction.readCount = sizeof(Rosen485Device_generalStatusResponse);
+        ifTransaction.readBuf = &statusResponse;
         xRosen485Device_createMsgFrame(&cmd,
                                        Rosen485_Header_DVD_General_Status_Request,
                                        pRxData->command,
@@ -523,6 +532,8 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
         }
         break;
     case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_LOADED_GET_ID:
+        ifTransaction.readCount = sizeof(Rosen485Device_generalStatusResponse);
+        ifTransaction.readBuf = &statusResponse;
         xRosen485Device_createMsgFrame(&cmd,
                                        Rosen485_Header_DVD_General_Status_Request,
                                        pRxData->command,
@@ -533,6 +544,8 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
         }
         break;
     case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_PLAYING_GET_ID:
+        ifTransaction.readCount = sizeof(Rosen485Device_generalStatusResponse);
+        ifTransaction.readBuf = &statusResponse;
         xRosen485Device_createMsgFrame(&cmd,
                                        Rosen485_Header_DVD_General_Status_Request,
                                        pRxData->command,

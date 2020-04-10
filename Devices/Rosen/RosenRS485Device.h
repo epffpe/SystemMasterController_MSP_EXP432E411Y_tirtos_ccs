@@ -229,7 +229,7 @@ typedef enum
     CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_SOURCE_SET_ID,
     CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_SOURCE_GET_ID,
     CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_SET_ID,
-    CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_GET_ID,
+    CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_POWER_GET_ID,
     CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_LOADED_GET_ID,
     CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_PLAYING_GET_ID,
 } Rosen485Device_service_Steve_Command_characteristics_t;
@@ -307,18 +307,25 @@ typedef struct {
 }Rosen485Device_pingResponse;
 
 
+typedef struct {
+    uint8_t ui8Header;
+    union {
+        uint8_t ui8Byte2;
+        uint8_t ui8Status;
+        struct {
+            uint8_t ui1DiscLoaded          : 1;  // 0 = disc not loaded, 1 = disc loaded
+            uint8_t ui1DiscPlaying         : 1;  // 0 = disc paused or stopped, 1 = disc playing
+            uint8_t ui1TempOutOfRange      : 1;  // 0 = temperature normal, 1 = temperature out of range
+            uint8_t ui1DiscSelfTest        : 1;  // 0 = self test passed, 1 = self test failure
+            uint8_t ui1DiscSourceSelection : 1;  // source selection, 0 = internal, 1 = external
+            uint8_t ui1DiscPAOverrideStatus: 1;  // PA/Briefing override status, 0 = input low, 1 = input high
+            uint8_t ui1DiscUnitPowerStatus : 1;  // Unit Power Status, 0 = standby, 1 = on
+            uint8_t ui1DiscAlways0         : 1;  // always 0
+        };
+    };
+}Rosen485Device_generalStatusResponse;
 
 
-//struct {
-//    uint8_t ui1DiscLoaded          : 1;  // 0 = disc not loaded, 1 = disc loaded
-//    uint8_t ui1DiscPlaying         : 1;  // 0 = disc paused or stopped, 1 = disc playing
-//    uint8_t ui1TempOutOfRange      : 1;  // 0 = temperature normal, 1 = temperature out of range
-//    uint8_t ui1DiscSelfTest        : 1;  // 0 = self test passed, 1 = self test failure
-//    uint8_t ui1DiscSourceSelection : 1;  // source selection, 0 = internal, 1 = external
-//    uint8_t ui1DiscPAOverrideStatus: 1;  // PA/Briefing override status, 0 = input low, 1 = input high
-//    uint8_t ui1DiscUnitPowerStatus : 1;  // Unit Power Status, 0 = standby, 1 = on
-//    uint8_t ui1DiscAlways0         : 1;  // always 0
-//};
 
 #ifdef  __DEVICES_ROSEN_ROSENRS485DEVICE_GLOBAL
     #define __DEVICES_ROSEN_ROSENRS485DEVICE_EXT

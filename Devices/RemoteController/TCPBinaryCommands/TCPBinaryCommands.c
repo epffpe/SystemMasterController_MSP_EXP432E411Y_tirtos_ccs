@@ -174,7 +174,7 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_ROSEN_SourceSet] = TCPBin_ROSENSourceSetCommand,
  [TCP_CMD_ROSEN_SourceGet] = TCPBin_ROSENSourceGetCommand,
  [TCP_CMD_ROSEN_DVDControlSet] = TCPBin_ROSENDVDControlSetCommand,
- [TCP_CMD_ROSEN_DVDControlGet] = TCPBin_ROSENDVDControlGetCommand,
+ [TCP_CMD_ROSEN_DVDControlGet] = TCPBin_ROSENDVDPowerGetCommand,
  [TCP_CMD_ROSEN_DVDLoadedGet] = TCPBin_ROSENDVDLoadedGetCommand,
  [TCP_CMD_ROSEN_DVDPlayingGet] = TCPBin_ROSENDVDPlayingGetCommand,
 

@@ -219,13 +219,13 @@ void TCPBin_ROSENDVDControlSetCommand(int clientfd, char *payload, int32_t size)
     }
 }
 
-void TCPBin_ROSENDVDControlGetCommand(int clientfd, char *payload, int32_t size)
+void TCPBin_ROSENDVDPowerGetCommand(int clientfd, char *payload, int32_t size)
 {
     TCP_CMD_ROSEN_genericCommand_payload_t *ptPayload = (TCP_CMD_ROSEN_genericCommand_payload_t *)payload;
     if(!xDevice_sendCharDataMsg( ptPayload->deviceID,
                                  APP_MSG_SERVICE_WRITE,
                                  clientfd,
-                                 SERVICE_ROSENRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_GET_ID,
+                                 SERVICE_ROSENRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_POWER_GET_ID,
                                  TCPRCBINDEVICE_ID,
                                  SERVICE_TCPBIN_REMOTECONTROL_ROSEN_SERVICE_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_CONTROL_GET_ID,
                                  (uint8_t *)ptPayload->data, sizeof(Rosen485Device_SteveCommandData_t) )) {

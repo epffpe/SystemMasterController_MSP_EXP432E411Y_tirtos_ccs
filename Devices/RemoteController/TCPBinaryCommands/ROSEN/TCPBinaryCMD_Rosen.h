@@ -59,7 +59,7 @@ void TCPBin_ROSENSourceGetCommand(int clientfd, char *payload, int32_t size);
 __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_ROSEN_TCPBINARYCMD_ROSEN_EXT
 void TCPBin_ROSENDVDControlSetCommand(int clientfd, char *payload, int32_t size);
 __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_ROSEN_TCPBINARYCMD_ROSEN_EXT
-void TCPBin_ROSENDVDControlGetCommand(int clientfd, char *payload, int32_t size);
+void TCPBin_ROSENDVDPowerGetCommand(int clientfd, char *payload, int32_t size);
 __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_ROSEN_TCPBINARYCMD_ROSEN_EXT
 void TCPBin_ROSENDVDLoadedGetCommand(int clientfd, char *payload, int32_t size);
 __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_ROSEN_TCPBINARYCMD_ROSEN_EXT
