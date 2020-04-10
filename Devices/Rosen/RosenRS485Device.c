@@ -428,6 +428,7 @@ static void vRosen485Device_UniversalLiftService_ValueChangeHandler(char_data_t 
 static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff)
 {
     Rosen485Device_directCommandData_t cmd;
+    Rosen485Device_pingResponse pingResponse;
 
 //    IF_Params params;
     IF_Transaction ifTransaction;
@@ -470,7 +471,8 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
         }
         break;
     case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_POWER_GET_ID:
-        ifTransaction.readCount = 3;
+        ifTransaction.readCount = sizeof(Rosen485Device_pingResponse);
+        ifTransaction.readBuf = &pingResponse;
         xRosen485Device_createMsgFrame(&cmd,
                                        Rosen485_Header_Ping,
                                        pRxData->command,

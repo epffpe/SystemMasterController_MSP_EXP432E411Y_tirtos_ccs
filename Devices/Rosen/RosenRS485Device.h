@@ -235,6 +235,38 @@ typedef enum
 } Rosen485Device_service_Steve_Command_characteristics_t;
 
 
+
+
+
+
+
+
+typedef enum {
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_5_6INCH_MONITOR = 0,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_8_4INCH_MONITOR,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_12INCH_MONITOR,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_15INCH_MONITOR,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_17INCH_MONITOR,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_17INCH_WS_MONITOR,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_20INCH_SL_II_MONITOR,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_24INCH_WS_MONITOR,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_7INCH_MONITOR,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_6_5INCH_MONITOR,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_UNIVERSAL_LIFT = 12,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_DVD_PLAYER,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_BLUERAY_DVD_PLAYER,
+    ROSEN485DEVICE_PINGRESPONSE_DEVICEID_ROSEN_VIEW_UNIT
+}Rosen485Device_pingCommandResponse_deviceIdentification;
+
+typedef enum {
+    ROSEN485DEVICE_PINGRESPONSE_BYTE2_DISPLAY_POWER_SAVE_ONLY = 1,
+    ROSEN485DEVICE_PINGRESPONSE_BYTE2_DISPLAY_VIDEO_SAVE_ONLY = 2,
+    ROSEN485DEVICE_PINGRESPONSE_BYTE2_DISPLAY_POWER_VIDEO_SAVE_ONLY = 3,
+    ROSEN485DEVICE_PINGRESPONSE_BYTE2_DISPLAY_RS485_MASTER = 4,
+    ROSEN485DEVICE_PINGRESPONSE_BYTE2_DISPLAY_OTHER = 0,  // (DVD, Universal Lift or RosenView)
+}Rosen485Device_pingCommandResponse_byte2_others;
+
+
 typedef struct {
     uint8_t header;
     uint8_t command;
@@ -246,6 +278,47 @@ typedef struct {
     uint8_t address;
 }Rosen485Device_SteveCommandData_t;
 
+typedef struct {
+    uint8_t ui8Header;
+    union {
+        uint8_t ui8Byte2;
+        struct {
+            uint8_t ui4DeviceIdentification     : 4;
+            uint8_t ui4Power                    : 4;
+        };
+    };
+    union{
+        uint8_t ui8Byte3;
+        uint8_t ui8ForMonitor;
+        struct {
+            uint8_t ui4CurrentSource            : 4;
+            uint8_t ui1PowerOnOff               : 1;
+            uint8_t ui3Reserved1                : 3;
+        };
+        uint8_t ui8ForDvdandBluRayPlayers;
+        struct {
+            uint8_t ui1DiscLoaded           : 1;  // 0 = disc not loaded, 1 = disc loaded
+            uint8_t ui1DiscPlaying          : 1;  // 0 = disc paused or stopped, 1 = disc playing
+            uint8_t ui1TempOutOfRange       : 1;  // 0 = temperature normal, 1 = temperature out of range
+            uint8_t ui1DiscSelfTest         : 1;  // 0 = self test passed, 1 = self test failure
+            uint8_t ui4Reserved2            : 4;
+        };
+    };
+}Rosen485Device_pingResponse;
+
+
+
+
+//struct {
+//    uint8_t ui1DiscLoaded          : 1;  // 0 = disc not loaded, 1 = disc loaded
+//    uint8_t ui1DiscPlaying         : 1;  // 0 = disc paused or stopped, 1 = disc playing
+//    uint8_t ui1TempOutOfRange      : 1;  // 0 = temperature normal, 1 = temperature out of range
+//    uint8_t ui1DiscSelfTest        : 1;  // 0 = self test passed, 1 = self test failure
+//    uint8_t ui1DiscSourceSelection : 1;  // source selection, 0 = internal, 1 = external
+//    uint8_t ui1DiscPAOverrideStatus: 1;  // PA/Briefing override status, 0 = input low, 1 = input high
+//    uint8_t ui1DiscUnitPowerStatus : 1;  // Unit Power Status, 0 = standby, 1 = on
+//    uint8_t ui1DiscAlways0         : 1;  // always 0
+//};
 
 #ifdef  __DEVICES_ROSEN_ROSENRS485DEVICE_GLOBAL
     #define __DEVICES_ROSEN_ROSENRS485DEVICE_EXT
