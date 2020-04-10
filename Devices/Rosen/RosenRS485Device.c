@@ -48,7 +48,7 @@ Void vRosen485Device_taskFxn(UArg arg0, UArg arg1)
 //    IF_Transaction ifTransaction;
 //    bool transferOk;
 
-    uint32_t ui32SerialIndex;
+//    uint32_t ui32SerialIndex;
     char rxbuff[70];
     char txbuff[70];
     volatile tEEPROM_Data *psEEPROMData;
@@ -108,8 +108,9 @@ Void vRosen485Device_taskFxn(UArg arg0, UArg arg1)
             events &= ~DEVICE_PERIODIC_EVT;
             char_data_t pCharData;
             Rosen485Device_SteveCommandData_t *pRxData = (Rosen485Device_SteveCommandData_t *)pCharData.data;
-            pCharData.paramID = CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_SET_ID;
-            pRxData->command = ROSENSingleBlueRayDVDCommand_Menu_Up;
+            pCharData.paramID = CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_POWER_GET_ID;
+//            pRxData->command = ROSENSingleBlueRayDVDCommand_Menu_Up;
+            pRxData->command = 0x55;
             pRxData->address = ROSSEN_BlueRayDVD_Network_Address_20;
             vRosen485Device_SteveCommandsService_ValueChangeHandler(&pCharData, NULL, NULL, ifHandle, txbuff, rxbuff);
         }
@@ -448,7 +449,7 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
     ifTransaction.readCount = 0;
     ifTransaction.readBuf = rxbuff;
     ifTransaction.readTimeout = 30;
-    ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_NONE;
+    ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_ROSEN485;
 //    ifTransaction.writeBuf = txbuff;
     ifTransaction.writeBuf = &cmd;
     ifTransaction.writeCount = sizeof(Rosen485Device_directCommandData_t);
@@ -469,6 +470,7 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
         }
         break;
     case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_POWER_GET_ID:
+        ifTransaction.readCount = 3;
         xRosen485Device_createMsgFrame(&cmd,
                                        Rosen485_Header_Ping,
                                        pRxData->command,
