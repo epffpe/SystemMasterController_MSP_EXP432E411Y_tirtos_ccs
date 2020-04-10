@@ -326,6 +326,12 @@ typedef struct {
 }Rosen485Device_generalStatusResponse;
 
 
+typedef struct {
+    uint8_t ui8NetworkID;
+    uint8_t ui8Value;
+}Rosen485Device_SteveCommandReturn1Data_t;
+
+
 
 #ifdef  __DEVICES_ROSEN_ROSENRS485DEVICE_GLOBAL
     #define __DEVICES_ROSEN_ROSENRS485DEVICE_EXT

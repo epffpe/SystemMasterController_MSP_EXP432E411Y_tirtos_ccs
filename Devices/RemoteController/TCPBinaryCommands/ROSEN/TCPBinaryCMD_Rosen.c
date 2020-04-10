@@ -37,6 +37,14 @@ void vTCPRCBin_ROSENService_ValueChangeHandler(char_data_t *pCharData)
     switch (pCharData->paramID) {
     case CHARACTERISTIC_TCPRCBIN_ROSEN_DIRECT_COMMAND1_ID:
     case CHARACTERISTIC_TCPRCBIN_ROSEN_DIRECT_COMMAND2_ID:
+    case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_POWER_SET_ID:
+    case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_POWER_GET_ID:
+    case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_SOURCE_SET_ID:
+    case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_SOURCE_GET_ID:
+    case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_CONTROL_SET_ID:
+    case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_CONTROL_GET_ID:
+    case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_LOADED_GET_ID:
+    case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_PLAYING_GET_ID:
         if(pCharData->dataLen) {
             xTCPRCBin_ROSEN_directCommand_ValueChangeHandler(pCharData);
         }
@@ -73,7 +81,7 @@ int xTCPRCBin_ROSEN_directCommand_ValueChangeHandler(char_data_t *pCharData)
 
     Error_init(&eb);
 
-    if (pCharData->dataLen < AVDS_MAXIMUM_PACKET_DATA_LENGHT) {
+    if (pCharData->dataLen <= sizeof(Rosen485Device_SteveCommandReturn1Data_t)) {
         char *buffer = Memory_alloc(NULL, sizeof(TCPBin_CMD_retFrame_t) + pCharData->dataLen, 0, &eb);
         //    char buffer[sizeof(TCPBin_CMD_retFrame_t) + 64];
         if (buffer) {
@@ -85,11 +93,35 @@ int xTCPRCBin_ROSEN_directCommand_ValueChangeHandler(char_data_t *pCharData)
             switch(pCharData->retSvcUUID) {
             case SERVICE_AVDS_ALTO_EMULATOR_UUID:
                 switch(pCharData->paramID) {
-                case CHARACTERISTIC_TCPRCBIN_ADVS_DIRECT_COMMAND1_ID:
-                    pFrame->type = TCP_CMD_AVDS_DirectCommand1Response | 0x80000000;
+                case CHARACTERISTIC_TCPRCBIN_ROSEN_DIRECT_COMMAND1_ID:
+                    pFrame->type = TCP_CMD_ROSEN_DirectCommand1Response | 0x80000000;
                     break;
-                case CHARACTERISTIC_TCPRCBIN_ADVS_DIRECT_COMMAND2_ID:
-                    pFrame->type = TCP_CMD_AVDS_DirectCommand2Response | 0x80000000;
+                case CHARACTERISTIC_TCPRCBIN_ROSEN_DIRECT_COMMAND2_ID:
+                    pFrame->type = TCP_CMD_ROSEN_DirectCommand2Response | 0x80000000;
+                    break;
+                case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_POWER_SET_ID:
+                    pFrame->type = TCP_CMD_ROSEN_PowerSetResponse | 0x80000000;
+                    break;
+                case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_POWER_GET_ID:
+                    pFrame->type = TCP_CMD_ROSEN_PowerGetResponse | 0x80000000;
+                    break;
+                case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_SOURCE_SET_ID:
+                    pFrame->type = TCP_CMD_ROSEN_SourceSetResponse | 0x80000000;
+                    break;
+                case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_SOURCE_GET_ID:
+                    pFrame->type = TCP_CMD_ROSEN_SourceGetResponse | 0x80000000;
+                    break;
+                case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_CONTROL_SET_ID:
+                    pFrame->type = TCP_CMD_ROSEN_DVDControlSetResponse | 0x80000000;
+                    break;
+                case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_CONTROL_GET_ID:
+                    pFrame->type = TCP_CMD_ROSEN_DVDControlGetResponse | 0x80000000;
+                    break;
+                case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_LOADED_GET_ID:
+                    pFrame->type = TCP_CMD_ROSEN_DVDLoadedGetResponse | 0x80000000;
+                    break;
+                case CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_PLAYING_GET_ID:
+                    pFrame->type = TCP_CMD_ROSEN_DVDPlayingGetResponse | 0x80000000;
                     break;
                 default:
                     pFrame->type = 0 | 0x80000000;

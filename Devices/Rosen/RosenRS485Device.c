@@ -431,6 +431,9 @@ static void vRosen485Device_UniversalLiftService_ValueChangeHandler(char_data_t 
 
 static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff)
 {
+    uint32_t myDeviceID;
+    DeviceList_Handler devHandle;
+
     Rosen485Device_directCommandData_t cmd;
     Rosen485Device_pingResponse pingResponse;
     Rosen485Device_generalStatusResponse statusResponse;
@@ -440,6 +443,9 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
     bool transferOk;
     Rosen485Device_SteveCommandData_t *pRxData = (Rosen485Device_SteveCommandData_t *)pCharData->data;
 
+    if(arg1 == NULL) {
+        return;
+    }
     if(pCharData == NULL) {
         return;
     }
@@ -447,6 +453,9 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
     if(ifHandle == NULL) {
         return;
     }
+
+    devHandle = (DeviceList_Handler)arg1;
+    myDeviceID = devHandle->deviceID;
 
     /*
      * Prepare the transfer
@@ -484,7 +493,16 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
                                        pRxData->address);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
         if (transferOk) {
-
+            Rosen485Device_SteveCommandReturn1Data_t steveResponse1Data;
+            steveResponse1Data.ui8NetworkID = pRxData->address;
+            steveResponse1Data.ui8Value = pingResponse.ui1PowerOnOff;
+            vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                                     APP_MSG_SERVICE_WRITE,
+                                                     pCharData->connHandle,
+                                                     pCharData->retSvcUUID, pCharData->retParamID,
+                                                     myDeviceID,
+                                                     SERVICE_ROSENRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_POWER_GET_ID,
+                                                     (uint8_t *)&steveResponse1Data, sizeof(Rosen485Device_SteveCommandReturn1Data_t));
         }
         break;
     case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_SOURCE_SET_ID:
@@ -506,7 +524,16 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
                                        pRxData->address);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
         if (transferOk) {
-
+            Rosen485Device_SteveCommandReturn1Data_t steveResponse1Data;
+            steveResponse1Data.ui8NetworkID = pRxData->address;
+            steveResponse1Data.ui8Value = pingResponse.ui4CurrentSource;
+            vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                     APP_MSG_SERVICE_WRITE,
+                                     pCharData->connHandle,
+                                     pCharData->retSvcUUID, pCharData->retParamID,
+                                     myDeviceID,
+                                     SERVICE_ROSENRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_SOURCE_GET_ID,
+                                     (uint8_t *)&steveResponse1Data, sizeof(Rosen485Device_SteveCommandReturn1Data_t));
         }
         break;
     case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_SET_ID:
@@ -528,7 +555,16 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
                                        pRxData->address);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
         if (transferOk) {
-
+            Rosen485Device_SteveCommandReturn1Data_t steveResponse1Data;
+            steveResponse1Data.ui8NetworkID = pRxData->address;
+            steveResponse1Data.ui8Value = statusResponse.ui1DiscUnitPowerStatus;
+            vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                     APP_MSG_SERVICE_WRITE,
+                                     pCharData->connHandle,
+                                     pCharData->retSvcUUID, pCharData->retParamID,
+                                     myDeviceID,
+                                     SERVICE_ROSENRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_POWER_GET_ID,
+                                     (uint8_t *)&steveResponse1Data, sizeof(Rosen485Device_SteveCommandReturn1Data_t));
         }
         break;
     case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_LOADED_GET_ID:
@@ -540,7 +576,16 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
                                        pRxData->address);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
         if (transferOk) {
-
+            Rosen485Device_SteveCommandReturn1Data_t steveResponse1Data;
+            steveResponse1Data.ui8NetworkID = pRxData->address;
+            steveResponse1Data.ui8Value = statusResponse.ui1DiscLoaded;
+            vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                     APP_MSG_SERVICE_WRITE,
+                                     pCharData->connHandle,
+                                     pCharData->retSvcUUID, pCharData->retParamID,
+                                     myDeviceID,
+                                     SERVICE_ROSENRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_LOADED_GET_ID,
+                                     (uint8_t *)&steveResponse1Data, sizeof(Rosen485Device_SteveCommandReturn1Data_t));
         }
         break;
     case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_PLAYING_GET_ID:
@@ -552,7 +597,16 @@ static void vRosen485Device_SteveCommandsService_ValueChangeHandler(char_data_t 
                                        pRxData->address);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
         if (transferOk) {
-
+            Rosen485Device_SteveCommandReturn1Data_t steveResponse1Data;
+            steveResponse1Data.ui8NetworkID = pRxData->address;
+            steveResponse1Data.ui8Value = statusResponse.ui1DiscPlaying;
+            vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                     APP_MSG_SERVICE_WRITE,
+                                     pCharData->connHandle,
+                                     pCharData->retSvcUUID, pCharData->retParamID,
+                                     myDeviceID,
+                                     SERVICE_ROSENRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_PLAYING_GET_ID,
+                                     (uint8_t *)&steveResponse1Data, sizeof(Rosen485Device_SteveCommandReturn1Data_t));
         }
         break;
     default:
