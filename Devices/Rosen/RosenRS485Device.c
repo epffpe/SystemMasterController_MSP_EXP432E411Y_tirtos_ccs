@@ -106,16 +106,16 @@ Void vRosen485Device_taskFxn(UArg arg0, UArg arg1)
 
         if (events & DEVICE_PERIODIC_EVT) {
             events &= ~DEVICE_PERIODIC_EVT;
-            char_data_t pCharData;
-            Rosen485Device_SteveCommandData_t *pRxData = (Rosen485Device_SteveCommandData_t *)pCharData.data;
-            pCharData.paramID = CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_SET_ID;
-            pRxData->command = ROSENSingleBlueRayDVDCommand_Menu_Up;
-////            pRxData->command = 0x55;
-//            pCharData.paramID = CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_POWER_GET_ID;
-//            pRxData->command = 0x01;
-            pRxData->address = ROSSEN_BlueRayDVD_Network_Address_20;
-////            vRosen485Device_SteveCommandsService_ValueChangeHandler(&pCharData, NULL, NULL, ifHandle, txbuff, rxbuff);
-            vRosen485Device_SteveCommandsService_ValueChangeHandler(&pCharData, arg0, arg1, ifHandle, NULL, NULL);
+//            char_data_t pCharData;
+//            Rosen485Device_SteveCommandData_t *pRxData = (Rosen485Device_SteveCommandData_t *)pCharData.data;
+//            pCharData.paramID = CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_CONTROL_SET_ID;
+//            pRxData->command = ROSENSingleBlueRayDVDCommand_Menu_Up;
+//////            pRxData->command = 0x55;
+////            pCharData.paramID = CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_DVD_POWER_GET_ID;
+////            pRxData->command = 0x01;
+//            pRxData->address = ROSSEN_BlueRayDVD_Network_Address_20;
+//////            vRosen485Device_SteveCommandsService_ValueChangeHandler(&pCharData, NULL, NULL, ifHandle, txbuff, rxbuff);
+//            vRosen485Device_SteveCommandsService_ValueChangeHandler(&pCharData, arg0, arg1, ifHandle, NULL, NULL);
         }
 
         if (events & DEVICE_APP_KILL_EVT) {
