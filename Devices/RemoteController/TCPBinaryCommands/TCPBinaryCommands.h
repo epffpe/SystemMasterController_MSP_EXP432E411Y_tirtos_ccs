@@ -288,12 +288,17 @@ typedef enum {
     TCP_CMD_ROSEN_SourceGetResponse,
     TCP_CMD_ROSEN_DVDControlSet,
     TCP_CMD_ROSEN_DVDControlSetResponse,
-    TCP_CMD_ROSEN_DVDControlGet,
+    TCP_CMD_ROSEN_DVDPowerGet,
     TCP_CMD_ROSEN_DVDControlGetResponse,
     TCP_CMD_ROSEN_DVDLoadedGet,
     TCP_CMD_ROSEN_DVDLoadedGetResponse,
     TCP_CMD_ROSEN_DVDPlayingGet,
     TCP_CMD_ROSEN_DVDPlayingGetResponse,
+
+    TCP_CMD_ROSEN_UDP_SM_SOURCE_SET,
+    TCP_CMD_ROSEN_UDP_SM_SOURCE_SETResponse,
+    TCP_CMD_ROSEN_UDP_SM_SOURCE_GET,
+    TCP_CMD_ROSEN_UDP_SM_SOURCE_GETResponse,
 
 
     TCP_CMD_COUNT

@@ -91,7 +91,7 @@ int xTCPRCBin_ROSEN_directCommand_ValueChangeHandler(char_data_t *pCharData)
             pFrame->retParamID = pCharData->retParamID;
 
             switch(pCharData->retSvcUUID) {
-            case SERVICE_AVDS_ALTO_EMULATOR_UUID:
+            case SERVICE_ROSENRS485DEVICE_STEVE_COMMANDS_UUID:
                 switch(pCharData->paramID) {
                 case CHARACTERISTIC_TCPRCBIN_ROSEN_DIRECT_COMMAND1_ID:
                     pFrame->type = TCP_CMD_ROSEN_DirectCommand1Response | 0x80000000;
@@ -186,7 +186,7 @@ void TCPBin_ROSENPowerSetCommand(int clientfd, char *payload, int32_t size)
                                  TCPRCBINDEVICE_ID,
                                  SERVICE_TCPBIN_REMOTECONTROL_ROSEN_SERVICE_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_POWER_SET_ID,
                                  (uint8_t *)ptPayload->data, sizeof(Rosen485Device_SteveCommandData_t) )) {
-        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_DirectCommand2, ptPayload->deviceID);
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_ROSEN_PowerSet, ptPayload->deviceID);
     }
 }
 
@@ -201,7 +201,7 @@ void TCPBin_ROSENPowerGetCommand(int clientfd, char *payload, int32_t size)
                                  TCPRCBINDEVICE_ID,
                                  SERVICE_TCPBIN_REMOTECONTROL_ROSEN_SERVICE_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_POWER_GET_ID,
                                  (uint8_t *)ptPayload->data, sizeof(Rosen485Device_SteveCommandData_t) )) {
-        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_DirectCommand2, ptPayload->deviceID);
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_ROSEN_PowerGet, ptPayload->deviceID);
     }
 }
 
@@ -216,7 +216,7 @@ void TCPBin_ROSENSourceSetCommand(int clientfd, char *payload, int32_t size)
                                  TCPRCBINDEVICE_ID,
                                  SERVICE_TCPBIN_REMOTECONTROL_ROSEN_SERVICE_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_SOURCE_SET_ID,
                                  (uint8_t *)ptPayload->data, sizeof(Rosen485Device_SteveCommandData_t) )) {
-        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_DirectCommand2, ptPayload->deviceID);
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_ROSEN_SourceSet, ptPayload->deviceID);
     }
 }
 
@@ -230,7 +230,7 @@ void TCPBin_ROSENSourceGetCommand(int clientfd, char *payload, int32_t size)
                                  TCPRCBINDEVICE_ID,
                                  SERVICE_TCPBIN_REMOTECONTROL_ROSEN_SERVICE_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_SOURCE_GET_ID,
                                  (uint8_t *)ptPayload->data, sizeof(Rosen485Device_SteveCommandData_t) )) {
-        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_DirectCommand2, ptPayload->deviceID);
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_ROSEN_SourceGet, ptPayload->deviceID);
     }
 }
 
@@ -247,7 +247,7 @@ void TCPBin_ROSENDVDControlSetCommand(int clientfd, char *payload, int32_t size)
                                  TCPRCBINDEVICE_ID,
                                  SERVICE_TCPBIN_REMOTECONTROL_ROSEN_SERVICE_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_CONTROL_SET_ID,
                                  (uint8_t *)ptPayload->data, sizeof(Rosen485Device_SteveCommandData_t) )) {
-        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_DirectCommand2, ptPayload->deviceID);
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_ROSEN_DVDControlSet, ptPayload->deviceID);
     }
 }
 
@@ -261,7 +261,7 @@ void TCPBin_ROSENDVDPowerGetCommand(int clientfd, char *payload, int32_t size)
                                  TCPRCBINDEVICE_ID,
                                  SERVICE_TCPBIN_REMOTECONTROL_ROSEN_SERVICE_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_CONTROL_GET_ID,
                                  (uint8_t *)ptPayload->data, sizeof(Rosen485Device_SteveCommandData_t) )) {
-        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_DirectCommand2, ptPayload->deviceID);
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_ROSEN_DVDPowerGet, ptPayload->deviceID);
     }
 }
 
@@ -278,7 +278,7 @@ void TCPBin_ROSENDVDLoadedGetCommand(int clientfd, char *payload, int32_t size)
                                  TCPRCBINDEVICE_ID,
                                  SERVICE_TCPBIN_REMOTECONTROL_ROSEN_SERVICE_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_LOADED_GET_ID,
                                  (uint8_t *)ptPayload->data, sizeof(Rosen485Device_SteveCommandData_t) )) {
-        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_DirectCommand2, ptPayload->deviceID);
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_ROSEN_DVDLoadedGet, ptPayload->deviceID);
     }
 }
 
@@ -295,6 +295,24 @@ void TCPBin_ROSENDVDPlayingGetCommand(int clientfd, char *payload, int32_t size)
                                  TCPRCBINDEVICE_ID,
                                  SERVICE_TCPBIN_REMOTECONTROL_ROSEN_SERVICE_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_PLAYING_GET_ID,
                                  (uint8_t *)ptPayload->data, sizeof(Rosen485Device_SteveCommandData_t) )) {
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_ROSEN_DVDPlayingGet, ptPayload->deviceID);
+    }
+}
+
+/*****************************************************************************************************************
+ *
+ */
+
+void TCPBin_ROSENUDPSMSourceSetCommand(int clientfd, char *payload, int32_t size)
+{
+    TCP_CMD_ROSEN_genericCommand_payload_t *ptPayload = (TCP_CMD_ROSEN_genericCommand_payload_t *)payload;
+    if(!xDevice_sendCharDataMsg( ptPayload->deviceID,
+                                 APP_MSG_SERVICE_WRITE,
+                                 clientfd,
+                                 SERVICE_ROSEN_UDP_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_ROSEN_UDP_STEVE_COMMAND_SM_SOURCE_SET_ID,
+                                 TCPRCBINDEVICE_ID,
+                                 SERVICE_TCPBIN_REMOTECONTROL_ROSEN_SERVICE_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ROSEN_STEVE_COMMAND_DVD_PLAYING_GET_ID,
+                                 (uint8_t *)ptPayload->data, sizeof(RosenUDPDevice_SteveCommandData_t) )) {
         TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_DirectCommand2, ptPayload->deviceID);
     }
 }

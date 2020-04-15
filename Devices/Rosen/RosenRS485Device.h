@@ -274,8 +274,8 @@ typedef struct {
 }Rosen485Device_directCommandData_t;
 
 typedef struct {
-    uint8_t command;
     uint8_t address;
+    uint8_t command;
 }Rosen485Device_SteveCommandData_t;
 
 typedef struct {

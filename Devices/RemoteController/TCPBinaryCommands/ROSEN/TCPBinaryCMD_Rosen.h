@@ -64,8 +64,8 @@ __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_ROSEN_TCPBINARYCMD_ROSEN_EXT
 void TCPBin_ROSENDVDLoadedGetCommand(int clientfd, char *payload, int32_t size);
 __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_ROSEN_TCPBINARYCMD_ROSEN_EXT
 void TCPBin_ROSENDVDPlayingGetCommand(int clientfd, char *payload, int32_t size);
-
-
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_ROSEN_TCPBINARYCMD_ROSEN_EXT
+void TCPBin_ROSENUDPSMSourceSetCommand(int clientfd, char *payload, int32_t size);
 
 
 //*****************************************************************************

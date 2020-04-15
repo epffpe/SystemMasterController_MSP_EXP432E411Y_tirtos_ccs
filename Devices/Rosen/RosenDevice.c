@@ -32,6 +32,7 @@ extern void *TaskSelf();
 static void vRosenDevice_processApplicationMessage(device_msg_t *pMsg, UArg arg0, UArg arg1);
 static void vRosenDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1);
 static void vRosenDevice_CommandsClassService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1);
+static void vRosenDevice_SteveCommandsService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1);
 
 
 void vRosenDevice_close(DeviceList_Handler handle);
@@ -85,7 +86,7 @@ Void vRosenDevice_taskFxn(UArg arg0, UArg arg1)
 
         if (events & DEVICE_PERIODIC_EVT) {
             events &= ~DEVICE_PERIODIC_EVT;
-            vRosenDevice_ALTOEmulatorClassService_ValueChangeHandler(NULL, NULL, NULL);
+//            vRosenDevice_SteveCommandsService_ValueChangeHandler(NULL, NULL, NULL);
         }
 
         if (events & DEVICE_APP_KILL_EVT) {
@@ -237,7 +238,10 @@ DeviceList_Handler hRosenDevice_open(DeviceList_Handler handle, void *params)
 
 
 
-
+/* =================================================================================
+ * =================================================================================
+ *
+ */
 
 
 
@@ -252,15 +256,19 @@ static void vRosenDevice_processApplicationMessage(device_msg_t *pMsg, UArg arg0
   case APP_MSG_SERVICE_WRITE: /* Message about received value write */
       /* Call different handler per service */
       switch(pCharData->svcUUID) {
-      case SERVICE_ROSEN_ALTO_EMULATOR_UUID:
-          switch (pCharData->paramID) {
-          case CHARACTERISTIC_SERVICE_ROSEN_ALTO_EMULATOR_DIRECT_COMMAND_ID:
+      case SERVICE_ROSEN_UDP_ALTO_EMULATOR_UUID:
+//          switch (pCharData->paramID) {
+//          case CHARACTERISTIC_SERVICE_ROSEN_UDP_ALTO_EMULATOR_DIRECT_COMMAND_ID:
               vRosenDevice_ALTOEmulatorClassService_ValueChangeHandler(pCharData, arg0, arg1);
-              break;
-          default:
-              break;
-          }
+//              break;
+//          default:
+//              break;
+//          }
           break;
+      case SERVICE_ROSEN_UDP_STEVE_COMMANDS_UUID:
+          vRosenDevice_SteveCommandsService_ValueChangeHandler(pCharData, arg0, arg1);
+          break;
+
       default:
           break;
       }
@@ -323,7 +331,7 @@ static void vRosenDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t
     memset(&clientAddr, 0, sizeof(clientAddr));
     clientAddr.sin_family = AF_INET;
     clientAddr.sin_addr.s_addr = htonl(0xC0A8032A);
-    clientAddr.sin_port = htons(7399);
+    clientAddr.sin_port = htons(ROSEN_UDP_PORT);
 
 //    n = sprintf(buf, "System Master Controller ID: %06d", pManufacturerInformation->unitSerialNumber);
 //
@@ -407,6 +415,100 @@ static void vRosenDevice_ALTOEmulatorClassService_ValueChangeHandler(char_data_t
 shutdown:
     if (sockfd != -1) {
         close(sockfd);
+    }
+}
+
+static void vRosenDevice_SteveCommandsService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1)
+{
+    int sockfd;
+    int bytesRcvd;
+    int bytesSent;
+    int status;
+    int n;
+//    fd_set             readSet, write_fds;
+//    struct sockaddr_in localAddr;
+    struct sockaddr_in clientAddr;
+    socklen_t          addrlen;
+    RosenUDPDevice_SteveCommandData_t *pCmdData;
+
+    uint32_t IPTmp;
+
+    uint32_t myDeviceID;
+    DeviceList_Handler devHandle;
+    struct sockaddr_in servaddr;
+
+    char buffer[ROSEN_MAX_PACKET_SIZE];
+
+    ASSERT(pCharData != NULL);
+    ASSERT(arg1 != NULL);
+
+    if (pCharData == NULL) {
+        return;
+    }
+    if (arg1 == NULL) {
+        return;
+    }
+
+    if(pCharData->dataLen == sizeof(RosenUDPDevice_SteveCommandData_t)) {
+
+        devHandle = (DeviceList_Handler)arg1;
+        myDeviceID = devHandle->deviceID;
+
+        pCmdData = (RosenUDPDevice_SteveCommandData_t *)pCharData->data;
+
+        if ((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+            Display_printf(g_SMCDisplay, 0, 0, "Error: socket not created.\n");
+            goto shutdown;
+        }
+
+        memset(&clientAddr, 0, sizeof(clientAddr));
+        clientAddr.sin_family = AF_INET;
+        //    clientAddr.sin_addr.s_addr = htonl(pCmdData->ui32IPAddress);
+        clientAddr.sin_addr.s_addr = htonl(0xC0A8032A);
+        clientAddr.sin_port = htons(ROSEN_UDP_PORT);
+
+
+
+        switch (pCharData->paramID) {
+        case CHARACTERISTIC_SERVICE_ROSENRS485DEVICE_STEVE_COMMAND_POWER_SET_ID:
+            switch(pCmdData->ui8Value) {
+            case 0:
+                n = sprintf(buffer, "launch_app -n com.rosen.rosenplayer/.MainActivity -e SDI1");
+                break;
+            case 1:
+                n = sprintf(buffer, "launch_app -n com.rosen.rosenplayer/.MainActivity -e SDI2");
+                break;
+            case 2:
+                n = sprintf(buffer, "launch_app -n com.rosen.rosenplayer/.MainActivity -e HDMI");
+                break;
+            case 3:
+                n = sprintf(buffer, "launch_app -n com.rosen.rosenplayer/.MainActivity -e COMPOSITE");
+                break;
+            default:
+                n = 0;
+                break;
+            }
+
+            addrlen = sizeof(clientAddr);
+
+            bytesSent = sendto(sockfd, buffer, n, 0, (struct sockaddr *)&clientAddr, addrlen);
+
+            if(bytesSent != n){
+                Display_printf(g_SMCDisplay, 0, 0, "Error: sendto failed.\n");
+                //                        System_printf("Error: udp sendto failed.\n");
+                //                        System_flush();
+
+            }
+            break;
+            default:
+                break;
+        }
+
+
+        shutdown:
+        if (sockfd != -1) {
+            close(sockfd);
+        }
     }
 }
 
