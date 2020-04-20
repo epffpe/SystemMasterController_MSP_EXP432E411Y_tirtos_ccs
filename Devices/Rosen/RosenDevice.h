@@ -48,6 +48,11 @@ typedef struct {
 }RosenUDPDevice_SteveCommandData_t;
 
 
+typedef struct MsgObj {
+    Int     id;
+    Char    val;
+} RosenUDPDevice_UDPMsgObj;
+
 
 #ifdef  __DEVICES_ROSEN_ROSENDEVICE_GLOBAL
     #define __DEVICES_ROSEN_ROSENDEVICE_EXT
