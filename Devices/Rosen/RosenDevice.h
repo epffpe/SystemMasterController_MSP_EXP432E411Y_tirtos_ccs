@@ -20,6 +20,13 @@
 
 #define ROSEN_UDP_PORT                  7399
 
+#define ROSEN_UDP_NUMMSGS               2
+
+#ifndef ROSEN_UDP_CMDLINE_MAX_ARGS
+#define ROSEN_UDP_CMDLINE_MAX_ARGS        4
+#endif
+
+
 typedef enum
 {
     SERVICE_ROSEN_UDP_ALTO_EMULATOR_UUID = 0x0101,
@@ -48,10 +55,28 @@ typedef struct {
 }RosenUDPDevice_SteveCommandData_t;
 
 
-typedef struct MsgObj {
+
+
+
+
+typedef struct RosenUDPDevice_MsgObj {
     Int     id;
     Char    val;
-} RosenUDPDevice_UDPMsgObj;
+} RosenUDPDevice_MsgObj;
+
+/*
+ * Mailbox messages are stored in a queue that requires a header in front of
+ * each message. Mailbox_MbxElem is defined such that the header and its size
+ * are factored into the total data size requirement for a mailbox instance.
+ * Because Mailbox_MbxElem contains Int data types, padding may be added to
+ * this struct depending on the data members defined in MsgObj.
+ */
+typedef struct RosenUDPDevice_MailboxMsgObj {
+    Mailbox_MbxElem         elem;      /* Mailbox header        */
+    RosenUDPDevice_MsgObj   obj;       /* Application's mailbox */
+} RosenUDPDevice_MailboxMsgObj;
+
+
 
 
 #ifdef  __DEVICES_ROSEN_ROSENDEVICE_GLOBAL
