@@ -97,14 +97,14 @@ Void vRosenDevice_taskFxn(UArg arg0, UArg arg1)
         if (events & DEVICE_PERIODIC_EVT) {
             events &= ~DEVICE_PERIODIC_EVT;
 
-            char bufChar[sizeof(char_data_t) + sizeof(RosenUDPDevice_SteveCommandData_t)];
-            char_data_t *pCharData = (char_data_t *)bufChar;
-            pCharData->dataLen = sizeof(RosenUDPDevice_SteveCommandData_t);
-            pCharData->paramID = CHARACTERISTIC_SERVICE_ROSEN_UDP_STEVE_COMMAND_SM_SOURCE_GET_ID;
-
-            RosenUDPDevice_SteveCommandData_t *pCmdData = (RosenUDPDevice_SteveCommandData_t *)pCharData->data;
-            pCmdData->ui32IPAddress = 0xC0A8031B;
-            vRosenDevice_SteveCommandsService_ValueChangeHandler((char_data_t *)bufChar, arg0, arg1);
+//            char bufChar[sizeof(char_data_t) + sizeof(RosenUDPDevice_SteveCommandData_t)];
+//            char_data_t *pCharData = (char_data_t *)bufChar;
+//            pCharData->dataLen = sizeof(RosenUDPDevice_SteveCommandData_t);
+//            pCharData->paramID = CHARACTERISTIC_SERVICE_ROSEN_UDP_STEVE_COMMAND_SM_SOURCE_GET_ID;
+//
+//            RosenUDPDevice_SteveCommandData_t *pCmdData = (RosenUDPDevice_SteveCommandData_t *)pCharData->data;
+//            pCmdData->ui32IPAddress = 0xC0A8031B;
+//            vRosenDevice_SteveCommandsService_ValueChangeHandler((char_data_t *)bufChar, arg0, arg1);
         }
 
         if (events & DEVICE_APP_KILL_EVT) {
@@ -564,12 +564,23 @@ static void vRosenDevice_SteveCommandsService_ValueChangeHandler(char_data_t *pC
             taskParams.arg1 = (UArg)mbxHandle;
             taskHandle = Task_create((Task_FuncPtr)vRosenDevice_UDPRxtaskFxn, &taskParams, &eb);
 
-//            Task_sleep((unsigned int)50);
             RosenUDPDevice_MsgObj msg;
-            Bool isRetValid;
-            isRetValid = Mailbox_pend(mbxHandle, &msg, BIOS_WAIT_FOREVER);
 
-            if (isRetValid) {
+//            Task_sleep((unsigned int)50);
+//            Bool isRetValid;
+//            isRetValid = Mailbox_pend(mbxHandle, &msg, ROSEN_UDP_TIMEOUT);
+
+            if (Mailbox_pend(mbxHandle, &msg, ROSEN_UDP_TIMEOUT)) {
+                RosenUDPDevice_SteveCommandData_t steveResponseData;
+                steveResponseData.ui32IPAddress = msg.id;
+                steveResponseData.ui8Value = msg.val;
+                vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                         APP_MSG_SERVICE_WRITE,
+                                         pCharData->connHandle,
+                                         pCharData->retSvcUUID, pCharData->retParamID,
+                                         myDeviceID,
+                                         SERVICE_ROSEN_UDP_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_ROSEN_UDP_STEVE_COMMAND_SM_SOURCE_GET_ID,
+                                         (uint8_t *)&steveResponseData, sizeof(RosenUDPDevice_SteveCommandData_t));
 
             }
 
@@ -637,8 +648,8 @@ Void vRosenDevice_UDPRxtaskFxn(UArg arg0, UArg arg1)
         if (xRosenDevice_udpCmdLineProcessTCP(buffer, ppcRosenDevice_UDPArgv, &ui8Argc) > 2) {
 
             RosenUDPDevice_MsgObj msg;
-            msg.id = 1;
-            msg.val = *ppcRosenDevice_UDPArgv[2];
+            msg.id = ntohl(serverAddr.sin_addr.s_addr);
+            msg.val = *ppcRosenDevice_UDPArgv[2] - '0';
 
             if (Mailbox_post(mbxHandle, &msg, BIOS_NO_WAIT)) {
                 System_printf("Mailbox Write: ID = %d and Value = '%c'.\n",

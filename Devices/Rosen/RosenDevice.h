@@ -19,7 +19,8 @@
 
 
 #define ROSEN_UDP_PORT                  7399
-
+//BIOS_WAIT_FOREVER
+#define ROSEN_UDP_TIMEOUT               100
 #define ROSEN_UDP_NUMMSGS               2
 
 #ifndef ROSEN_UDP_CMDLINE_MAX_ARGS
@@ -60,8 +61,8 @@ typedef struct {
 
 
 typedef struct RosenUDPDevice_MsgObj {
-    Int     id;
-    Char    val;
+    uint32_t    id;
+    uint8_t     val;
 } RosenUDPDevice_MsgObj;
 
 /*
