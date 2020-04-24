@@ -109,6 +109,7 @@
 
 #include <ti/drivers/CAN.h>
 #include <ti/drivers/GPIO.h>
+#include <ti/drivers/CRC.h>
 //#include <ti/drivers/gpio/GPIOMSP432E4.h>
 #include <ti/drivers/ADCBuf.h>
  #include <ti/drivers/I2C.h>
@@ -259,6 +260,7 @@
 #include "Devices/GenericDevice/DUTTest/DUTUartTestDevice.h"
 
 #include "Devices/AVDS/AVDSDevice.h"
+#include "Devices/AVDS/AVDSRS485Device.h"
 #include "Devices/Rosen/RosenDevice.h"
 #include "Devices/Rosen/RosenRS485Device.h"
 

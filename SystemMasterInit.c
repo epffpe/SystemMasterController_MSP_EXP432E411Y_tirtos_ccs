@@ -41,6 +41,7 @@ extern void ti_ndk_config_Global_startupFxn();
 void vDiscreteIO_init();
 void vHeartBeat_init();
 void test();
+void vTest_CRC() ;
 
 extern void pvPPPCU_inputLineIntHandler(uint_least8_t index);
 //extern void test2();
@@ -140,6 +141,7 @@ void *SMC_initThread(void *arg0)
     UART_init();
     CAN_init();
     // Watchdog_init();
+    CRC_init();
 
 #if !(defined(TEST_FIXTURE) || defined(DUT))
 //    SMCDisplay_init();
@@ -190,6 +192,7 @@ void *SMC_initThread(void *arg0)
 
     //    test4();
 //    test2();
+//    vTest_CRC();
 #if defined(TEST_FIXTURE) || defined(DUT)
     vCANTest_init();
 #endif
@@ -211,6 +214,10 @@ void *SMC_initThread(void *arg0)
     xDevice_add(&deviceParams, &eb);
 
     vRosenDevice_Params_init(&deviceParams, 304);
+    xDevice_add(&deviceParams, &eb);
+
+    vAVDS485Device_Params_init(&deviceParams, 305);
+    deviceParams.arg0 = (void *)IF_SERIAL_5;
     xDevice_add(&deviceParams, &eb);
 
 #ifdef TEST_FIXTURE
@@ -478,5 +485,116 @@ void test()
         usleep(time);
     }
 }
+
+
+
+
+/* Expected CRC for CRC_32_IEEE with full endianness reversal */
+static const uint32_t expectedCrc = 0x4C4B4461;
+
+/* Example test vector */
+static const size_t srcSize = 32;
+static const uint8_t src [] = {
+    0x12, 0x34, 0x56, 0x78, 0x12, 0x34, 0x56, 0x78,
+    0x12, 0x34, 0x56, 0x78, 0x12, 0x34, 0x56, 0x78,
+    0x12, 0x34, 0x56, 0x78, 0x12, 0x34, 0x56, 0x78,
+    0x12, 0x34, 0x56, 0x78, 0x12, 0x34, 0x56, 0x78
+};
+
+
+
+void vTest_CRC()
+{
+    CRC_Handle handle;
+    CRC_Params params;
+    int_fast16_t status;
+    uint32_t result;
+
+    /* Set data processing options, including endianness control */
+    CRC_Params_init(&params);
+    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+    params.returnBehavior = CRC_RETURN_BEHAVIOR_BLOCKING;
+    params.polynomial = CRC_POLYNOMIAL_CRC_32_IEEE;
+    params.dataSize = CRC_DATA_SIZE_32BIT;
+    params.seed = 0xFFFFFFFF;
+
+    /* Open the driver using the settings above */
+    handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
+    if (handle == NULL)
+    {
+        /* If the handle is already open, execution will stop here */
+        while(1);
+    }
+
+    /* Calculate the CRC of all 32 bytes in the source array */
+    status = CRC_calculateFull(handle, src, srcSize, &result);
+    if (status != CRC_STATUS_SUCCESS || result != expectedCrc)
+    {
+        /* If the CRC engine is busy or if an error occurs execution will stop here */
+        while(1);
+    }
+
+    /* This is another way of achieving the same result; for instance
+     * if data is arriving in blocks (over UART) this method may be preferable.
+     * CRC_reset() may be used to clear an ongoing partial if the result is no
+     * longer needed. CRC_finalise() also resets the state. */
+    status = CRC_addData(handle, src, srcSize/2);
+    if (status != CRC_STATUS_SUCCESS)
+    {
+        /* If the CRC engine is busy or if an error occurs execution will stop here */
+        while(1);
+    }
+
+    status = CRC_addData(handle, &src[srcSize/2], srcSize/2);
+
+    /* Extract the result from the internal state */
+    CRC_finalize(handle, &result);
+
+    if (status != CRC_STATUS_SUCCESS || result != expectedCrc)
+    {
+        /* If the CRC engine is busy or if an error occurs execution will stop here */
+        while(1);
+    }
+
+//    UART_write(uart, postOpMessage, sizeof(postOpMessage));
+
+    /* Close the driver to allow other users to access this driver instance */
+    CRC_close(handle);
+
+
+
+    /* Set data processing options, including endianness control */
+    CRC_Params_init(&params);
+    params.polynomial = CRC_POLYNOMIAL_CRC_16_CCITT;
+    params.dataSize = CRC_DATA_SIZE_8BIT;
+    params.seed = 0xFFFF;
+    params.byteSwapInput = CRC_BYTESWAP_UNCHANGED;
+//    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+
+    /* Open the driver using the settings above */
+    handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
+    if (handle == NULL)
+    {
+        /* If the handle is already open, execution will stop here */
+        while(1);
+    }
+
+    char buff[] = "1234";
+
+    result = 0;
+    /* Calculate the CRC of all 32 bytes in the source array */
+    status = CRC_calculateFull(handle, buff, 4, &result);
+    if (status != CRC_STATUS_SUCCESS)
+    {
+        /* If the CRC engine is busy or if an error occurs execution will stop here */
+        while(1);
+    }
+
+
+    /* Close the driver to allow other users to access this driver instance */
+    CRC_close(handle);
+}
+
+
 
 

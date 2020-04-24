@@ -643,13 +643,13 @@ Void vRosenDevice_UDPRxtaskFxn(UArg arg0, UArg arg1)
     if (bytesRcvd > 0) {
 
         buffer[bytesRcvd] = 0;
-        sprintf(buffer, "OKAY get_rosen_state.video_player.source 1");
+//        sprintf(buffer, "OKAY get_rosen_state.video_player.source 1");
         ui8Argc = ROSEN_UDP_CMDLINE_MAX_ARGS;
         if (xRosenDevice_udpCmdLineProcessTCP(buffer, ppcRosenDevice_UDPArgv, &ui8Argc) > 2) {
 
             RosenUDPDevice_MsgObj msg;
             msg.id = ntohl(serverAddr.sin_addr.s_addr);
-            msg.val = *ppcRosenDevice_UDPArgv[2] - '0';
+            msg.val = *ppcRosenDevice_UDPArgv[3] - '0';
 
             if (Mailbox_post(mbxHandle, &msg, BIOS_NO_WAIT)) {
                 System_printf("Mailbox Write: ID = %d and Value = '%c'.\n",

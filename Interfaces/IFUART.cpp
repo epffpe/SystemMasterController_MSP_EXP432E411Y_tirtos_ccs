@@ -294,6 +294,18 @@ bool bIFUART_transfer(IF_Handle handle, IF_Transaction *transaction)
                         ret = false;
                     }
                     break;
+                case IF_TRANSACTION_RX_PROTOCOL_AVDS485:
+                    if (transaction->readCount >= 2) {
+                        ui32retValue = xIFUART_receiveData(handle,
+                                                           (char *)transaction->readBuf,
+                                                           transaction->readCount,
+                                                           transaction->readTimeout);
+                        if (ui32retValue != transaction->readCount) ret = false;
+                        transaction->readCount = ui32retValue;
+                    }else {
+                        ret = false;
+                    }
+                    break;
                 default:
                     break;
                 }
