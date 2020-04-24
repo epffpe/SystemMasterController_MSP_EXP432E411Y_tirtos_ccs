@@ -402,10 +402,21 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
         cmdData = 0x22;
         ifTransaction.writeBuf = pCmdBuffer;
         ifTransaction.readBuf = pRxBuffer;
-        ifTransaction.readCount = 8+5;
+        ifTransaction.readCount = 6+5;
         int n = xAVDS485Device_createMsgFrame(pCmdBuffer, &cmdData, 1);
+
+        pCmdBuffer[0] = 0xAA;
+        pCmdBuffer[1] = 0x55;
+        pCmdBuffer[2] = 0x00;
+        pCmdBuffer[3] = 0x01;
+        pCmdBuffer[4] = 0x22;
+        pCmdBuffer[5] = 0xE5;
+        pCmdBuffer[6] = 0xD0;
+
         if ( n > 0) {
             ifTransaction.writeCount = n;
+            ifTransaction.writeCount = 7;
+            ifTransaction.readCount = 11;
             transferOk = bIF_transfer(ifHandle, &ifTransaction);
             if (transferOk) {
 
@@ -474,7 +485,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
 
 int xAVDS485Device_createMsgFrame(char *pCmdBuffer, char *pCmdData, uint32_t packetLength)
 {
-    uint32_t *pui32PacketLength;
+    uint16_t *pui16PacketLength;
     uint8_t *pui8Crc;
     CRC_Handle handle;
     CRC_Params params;
@@ -483,9 +494,9 @@ int xAVDS485Device_createMsgFrame(char *pCmdBuffer, char *pCmdData, uint32_t pac
 
     pCmdBuffer[0] = 0xAA;
     pCmdBuffer[1] = 0x55;
-    pui32PacketLength =  (uint32_t *)&pCmdBuffer[2];
-    *pui32PacketLength++ = packetLength;
-    memcpy(pui32PacketLength, pCmdData, packetLength);
+    pui16PacketLength =  (uint16_t *)&pCmdBuffer[2];
+    *pui16PacketLength++ = packetLength;
+    memcpy(pui16PacketLength, pCmdData, packetLength);
 
     /* Set data processing options, including endianness control */
     CRC_Params_init(&params);
@@ -505,7 +516,7 @@ int xAVDS485Device_createMsgFrame(char *pCmdBuffer, char *pCmdData, uint32_t pac
 
     result = 0;
     /* Calculate the CRC of all 32 bytes in the source array */
-    status = CRC_calculateFull(handle, pCmdData, 4, &result);
+    status = CRC_calculateFull(handle, pCmdData, packetLength, &result);
     if (status != CRC_STATUS_SUCCESS)
     {
         CRC_close(handle);
@@ -515,7 +526,7 @@ int xAVDS485Device_createMsgFrame(char *pCmdBuffer, char *pCmdData, uint32_t pac
     /* Close the driver to allow other users to access this driver instance */
     CRC_close(handle);
 
-    pui8Crc = (uint8_t *)pui32PacketLength + packetLength;
+    pui8Crc = (uint8_t *)pui16PacketLength + packetLength;
     *pui8Crc++ = result & 0xFF;
     *pui8Crc = (result >> 8) & 0xFF;
 

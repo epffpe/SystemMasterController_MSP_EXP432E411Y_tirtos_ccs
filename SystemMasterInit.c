@@ -197,7 +197,7 @@ void *SMC_initThread(void *arg0)
     vCANTest_init();
 #endif
 
-//    DOSet(DIO_UART_DEBUG);
+    DOSet(DIO_UART_DEBUG, 0);
     DOSet(DIO_SERIAL5_EN_, 1);
 
     Error_init(&eb);
