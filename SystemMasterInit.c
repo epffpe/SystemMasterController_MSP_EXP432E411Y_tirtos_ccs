@@ -128,6 +128,7 @@ void *mainThread(void *arg0)
 
 
 
+
 void *SMC_initThread(void *arg0)
 {
     Error_Block eb;
