@@ -12,7 +12,7 @@
 #include "includes.h"
 
 
-
+static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle);
 static void vAVDS485Device_processApplicationMessage(device_msg_t *pMsg, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff);
 //static void vAVDS485Device_ALTOEmulatorClassService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff);
 static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff);
@@ -25,8 +25,9 @@ void vAVDS485Device_close(DeviceList_Handler handle);
 DeviceList_Handler hAVDS485Device_open(DeviceList_Handler handle, void *params);
 
 
-int xAVDS485Device_createMsgFrame(char *pCmdBuffer, char *pCmdData, uint32_t packetLength);
-
+int xAVDS485Device_createMsgFrameWithCRC(char *pCmdBuffer, char *pCmdData, uint32_t packetLength);
+int16_t xAVDS485Device_CRC_calculateFull(const void *pSource, size_t sourceBytes, uint16_t *pui16Result);
+void vAVDS485Device_InitWrapper(AVDS485Device_Command_Wrapper *pWrapper, uint16_t length);
 
 
 const Device_FxnTable g_AVDS485Device_fxnTable =
@@ -78,6 +79,11 @@ Void vAVDS485Device_taskFxn(UArg arg0, UArg arg1)
 
     Display_printf(g_SMCDisplay, 0, 0, "AVDS DeviceId (%d) started\n", myDeviceID);
 
+    if ((uint32_t)arg0 == IF_SERIAL_5) {
+        DOSet(DIO_UART_DEBUG, 0);
+        DOSet(DIO_SERIAL5_EN_, 1);
+    }
+
     vIF_Params_init(&params, IF_Params_Type_Uart);
     params.uartParams.writeDataMode = UART_DATA_BINARY;
     params.uartParams.readDataMode = UART_DATA_BINARY;
@@ -104,6 +110,8 @@ Void vAVDS485Device_taskFxn(UArg arg0, UArg arg1)
 
     /* Make sure Error_Block is initialized */
     Error_init(&eb);
+
+    vAVDS485Device_InitializeCommunication(ifHandle);
 
     while(1) {
         events = Event_pend(eventHandle, Event_Id_NONE, DEVICE_ALL_EVENTS, 100); //BIOS_WAIT_FOREVER
@@ -264,10 +272,70 @@ DeviceList_Handler hAVDS485Device_open(DeviceList_Handler handle, void *params)
     return handle;
 }
 
+/*
+ * This should be the first command written to the AVDS after a reset or offline event.
+ * The AVDS will not respond to any command until it has received the Initialize Communication command.
+ * This guarantees that the control system will detect any offline event that occurs.
+ */
 
 
+static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle)
+{
+    IF_Transaction ifTransaction;
+    bool transferOk;
+
+    AVDS485Device_Command_Initialize_Communication cmdTx;
+    AVDS485Device_Command_Initialize_Communication_Response cmdRx;
+    char pCmdBuffer[16];
+    char pRxBuffer[16];
+    char cmdData;
+
+    ASSERT(ptsCmdBuf != NULL);
+
+    if(ifHandle == NULL) {
+        return;
+    }
 
 
+    /*
+     * Prepare the transfer
+     */
+    memset(&ifTransaction, 0, sizeof(IF_Transaction));
+    ifTransaction.readCount = sizeof(AVDS485Device_Command_Initialize_Communication_Response);
+    ifTransaction.readBuf = &cmdRx;
+    ifTransaction.readTimeout = 30;
+    ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_AVDS485;
+    ifTransaction.writeBuf = &cmdTx;
+    ifTransaction.writeCount = sizeof(AVDS485Device_Command_Initialize_Communication);
+    ifTransaction.writeTimeout = BIOS_WAIT_FOREVER;
+    ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
+
+
+//    int n = xAVDS485Device_createMsgFrameWithCRC(pCmdBuffer, &cmdData, 1);
+
+//    pCmdBuffer[0] = 0xAA;
+//    pCmdBuffer[1] = 0x55;
+//    pCmdBuffer[2] = 0x00;
+//    pCmdBuffer[3] = 0x01;
+//    pCmdBuffer[4] = 0x22;
+//    pCmdBuffer[5] = 0xE5;
+//    pCmdBuffer[6] = 0xD0;
+    vAVDS485Device_InitWrapper(&cmdTx.wrapper, 1);
+    cmdTx.command = 0x22;
+
+    uint16_t crc;
+    xAVDS485Device_CRC_calculateFull(&cmdTx.command, 1, &crc);
+    cmdTx.crc = htons(crc);
+
+//    if ( n > 0) {
+//        ifTransaction.writeCount = n;
+//        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+//        if (transferOk) {
+//
+//        }
+//    }
+
+}
 
 
 
@@ -347,6 +415,8 @@ static void vAVDS485Device_processApplicationMessage(device_msg_t *pMsg, UArg ar
 //}
 
 
+
+
 static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff)
 {
     uint32_t myDeviceID;
@@ -403,20 +473,22 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
         ifTransaction.writeBuf = pCmdBuffer;
         ifTransaction.readBuf = pRxBuffer;
         ifTransaction.readCount = 6+5;
-        int n = xAVDS485Device_createMsgFrame(pCmdBuffer, &cmdData, 1);
+        int n = xAVDS485Device_createMsgFrameWithCRC(pCmdBuffer, &cmdData, 1);
 
         pCmdBuffer[0] = 0xAA;
         pCmdBuffer[1] = 0x55;
         pCmdBuffer[2] = 0x00;
         pCmdBuffer[3] = 0x01;
         pCmdBuffer[4] = 0x22;
-        pCmdBuffer[5] = 0xE5;
-        pCmdBuffer[6] = 0xD0;
+//        pCmdBuffer[5] = 0xE5;
+//        pCmdBuffer[6] = 0xD0;
+
+        int16_t crc;
+        xAVDS485Device_CRC_calculateFull(&pCmdBuffer[4], 1, &crc);
+        crc = htons(crc);
 
         if ( n > 0) {
             ifTransaction.writeCount = n;
-            ifTransaction.writeCount = 7;
-            ifTransaction.readCount = 11;
             transferOk = bIF_transfer(ifHandle, &ifTransaction);
             if (transferOk) {
 
@@ -483,7 +555,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
 //    return xAVDS485Device_createMsgFrame(ptsCmdBuf, AVDS_Header_Single_BlueRay_DVD, command, address);
 //}
 
-int xAVDS485Device_createMsgFrame(char *pCmdBuffer, char *pCmdData, uint32_t packetLength)
+int xAVDS485Device_createMsgFrameWithCRC(char *pCmdBuffer, char *pCmdData, uint32_t packetLength)
 {
     uint16_t *pui16PacketLength;
     uint8_t *pui8Crc;
@@ -495,7 +567,7 @@ int xAVDS485Device_createMsgFrame(char *pCmdBuffer, char *pCmdData, uint32_t pac
     pCmdBuffer[0] = 0xAA;
     pCmdBuffer[1] = 0x55;
     pui16PacketLength =  (uint16_t *)&pCmdBuffer[2];
-    *pui16PacketLength++ = packetLength;
+    *pui16PacketLength++ = htons(packetLength);
     memcpy(pui16PacketLength, pCmdData, packetLength);
 
     /* Set data processing options, including endianness control */
@@ -527,9 +599,57 @@ int xAVDS485Device_createMsgFrame(char *pCmdBuffer, char *pCmdData, uint32_t pac
     CRC_close(handle);
 
     pui8Crc = (uint8_t *)pui16PacketLength + packetLength;
-    *pui8Crc++ = result & 0xFF;
-    *pui8Crc = (result >> 8) & 0xFF;
+    pui8Crc[1] = result & 0xFF;
+    pui8Crc[0] = (result >> 8) & 0xFF;
 
-    return (8+packetLength);
+    return (6+packetLength);
 }
 
+int16_t xAVDS485Device_CRC_calculateFull(const void *pSource, size_t sourceBytes, uint16_t *pui16Result)
+{
+    uint16_t *pui16PacketLength;
+    CRC_Handle handle;
+    CRC_Params params;
+    int_fast16_t status;
+    uint32_t result;
+
+
+    /* Set data processing options, including endianness control */
+    CRC_Params_init(&params);
+    params.polynomial = CRC_POLYNOMIAL_CRC_16_CCITT;
+    params.dataSize = CRC_DATA_SIZE_8BIT;
+    params.seed = 0xFFFF;
+    params.byteSwapInput = CRC_BYTESWAP_UNCHANGED;
+//    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+
+    /* Open the driver using the settings above */
+    handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
+    if (handle == NULL)
+    {
+        /* If the handle is already open, execution will stop here */
+        return CRC_STATUS_RESOURCE_UNAVAILABLE;
+    }
+
+    result = 0;
+    /* Calculate the CRC of all 32 bytes in the source array */
+    status = CRC_calculateFull(handle, pSource, sourceBytes, &result);
+    if (status != CRC_STATUS_SUCCESS)
+    {
+        CRC_close(handle);
+        /* If the CRC engine is busy or if an error occurs execution will stop here */
+        return status;
+    }
+    /* Close the driver to allow other users to access this driver instance */
+    CRC_close(handle);
+
+    *pui16Result = (uint16_t) (result & 0x0000FFFF);
+    return status;
+}
+
+
+void vAVDS485Device_InitWrapper(AVDS485Device_Command_Wrapper *pWrapper, uint16_t length)
+{
+    pWrapper->preamble1 = 0xAA;
+    pWrapper->preamble2 = 0x55;
+    pWrapper->packetLength = htons(length);
+}

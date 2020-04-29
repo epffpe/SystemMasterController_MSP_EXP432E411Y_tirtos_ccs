@@ -32,6 +32,30 @@ typedef enum
 
 
 
+/*
+ * Preamble 1 (0xAA)
+ * Preamble 2 (0x55)
+ */
+typedef struct {
+    uint8_t     preamble1;
+    uint8_t     preamble2;
+    uint16_t    packetLength;
+}AVDS485Device_Command_Wrapper;
+
+typedef struct __attribute__ ((__packed__)) {
+    AVDS485Device_Command_Wrapper   wrapper;
+    uint8_t                         command;
+    uint16_t                        crc;
+}AVDS485Device_Command_Initialize_Communication;
+
+typedef struct __attribute__ ((__packed__)) {
+    AVDS485Device_Command_Wrapper   wrapper;
+    uint8_t                         command;
+    uint32_t                        result;
+    uint16_t                        crc;
+}AVDS485Device_Command_Initialize_Communication_Response;
+
+
 
 #ifdef  __DEVICES_AVDS_AVDSRS485DEVICE_GLOBAL
     #define __DEVICES_AVDS_AVDSRS485DEVICE_EXT
