@@ -286,11 +286,8 @@ static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle)
 
     AVDS485Device_Command_Initialize_Communication cmdTx;
     AVDS485Device_Command_Initialize_Communication_Response cmdRx;
-    char pCmdBuffer[16];
-    char pRxBuffer[16];
-    char cmdData;
 
-    ASSERT(ptsCmdBuf != NULL);
+    ASSERT(ifHandle != NULL);
 
     if(ifHandle == NULL) {
         return;
@@ -311,15 +308,6 @@ static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle)
     ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
 
 
-//    int n = xAVDS485Device_createMsgFrameWithCRC(pCmdBuffer, &cmdData, 1);
-
-//    pCmdBuffer[0] = 0xAA;
-//    pCmdBuffer[1] = 0x55;
-//    pCmdBuffer[2] = 0x00;
-//    pCmdBuffer[3] = 0x01;
-//    pCmdBuffer[4] = 0x22;
-//    pCmdBuffer[5] = 0xE5;
-//    pCmdBuffer[6] = 0xD0;
     vAVDS485Device_InitWrapper(&cmdTx.wrapper, 1);
     cmdTx.command = 0x22;
 
@@ -327,13 +315,11 @@ static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle)
     xAVDS485Device_CRC_calculateFull(&cmdTx.command, 1, &crc);
     cmdTx.crc = htons(crc);
 
-//    if ( n > 0) {
-//        ifTransaction.writeCount = n;
-//        transferOk = bIF_transfer(ifHandle, &ifTransaction);
-//        if (transferOk) {
-//
-//        }
-//    }
+
+    transferOk = bIF_transfer(ifHandle, &ifTransaction);
+    if (transferOk) {
+
+    }
 
 }
 
