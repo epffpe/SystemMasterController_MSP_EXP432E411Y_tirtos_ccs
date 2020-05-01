@@ -29,7 +29,10 @@ int xAVDS485Device_createMsgFrameWithCRC(char *pCmdBuffer, char *pCmdData, uint3
 int16_t xAVDS485Device_CRC_calculateFull(const void *pSource, size_t sourceBytes, uint16_t *pui16Result);
 void vAVDS485Device_InitWrapper(AVDS485Device_Command_Wrapper *pWrapper, uint16_t length);
 void vAVDS485Device_cmdFrameInitialezeComunications(AVDS485Device_Command_Initialize_Communication *pCmd);
-
+void vAVDS485Device_cmdFrameSetChannel(AVDS485Device_Command_set_channel *pCmd,
+                                       uint16_t outputChannel,
+                                       uint16_t audioInputChannel,
+                                       uint16_t videoInputChannel);
 
 const Device_FxnTable g_AVDS485Device_fxnTable =
 {
@@ -348,11 +351,11 @@ static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle)
 //        }
 
         status = CRC_addData(handle, &cmdRx.command, 1);
-        if (status != CRC_STATUS_SUCCESS)
-        {
-            /* If the CRC engine is busy or if an error occurs execution will stop here */
-            while(1);
-        }
+//        if (status != CRC_STATUS_SUCCESS)
+//        {
+//            /* If the CRC engine is busy or if an error occurs execution will stop here */
+//            while(1);
+//        }
 
 //        cmdRx.result = ntohl(cmdRx.result);
         status = CRC_addData(handle, &cmdRx.result, 4);
@@ -363,9 +366,12 @@ static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle)
         /* Close the driver to allow other users to access this driver instance */
         CRC_close(handle);
 
+        uint16_t crc;
+        crc = ntohs(cmdRx.crc);
+        if (crc == (result & 0x0000FFFF)) {
+            status = status;
+        }
 
-//        uint16_t crc;
-//        xAVDS485Device_CRC_calculateFull(&cmdRx.command, 5, &crc);
     }
 
 }
@@ -468,6 +474,8 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
     char pRxBuffer[16];
     char cmdData;
 
+    AVDS485Device_Command_set_channel cmdTx;
+
 
     if(arg1 == NULL) {
         return;
@@ -501,32 +509,14 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
 
     switch (pCharData->paramID) {
     case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_SET_ID:
+        vAVDS485Device_cmdFrameSetChannel(&cmdTx, 1, 2, 3);
+        ifTransaction.writeBuf = &cmdTx;
+        ifTransaction.writeCount = sizeof(AVDS485Device_Command_set_channel);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
 
-        cmdData = 0x22;
-        ifTransaction.writeBuf = pCmdBuffer;
-        ifTransaction.readBuf = pRxBuffer;
-        ifTransaction.readCount = 6+5;
-        int n = xAVDS485Device_createMsgFrameWithCRC(pCmdBuffer, &cmdData, 1);
-
-        pCmdBuffer[0] = 0xAA;
-        pCmdBuffer[1] = 0x55;
-        pCmdBuffer[2] = 0x00;
-        pCmdBuffer[3] = 0x01;
-        pCmdBuffer[4] = 0x22;
-//        pCmdBuffer[5] = 0xE5;
-//        pCmdBuffer[6] = 0xD0;
-
-        int16_t crc;
-        xAVDS485Device_CRC_calculateFull(&pCmdBuffer[4], 1, &crc);
-        crc = htons(crc);
-
-        if ( n > 0) {
-            ifTransaction.writeCount = n;
-            transferOk = bIF_transfer(ifHandle, &ifTransaction);
-            if (transferOk) {
-
-            }
         }
+
         break;
     case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_GET_ID:
 //        ifTransaction.readCount = sizeof(AVDS485Device_pingResponse);
@@ -694,5 +684,23 @@ void vAVDS485Device_cmdFrameInitialezeComunications(AVDS485Device_Command_Initia
     pCmd->command = 0x22;
 
     xAVDS485Device_CRC_calculateFull(&pCmd->command, 1, &crc);
+    pCmd->crc = htons(crc);
+}
+
+void vAVDS485Device_cmdFrameSetChannel(AVDS485Device_Command_set_channel *pCmd,
+                                       uint16_t outputChannel,
+                                       uint16_t audioInputChannel,
+                                       uint16_t videoInputChannel)
+{
+    uint16_t crc;
+
+    vAVDS485Device_InitWrapper(&pCmd->wrapper, 5);
+    pCmd->command = 0x10;
+
+    pCmd->outputChannel = htons(outputChannel);
+    pCmd->audioInputChannel = htons(audioInputChannel);
+    pCmd->videoInputChannel = htons(videoInputChannel);
+
+    xAVDS485Device_CRC_calculateFull(&pCmd->command, 5, &crc);
     pCmd->crc = htons(crc);
 }
