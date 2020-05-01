@@ -28,6 +28,7 @@ DeviceList_Handler hAVDS485Device_open(DeviceList_Handler handle, void *params);
 int xAVDS485Device_createMsgFrameWithCRC(char *pCmdBuffer, char *pCmdData, uint32_t packetLength);
 int16_t xAVDS485Device_CRC_calculateFull(const void *pSource, size_t sourceBytes, uint16_t *pui16Result);
 void vAVDS485Device_InitWrapper(AVDS485Device_Command_Wrapper *pWrapper, uint16_t length);
+void vAVDS485Device_cmdFrameInitialezeComunications(AVDS485Device_Command_Initialize_Communication *pCmd);
 
 
 const Device_FxnTable g_AVDS485Device_fxnTable =
@@ -308,17 +309,63 @@ static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle)
     ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
 
 
-    vAVDS485Device_InitWrapper(&cmdTx.wrapper, 1);
-    cmdTx.command = 0x22;
-
-    uint16_t crc;
-    xAVDS485Device_CRC_calculateFull(&cmdTx.command, 1, &crc);
-    cmdTx.crc = htons(crc);
+    vAVDS485Device_cmdFrameInitialezeComunications(&cmdTx);
 
 
     transferOk = bIF_transfer(ifHandle, &ifTransaction);
     if (transferOk) {
+        uint16_t *pui16PacketLength;
+        CRC_Handle handle;
+        CRC_Params params;
+        int_fast16_t status;
+        uint32_t result;
 
+
+        /* Set data processing options, including endianness control */
+        CRC_Params_init(&params);
+        params.polynomial = CRC_POLYNOMIAL_CRC_16_CCITT;
+        params.dataSize = CRC_DATA_SIZE_8BIT;
+        params.seed = 0xFFFF;
+        params.byteSwapInput = CRC_BYTESWAP_UNCHANGED;
+    //    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+
+        /* Open the driver using the settings above */
+        handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
+        if (handle == NULL)
+        {
+            /* If the handle is already open, execution will stop here */
+            return;
+        }
+
+        result = 0;
+//        /* Calculate the CRC of all 32 bytes in the source array */
+//        status = CRC_calculateFull(handle, &cmdRx.command, 5, &result);
+//        if (status != CRC_STATUS_SUCCESS)
+//        {
+//            CRC_close(handle);
+//            /* If the CRC engine is busy or if an error occurs execution will stop here */
+//            return;
+//        }
+
+        status = CRC_addData(handle, &cmdRx.command, 1);
+        if (status != CRC_STATUS_SUCCESS)
+        {
+            /* If the CRC engine is busy or if an error occurs execution will stop here */
+            while(1);
+        }
+
+//        cmdRx.result = ntohl(cmdRx.result);
+        status = CRC_addData(handle, &cmdRx.result, 4);
+
+        /* Extract the result from the internal state */
+        CRC_finalize(handle, &result);
+
+        /* Close the driver to allow other users to access this driver instance */
+        CRC_close(handle);
+
+
+//        uint16_t crc;
+//        xAVDS485Device_CRC_calculateFull(&cmdRx.command, 5, &crc);
     }
 
 }
@@ -638,4 +685,14 @@ void vAVDS485Device_InitWrapper(AVDS485Device_Command_Wrapper *pWrapper, uint16_
     pWrapper->preamble1 = 0xAA;
     pWrapper->preamble2 = 0x55;
     pWrapper->packetLength = htons(length);
+}
+
+void vAVDS485Device_cmdFrameInitialezeComunications(AVDS485Device_Command_Initialize_Communication *pCmd)
+{
+    uint16_t crc;
+    vAVDS485Device_InitWrapper(&pCmd->wrapper, 1);
+    pCmd->command = 0x22;
+
+    xAVDS485Device_CRC_calculateFull(&pCmd->command, 1, &crc);
+    pCmd->crc = htons(crc);
 }

@@ -56,6 +56,23 @@ typedef struct __attribute__ ((__packed__)) {
 }AVDS485Device_Command_Initialize_Communication_Response;
 
 
+typedef struct __attribute__ ((__packed__)) {
+    AVDS485Device_Command_Wrapper   wrapper;
+    uint8_t                         command;
+    uint16_t                        outputChannel;
+    uint16_t                        audioInputChannel;
+    uint16_t                        videoInputChannel;
+    uint16_t                        crc;
+}AVDS485Device_Command_set_channel;
+
+typedef struct __attribute__ ((__packed__)) {
+    AVDS485Device_Command_Wrapper   wrapper;
+    uint8_t                         command;
+    uint32_t                        result;
+    uint16_t                        crc;
+}AVDS485Device_Command_set_channel_Response;
+
+
 
 #ifdef  __DEVICES_AVDS_AVDSRS485DEVICE_GLOBAL
     #define __DEVICES_AVDS_AVDSRS485DEVICE_EXT
