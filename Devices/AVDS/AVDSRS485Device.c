@@ -693,6 +693,11 @@ void vAVDS485Device_cmdFrameSetChannel(AVDS485Device_Command_set_channel *pCmd,
                                        uint16_t videoInputChannel)
 {
     uint16_t crc;
+    uint16_t *pui16PacketLength;
+    CRC_Handle handle;
+    CRC_Params params;
+    int_fast16_t status;
+    uint32_t result;
 
     vAVDS485Device_InitWrapper(&pCmd->wrapper, 5);
     pCmd->command = 0x10;
@@ -701,6 +706,35 @@ void vAVDS485Device_cmdFrameSetChannel(AVDS485Device_Command_set_channel *pCmd,
     pCmd->audioInputChannel = htons(audioInputChannel);
     pCmd->videoInputChannel = htons(videoInputChannel);
 
-    xAVDS485Device_CRC_calculateFull(&pCmd->command, 5, &crc);
+    /* Set data processing options, including endianness control */
+    CRC_Params_init(&params);
+    params.polynomial = CRC_POLYNOMIAL_CRC_16_CCITT;
+    params.dataSize = CRC_DATA_SIZE_8BIT;
+    params.seed = 0xFFFF;
+    params.byteSwapInput = CRC_BYTESWAP_UNCHANGED;
+//    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+
+    /* Open the driver using the settings above */
+    handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
+    if (handle == NULL)
+    {
+        /* If the handle is already open, execution will stop here */
+        return CRC_STATUS_RESOURCE_UNAVAILABLE;
+    }
+    result = 0;
+
+    status = CRC_addData(handle, &pCmd->command, 1);
+    status = CRC_addData(handle, &pCmd->outputChannel, 2);
+    status = CRC_addData(handle, &pCmd->audioInputChannel, 2);
+    status = CRC_addData(handle, &pCmd->videoInputChannel, 2);
+
+    /* Extract the result from the internal state */
+    CRC_finalize(handle, &result);
+
+
+    /* Close the driver to allow other users to access this driver instance */
+    CRC_close(handle);
+
+    crc = (result & 0x0000FFFF);
     pCmd->crc = htons(crc);
 }
