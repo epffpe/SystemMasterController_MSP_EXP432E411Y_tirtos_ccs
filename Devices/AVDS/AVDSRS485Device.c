@@ -146,10 +146,18 @@ Void vAVDS485Device_taskFxn(UArg arg0, UArg arg1)
 
         if (events & DEVICE_PERIODIC_EVT) {
             events &= ~DEVICE_PERIODIC_EVT;
-            char_data_t pCharData;
-            pCharData.paramID = CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_GET_ID;
 
-            vAVDS485Device_SteveCommandsService_ValueChangeHandler(&pCharData, arg0, arg1, ifHandle, NULL, NULL);
+            // set channel
+            char tempBuff[sizeof(char_data_t) + sizeof(AVDS485Device_serviceSteveCommand_charSetChannel_data)];
+            char_data_t *pCharData = (char_data_t *)tempBuff;
+            pCharData->paramID = CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_SET_ID;
+            AVDS485Device_serviceSteveCommand_charSetChannel_data *pData = (AVDS485Device_serviceSteveCommand_charSetChannel_data *)pCharData->data;
+            pData->outputChannel = 1;
+            pData->audioInputChannel = 2;
+            pData->videoInputChannel = 3;
+
+
+            vAVDS485Device_SteveCommandsService_ValueChangeHandler(pCharData, arg0, arg1, ifHandle, NULL, NULL);
         }
 
         if (events & DEVICE_APP_KILL_EVT) {
@@ -484,15 +492,10 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
 {
     uint32_t myDeviceID;
     DeviceList_Handler devHandle;
-
-    //    IF_Params params;
     IF_Transaction ifTransaction;
+    AVDS485Device_serviceSteveCommand_charSetChannel_data *pSetChannelData;
     bool transferOk;
-    //    AVDS485Device_SteveCommandData_t *pRxData = (AVDS485Device_SteveCommandData_t *)pCharData->data;
-
-    //    char pCmdBuffer[16];
-    char pRxBuffer[32];
-    //    char cmdData;
+    uint16_t ui16Result;
 
     union {
         AVDS485Device_Command_set_channel cmdSetCh;
@@ -528,7 +531,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
      */
     memset(&ifTransaction, 0, sizeof(IF_Transaction));
     ifTransaction.readCount = 0;
-    ifTransaction.readBuf = pRxBuffer;
+    ifTransaction.readBuf = &bufferRxUnion.cmdGetChResp;
     ifTransaction.readTimeout = 30;
     ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_AVDS485;
     //    ifTransaction.writeBuf = txbuff;
@@ -541,19 +544,42 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
 
     switch (pCharData->paramID) {
     case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_SET_ID:
-        xAVDS485Device_cmdFrameSetChannel(&bufferTxUnion.cmdSetCh, 1, 2, 3);
+        pSetChannelData = (AVDS485Device_serviceSteveCommand_charSetChannel_data *)pCharData->data;
+        xAVDS485Device_cmdFrameSetChannel(&bufferTxUnion.cmdSetCh,
+                                          pSetChannelData->outputChannel,
+                                          pSetChannelData->audioInputChannel,
+                                          pSetChannelData->videoInputChannel);
         ifTransaction.writeBuf = &bufferTxUnion.cmdSetCh;
+        ifTransaction.readBuf = &bufferRxUnion.cmdSetChResp;
         ifTransaction.writeCount = sizeof(AVDS485Device_Command_set_channel);
         ifTransaction.readCount = sizeof(AVDS485Device_Command_set_channel_Response);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
         if (transferOk) {
-
+            bufferRxUnion.cmdSetChResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdSetChResp.wrapper.packetLength);
+            bufferRxUnion.cmdSetChResp.crc = ntohs(bufferRxUnion.cmdSetChResp.crc);
+            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdSetChResp.command,
+                                                 bufferRxUnion.cmdSetChResp.wrapper.packetLength,
+                                                 &ui16Result) == CRC_STATUS_SUCCESS)
+            {
+                if (ui16Result == bufferRxUnion.cmdSetChResp.crc)
+                {
+                    AVDS485Device_serviceSteveCommand_charSetChannelResp_data *pSetChannelResData = (AVDS485Device_serviceSteveCommand_charSetChannelResp_data *)&bufferRxUnion.cmdSetChResp.result;
+//                    vDevice_sendCharDataMsg (pCharData->retDeviceID,
+//                                             APP_MSG_SERVICE_WRITE,
+//                                             pCharData->connHandle,
+//                                             pCharData->retSvcUUID, pCharData->retParamID,
+//                                             myDeviceID,
+//                                             SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_SET_ID,
+//                                             (uint8_t *)pSetChannelResData, sizeof(AVDS485Device_serviceSteveCommand_charSetChannelResp_data));
+                }
+            }
         }
 
         break;
     case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_GET_ID:
         xAVDS485Device_cmdFrameGetChannel(&bufferTxUnion.cmdGetCh, 1);
         ifTransaction.writeBuf = &bufferTxUnion.cmdGetCh;
+        ifTransaction.readBuf = &bufferRxUnion.cmdGetChResp;
         ifTransaction.writeCount = sizeof(AVDS485Device_Command_get_channel);
         ifTransaction.readCount = sizeof(AVDS485Device_Command_get_channel_Response);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
@@ -564,6 +590,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
     case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_VOLUME_SET_ID:
         xAVDS485Device_cmdFrameVolumeSet(&bufferTxUnion.cmdSetCtlProperty, 1, 303);
         ifTransaction.writeBuf = &bufferTxUnion.cmdSetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdSetCtlPropertyResp;
         ifTransaction.writeCount = sizeof(AVDS485Device_Command_setControlProperty);
         ifTransaction.readCount = sizeof(AVDS485Device_Command_setControlProperty_Response);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
@@ -574,6 +601,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
     case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_VOLUME_GET_ID:
         xAVDS485Device_cmdFrameVolumeGet(&bufferTxUnion.cmdGetCtlProperty, 1);
         ifTransaction.writeBuf = &bufferTxUnion.cmdGetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdGetCtlPropertyResp;
         ifTransaction.writeCount = sizeof(AVDS485Device_Command_getControlProperty);
         ifTransaction.readCount = sizeof(AVDS485Device_Command_getControlProperty_Response);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
@@ -584,6 +612,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
     case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_MUTE_SET_ID:
         xAVDS485Device_cmdFrameMuteSet(&bufferTxUnion.cmdSetCtlProperty, 1, 1);
         ifTransaction.writeBuf = &bufferTxUnion.cmdSetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdSetCtlPropertyResp;
         ifTransaction.writeCount = sizeof(AVDS485Device_Command_setControlProperty);
         ifTransaction.readCount = sizeof(AVDS485Device_Command_setControlProperty_Response);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
@@ -594,6 +623,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
     case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_MUTE_GET_ID:
         xAVDS485Device_cmdFrameMuteGet(&bufferTxUnion.cmdGetCtlProperty, 1);
         ifTransaction.writeBuf = &bufferTxUnion.cmdGetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdGetCtlPropertyResp;
         ifTransaction.writeCount = sizeof(AVDS485Device_Command_getControlProperty);
         ifTransaction.readCount = sizeof(AVDS485Device_Command_getControlProperty_Response);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
@@ -604,6 +634,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
     case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_BASS_SET_ID:
         xAVDS485Device_cmdFrameBassSet(&bufferTxUnion.cmdSetCtlProperty, 1, 10);
         ifTransaction.writeBuf = &bufferTxUnion.cmdSetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdSetCtlPropertyResp;
         ifTransaction.writeCount = sizeof(AVDS485Device_Command_setControlProperty);
         ifTransaction.readCount = sizeof(AVDS485Device_Command_setControlProperty_Response);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
@@ -614,6 +645,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
     case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_BASS_GET_ID:
         xAVDS485Device_cmdFrameBassGet(&bufferTxUnion.cmdGetCtlProperty, 1);
         ifTransaction.writeBuf = &bufferTxUnion.cmdGetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdGetCtlPropertyResp;
         ifTransaction.writeCount = sizeof(AVDS485Device_Command_getControlProperty);
         ifTransaction.readCount = sizeof(AVDS485Device_Command_getControlProperty_Response);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);

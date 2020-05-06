@@ -85,6 +85,19 @@ typedef enum {
 }AVDS485Device_property;
 
 
+
+typedef struct  {
+    uint8_t                        outputChannel;
+    uint8_t                        audioInputChannel;
+    uint8_t                        videoInputChannel;
+}AVDS485Device_serviceSteveCommand_charSetChannel_data;
+
+typedef struct  {
+    uint32_t                        result;
+}AVDS485Device_serviceSteveCommand_charSetChannelResp_data;
+
+
+
 /*
  * Preamble 1 (0xAA)
  * Preamble 2 (0x55)
