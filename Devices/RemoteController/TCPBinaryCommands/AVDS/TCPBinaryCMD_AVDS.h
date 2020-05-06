@@ -18,11 +18,29 @@ typedef enum
     CHARACTERISTIC_TCPRCBIN_ADVS_DIRECT_COMMAND2_ID,
 } TCP_CMD_AVDS_service_characteristics_t;
 
+
+typedef enum
+{
+    CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_CHANNEL_SET_ID = 0x01,
+    CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_CHANNEL_GET_ID,
+    CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_VOLUME_SET_ID,
+    CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_VOLUME_GET_ID,
+    CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_MUTE_SET_ID,
+    CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_MUTE_GET_ID,
+    CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_BASS_SET_ID,
+    CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_BASS_GET_ID,
+} TCP_CMD_AVDS_Serial_SteveCommand_service_characteristics_t;
+
 typedef struct {
     uint32_t deviceID;
     uint32_t dataLen;
     uint8_t  data[];
 }TCP_CMD_AVDS_genericCommand_payload_t;
+
+typedef struct {
+    uint32_t deviceID;
+    uint8_t  data[];
+}TCP_CMD_AVDS_Serial_SteveCommand_characteristic_payload_t;
 
 
 #ifdef __cplusplus
@@ -40,6 +58,9 @@ __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_AVDS_TCPBINARYCMD_AVDS_EXT
 void vTCPRCBin_AVDSService_ValueChangeHandler(char_data_t *pCharData);
 
 __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_AVDS_TCPBINARYCMD_AVDS_EXT
+void vTCPRCBin_AVDSSerialService_ValueChangeHandler(char_data_t *pCharData);
+
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_AVDS_TCPBINARYCMD_AVDS_EXT
 void vTCPRCBin_AVDS_errorHandler(char_data_t *pCharData);
 
 
@@ -50,7 +71,22 @@ __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_AVDS_TCPBINARYCMD_AVDS_EXT
 void TCPBin_AVDSGenericDirectCommand2(int clientfd, char *payload, int32_t size);
 
 
-
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_AVDS_TCPBINARYCMD_AVDS_EXT
+void TCPBin_AVDSSerialSteveChannelSet(int clientfd, char *payload, int32_t size);
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_AVDS_TCPBINARYCMD_AVDS_EXT
+void TCPBin_AVDSSerialSteveChannelGet(int clientfd, char *payload, int32_t size);
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_AVDS_TCPBINARYCMD_AVDS_EXT
+void TCPBin_AVDSSerialSteveVolumeSet(int clientfd, char *payload, int32_t size);
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_AVDS_TCPBINARYCMD_AVDS_EXT
+void TCPBin_AVDSSerialSteveVolumeGet(int clientfd, char *payload, int32_t size);
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_AVDS_TCPBINARYCMD_AVDS_EXT
+void TCPBin_AVDSSerialSteveMuteSet(int clientfd, char *payload, int32_t size);
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_AVDS_TCPBINARYCMD_AVDS_EXT
+void TCPBin_AVDSSerialSteveMuteGet(int clientfd, char *payload, int32_t size);
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_AVDS_TCPBINARYCMD_AVDS_EXT
+void TCPBin_AVDSSerialSteveBassSet(int clientfd, char *payload, int32_t size);
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_AVDS_TCPBINARYCMD_AVDS_EXT
+void TCPBin_AVDSSerialSteveBassGet(int clientfd, char *payload, int32_t size);
 
 //*****************************************************************************
 //

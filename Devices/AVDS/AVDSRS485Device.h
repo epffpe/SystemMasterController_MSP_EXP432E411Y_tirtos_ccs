@@ -87,14 +87,47 @@ typedef enum {
 
 
 typedef struct  {
-    uint8_t                        outputChannel;
-    uint8_t                        audioInputChannel;
-    uint8_t                        videoInputChannel;
+    uint8_t                         outputChannel;
+    uint8_t                         audioInputChannel;
+    uint8_t                         videoInputChannel;
 }AVDS485Device_serviceSteveCommand_charSetChannel_data;
 
 typedef struct  {
     uint32_t                        result;
 }AVDS485Device_serviceSteveCommand_charSetChannelResp_data;
+
+typedef struct  {
+    uint8_t                         outputChannel;
+}AVDS485Device_serviceSteveCommand_charGetChannel_data;
+
+typedef struct  {
+    uint32_t                        result;
+    uint8_t                         audioInputChannel;
+    uint8_t                         videoInputChannel;
+}AVDS485Device_serviceSteveCommand_charGetChannelResp_data;
+
+
+typedef struct __attribute__ ((__packed__))  {
+    uint8_t                         outputChannel;
+    uint32_t                        value;
+}AVDS485Device_serviceSteveCommand_charSetProperty_data;
+
+typedef struct  {
+    uint32_t                        result;
+}AVDS485Device_serviceSteveCommand_charSetPropertyResp_data;
+
+
+
+
+typedef struct {
+    uint8_t                         outputChannel;
+    uint8_t                         property;
+}AVDS485Device_serviceSteveCommand_charGetProperty_data;
+
+typedef struct  {
+    uint32_t                        result;
+    uint32_t                        value;
+}AVDS485Device_serviceSteveCommand_charGetPropertyResp_data;
 
 
 

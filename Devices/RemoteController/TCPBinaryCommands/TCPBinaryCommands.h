@@ -273,6 +273,24 @@ typedef enum {
     TCP_CMD_AVDS_DirectCommand2,
     TCP_CMD_AVDS_DirectCommand2Response,
 
+
+    TCP_CMD_AVDS_Serial_Steve_ChannelSet,
+    TCP_CMD_AVDS_Serial_Steve_ChannelSetResponse,
+    TCP_CMD_AVDS_Serial_Steve_ChannelGet,
+    TCP_CMD_AVDS_Serial_Steve_ChannelGetResponse,
+    TCP_CMD_AVDS_Serial_Steve_VolumeSet,
+    TCP_CMD_AVDS_Serial_Steve_VolumeSetResponse,
+    TCP_CMD_AVDS_Serial_Steve_VolumeGet,
+    TCP_CMD_AVDS_Serial_Steve_VolumeGetResponse,
+    TCP_CMD_AVDS_Serial_Steve_MuteSet,
+    TCP_CMD_AVDS_Serial_Steve_MuteSetResponse,
+    TCP_CMD_AVDS_Serial_Steve_MuteGet,
+    TCP_CMD_AVDS_Serial_Steve_MuteGetResponse,
+    TCP_CMD_AVDS_Serial_Steve_BassSet,
+    TCP_CMD_AVDS_Serial_Steve_BassSetResponse,
+    TCP_CMD_AVDS_Serial_Steve_BassGet,
+    TCP_CMD_AVDS_Serial_Steve_BassGetResponse,
+
 // ROSEN COMMANDS
     TCP_CMD_ROSEN_DirectCommand1 = 800,
     TCP_CMD_ROSEN_DirectCommand1Response,
