@@ -75,7 +75,7 @@ void programEMACAddress()
 
     ulUser0 = 0x00B61A00;
     ulUser1 = 0x0055BF03;
-    FlashUserSet(ulUser0, ulUser1);
+    RAM_FlashUserSet(ulUser0, ulUser1);
     FlashUserSave();
 }
 
