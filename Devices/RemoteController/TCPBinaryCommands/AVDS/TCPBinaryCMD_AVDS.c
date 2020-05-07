@@ -57,6 +57,8 @@ void vTCPRCBin_AVDSSerialService_ValueChangeHandler(char_data_t *pCharData)
     case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_MUTE_GET_ID:
     case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_BASS_SET_ID:
     case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_BASS_GET_ID:
+    case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_TREBLE_SET_ID:
+    case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_TREBLE_GET_ID:
         if(pCharData->dataLen) {
             xTCPRCBin_AVDS_Serial_SteveCommand_ValueChangeHandler(pCharData);
         }
@@ -172,6 +174,12 @@ int xTCPRCBin_AVDS_Serial_SteveCommand_ValueChangeHandler(char_data_t *pCharData
                     break;
                 case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_BASS_GET_ID:
                     pFrame->type = TCP_CMD_AVDS_Serial_Steve_BassGetResponse | 0x80000000;
+                    break;
+                case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_TREBLE_SET_ID:
+                    pFrame->type = TCP_CMD_AVDS_Serial_Steve_TrebleSetResponse | 0x80000000;
+                    break;
+                case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_TREBLE_GET_ID:
+                    pFrame->type = TCP_CMD_AVDS_Serial_Steve_TrebleGetResponse | 0x80000000;
                     break;
                 default:
                     pFrame->type = 0 | 0x80000000;
@@ -348,6 +356,37 @@ void TCPBin_AVDSSerialSteveBassGet(int clientfd, char *payload, int32_t size)
                                  SERVICE_TCPBIN_REMOTECONTROL_AVDS_SERIAL_CLASS_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_BASS_GET_ID,
                                  (uint8_t *)ptPayload->data, sizeof(AVDS485Device_serviceSteveCommand_charGetProperty_data) )) {
         TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_Serial_Steve_BassGet, ptPayload->deviceID);
+    }
+}
+
+
+
+void TCPBin_AVDSSerialSteveTrebleSet(int clientfd, char *payload, int32_t size)
+{
+    TCP_CMD_AVDS_Serial_SteveCommand_characteristic_payload_t *ptPayload = (TCP_CMD_AVDS_Serial_SteveCommand_characteristic_payload_t *)payload;
+    if(!xDevice_sendCharDataMsg( ptPayload->deviceID,
+                                 APP_MSG_SERVICE_WRITE,
+                                 clientfd,
+                                 SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_TREBLE_SET_ID,
+                                 TCPRCBINDEVICE_ID,
+                                 SERVICE_TCPBIN_REMOTECONTROL_AVDS_SERIAL_CLASS_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_TREBLE_SET_ID,
+                                 (uint8_t *)ptPayload->data, sizeof(AVDS485Device_serviceSteveCommand_charSetProperty_data) )) {
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_Serial_Steve_TrebleSet, ptPayload->deviceID);
+    }
+}
+
+
+void TCPBin_AVDSSerialSteveTrebleGet(int clientfd, char *payload, int32_t size)
+{
+    TCP_CMD_AVDS_Serial_SteveCommand_characteristic_payload_t *ptPayload = (TCP_CMD_AVDS_Serial_SteveCommand_characteristic_payload_t *)payload;
+    if(!xDevice_sendCharDataMsg( ptPayload->deviceID,
+                                 APP_MSG_SERVICE_WRITE,
+                                 clientfd,
+                                 SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_TREBLE_GET_ID,
+                                 TCPRCBINDEVICE_ID,
+                                 SERVICE_TCPBIN_REMOTECONTROL_AVDS_SERIAL_CLASS_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_TREBLE_GET_ID,
+                                 (uint8_t *)ptPayload->data, sizeof(AVDS485Device_serviceSteveCommand_charGetProperty_data) )) {
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_Serial_Steve_TrebleGet, ptPayload->deviceID);
     }
 }
 

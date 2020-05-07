@@ -290,6 +290,10 @@ typedef enum {
     TCP_CMD_AVDS_Serial_Steve_BassSetResponse,
     TCP_CMD_AVDS_Serial_Steve_BassGet,
     TCP_CMD_AVDS_Serial_Steve_BassGetResponse,
+    TCP_CMD_AVDS_Serial_Steve_TrebleSet,
+    TCP_CMD_AVDS_Serial_Steve_TrebleSetResponse,
+    TCP_CMD_AVDS_Serial_Steve_TrebleGet,
+    TCP_CMD_AVDS_Serial_Steve_TrebleGetResponse,
 
 // ROSEN COMMANDS
     TCP_CMD_ROSEN_DirectCommand1 = 800,
