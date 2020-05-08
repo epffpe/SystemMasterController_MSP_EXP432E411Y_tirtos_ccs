@@ -161,6 +161,13 @@ Void vAVDS485Device_taskFxn(UArg arg0, UArg arg1)
 //            pData->audioInputChannel = 2;
 //            pData->videoInputChannel = 3;
 //
+
+//            // Get Volume
+//            char tempBuff[sizeof(char_data_t) + sizeof(AVDS485Device_serviceSteveCommand_charGetProperty_data)];
+//            char_data_t *pCharData = (char_data_t *)tempBuff;
+//            pCharData->paramID = CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_VOLUME_GET_ID;
+//            AVDS485Device_serviceSteveCommand_charGetProperty_data *pData = (AVDS485Device_serviceSteveCommand_charGetProperty_data *)pCharData->data;
+//            pData->outputChannel = 1;
 //
 //            vAVDS485Device_SteveCommandsService_ValueChangeHandler(pCharData, arg0, arg1, ifHandle, NULL, NULL);
         }
@@ -609,8 +616,8 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
                 {
                     AVDS485Device_serviceSteveCommand_charGetChannelResp_data getChannelResData;
                     getChannelResData.result = bufferRxUnion.cmdGetChResp.result;
-                    getChannelResData.audioInputChannel = bufferRxUnion.cmdGetChResp.audioInputChannel;
-                    getChannelResData.videoInputChannel = bufferRxUnion.cmdGetChResp.videoInputChannel;
+                    getChannelResData.audioInputChannel = ntohs(bufferRxUnion.cmdGetChResp.audioInputChannel);
+                    getChannelResData.videoInputChannel = ntohs(bufferRxUnion.cmdGetChResp.videoInputChannel);
                     vDevice_sendCharDataMsg (pCharData->retDeviceID,
                                              APP_MSG_SERVICE_WRITE,
                                              pCharData->connHandle,
@@ -1139,7 +1146,7 @@ int xAVDS485Device_cmdFrameGetControlProperty(AVDS485Device_Command_getControlPr
     pCmd->command = AVDS485DEVICE_COMMAND_GET_CONTROL_PROPERTY;
 
     pCmd->outputChannel = htons(outputChannel);
-    pCmd->property = htons(property);
+    pCmd->property = property;
 
     /* Set data processing options, including endianness control */
     CRC_Params_init(&params);

@@ -33,6 +33,7 @@ int xIFUART_getRXCount(IF_Handle handle, unsigned int timeout);
 bool bIFUART_waitForConnect(IF_Handle handle, unsigned int timeout);
 
 int xIFUART_receiveALTOFrame(IF_Handle handle, char *p64Buffer, unsigned int timeout);
+int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int length, unsigned int timeout);
 
 static Void vDriverEnableTimeout(UArg arg);
 
@@ -296,10 +297,11 @@ bool bIFUART_transfer(IF_Handle handle, IF_Transaction *transaction)
                     break;
                 case IF_TRANSACTION_RX_PROTOCOL_AVDS485:
                     if (transaction->readCount > 0) {
-                        ui32retValue = xIFUART_receiveData(handle,
-                                                           (char *)transaction->readBuf,
-                                                           transaction->readCount,
-                                                           transaction->readTimeout);
+//                        ui32retValue = xIFUART_receiveData(handle,
+                        ui32retValue = xIFUART_receiveAVDSFrameData(handle,
+                                                                    (char *)transaction->readBuf,
+                                                                    transaction->readCount,
+                                                                    transaction->readTimeout);
                         if (ui32retValue != transaction->readCount) ret = false;
                         transaction->readCount = ui32retValue;
                     }else {
@@ -619,6 +621,176 @@ int xIFUART_receiveALTOFrame(IF_Handle handle, char *p64Buffer, unsigned int tim
     }
 
 
+    return (i32retValue);
+}
+
+
+/*
+ * AVDS Receive Frame
+ */
+
+typedef enum {
+//    IFUART_AVDSRX_State_idle,
+    IFUART_AVDSRX_State_preamble1,
+    IFUART_AVDSRX_State_preamble2,
+    IFUART_AVDSRX_State_packetLength,
+    IFUART_AVDSRX_State_payload,
+    IFUART_AVDSRX_State_end,
+}IFUART_AVDSRX_State;
+
+#define IFUART_AVDSRX_PREAMBLE1             0xAA
+#define IFUART_AVDSRX_PREAMBLE2             0x55
+#define IFUART_AVDSRX_MAX_PAYLOAD_SIZE      64
+
+int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int length, unsigned int timeout)
+{
+    int i32retValue = 0;
+    int i32dataAvailable = 0, i32CounterRead = 0;
+    IFUART_Object *object = (IFUART_Object *)handle->object;
+    IFUART_HWAttrs *hwAttrs = (IFUART_HWAttrs *)handle->hwAttrs;
+
+    char *pPayload;
+    char *pPayloadRx;
+    IFUART_AVDSRX_State state;
+
+    char i8Preamble;
+    uint16_t ui16PacketLength;
+    uint16_t ui16PayloadLength;
+
+    bool isError, isFinish;
+
+
+
+    ASSERT(handle != NULL);
+
+    if (handle == NULL) {
+        return (NULL);
+    }
+
+    state = IFUART_AVDSRX_State_preamble1;
+
+    isError = false;
+    isFinish = false;
+
+    if (length >= 6) {
+        if (object->state.opened) {
+            if (Semaphore_pend(object->hBSPSerial_semRxSerial, timeout)) {
+                if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_GPIOCount)) {
+                    GPIO_write(hwAttrs->receiverEnablePin, IF_UART_SERIAL_RECEIVER_ENABLE);
+                }
+                do {
+                    UART_control(object->hBSPSerial_uart, UART_CMD_GETRXCOUNT, &i32dataAvailable);
+                    if (i32dataAvailable) {
+                        switch(state){
+                        case IFUART_AVDSRX_State_preamble1:
+                            i32retValue = UART_read(object->hBSPSerial_uart, &i8Preamble, 1);
+                            if ( i32retValue != UART_STATUS_ERROR) {
+                                if (i8Preamble == IFUART_AVDSRX_PREAMBLE1) {
+                                    pStr[0] = i8Preamble;
+                                    i32CounterRead = 1;
+                                    state = IFUART_AVDSRX_State_preamble2;
+                                }
+                            }
+                            break;
+                        case IFUART_AVDSRX_State_preamble2:
+
+                            i32retValue = UART_read(object->hBSPSerial_uart, &i8Preamble, 1);
+                            if ( i32retValue != UART_STATUS_ERROR) {
+                                if (i8Preamble == IFUART_AVDSRX_PREAMBLE2) {
+                                    pStr[1] = i8Preamble;
+                                    i32CounterRead = 2;
+                                    state = IFUART_AVDSRX_State_packetLength;
+                                }else {
+                                    i32CounterRead = 0;
+                                    state = IFUART_AVDSRX_State_preamble1;
+                                }
+                            }
+                            break;
+                        case IFUART_AVDSRX_State_packetLength:
+                            if (i32dataAvailable >= 2) {
+                                i32retValue = UART_read(object->hBSPSerial_uart, &ui16PacketLength, 2);
+                                if ( i32retValue != UART_STATUS_ERROR) {
+                                    ui16PacketLength = ntohs(ui16PacketLength);
+                                    if (ui16PacketLength < IFUART_AVDSRX_MAX_PAYLOAD_SIZE) {
+                                        i32CounterRead = 4;
+                                        pStr[3] = (ui16PacketLength >> 0) &0xFF;
+                                        pStr[4] = (ui16PacketLength >> 1) &0xFF;
+
+                                        ui16PacketLength += 2; // Add 16bit CRC
+                                        pPayload = (char *)Memory_alloc(NULL, ui16PacketLength, 0, 0);
+                                        if (pPayload != NULL)
+                                        {
+                                            ui16PayloadLength = 0;
+                                            pPayloadRx = pPayload;
+                                            state = IFUART_AVDSRX_State_payload;
+                                        }else {
+                                            i32CounterRead = 4;
+                                            isError = true;
+                                            isFinish = true;
+                                        }
+                                    }else {
+                                        i32CounterRead = 4;
+                                        isError = true;
+                                        isFinish = true;
+                                    }
+                                }
+                            }else{
+                                Task_sleep(1);
+                                if (timeout) timeout--;
+                            }
+                            break;
+                        case IFUART_AVDSRX_State_payload:
+                            if ( (ui16PacketLength - ui16PayloadLength) > i32dataAvailable) {
+                                if (pPayloadRx < pPayload + ui16PacketLength) {
+                                    i32retValue = UART_read(object->hBSPSerial_uart, pPayloadRx, i32dataAvailable);
+                                }else {
+                                    i32retValue = UART_read(object->hBSPSerial_uart, pPayloadRx, pPayload + ui16PacketLength - pPayloadRx);
+                                    isError = true;
+                                    state = IFUART_AVDSRX_State_end;
+                                }
+                            }else{
+                                i32retValue = UART_read(object->hBSPSerial_uart, pPayloadRx, (ui16PacketLength - ui16PayloadLength));
+                                state = IFUART_AVDSRX_State_end;
+                            }
+                            ui16PayloadLength += i32retValue;
+                            i32CounterRead += i32retValue;
+                            pPayloadRx += i32retValue;
+
+                            break;
+                        case IFUART_AVDSRX_State_end:
+                            if (isError) {
+                                // empty buffer
+                            }
+                            if (length >= ui16PacketLength + 4) {
+                                memcpy(&pStr[5], pPayload, ui16PacketLength);
+                            }
+                            Memory_free(NULL, pPayload, ui16PacketLength);
+                            isFinish = true;
+                            break;
+                        default:
+                            break;
+                        }
+
+
+                    }else{ // if not data available
+                        Task_sleep(1);
+                        if (timeout) timeout--;
+                    }
+                    //            }while(timeout && (i32CounterRead < length));
+                }while(timeout && !isFinish);
+
+
+
+                if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_GPIOCount)) {
+                    GPIO_write(hwAttrs->receiverEnablePin, IF_UART_SERIAL_RECEIVER_DISABLE);
+                }
+                Semaphore_post(object->hBSPSerial_semRxSerial);
+                if (i32CounterRead) i32retValue = i32CounterRead;
+            }
+        }else {
+            bIFUART_waitForConnect(handle, timeout);
+        }
+    }
     return (i32retValue);
 }
 

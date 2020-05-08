@@ -123,7 +123,7 @@ typedef struct  {
 
 typedef struct {
     uint8_t                         outputChannel;
-    uint8_t                         property;
+//    uint8_t                         property;
 }AVDS485Device_serviceSteveCommand_charGetProperty_data;
 
 typedef struct  {

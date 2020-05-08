@@ -30,6 +30,7 @@ extern void *TaskSelf();
 
 
 int xTCPRCBin_AVDS_directCommand_ValueChangeHandler(char_data_t *pCharData);
+int xTCPRCBin_AVDS_Serial_SteveCommand_ValueChangeHandler(char_data_t *pCharData);
 
 
 void vTCPRCBin_AVDSService_ValueChangeHandler(char_data_t *pCharData)
