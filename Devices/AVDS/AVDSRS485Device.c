@@ -162,14 +162,14 @@ Void vAVDS485Device_taskFxn(UArg arg0, UArg arg1)
 //            pData->videoInputChannel = 3;
 //
 
-//            // Get Volume
-//            char tempBuff[sizeof(char_data_t) + sizeof(AVDS485Device_serviceSteveCommand_charGetProperty_data)];
-//            char_data_t *pCharData = (char_data_t *)tempBuff;
-//            pCharData->paramID = CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_VOLUME_GET_ID;
-//            AVDS485Device_serviceSteveCommand_charGetProperty_data *pData = (AVDS485Device_serviceSteveCommand_charGetProperty_data *)pCharData->data;
-//            pData->outputChannel = 1;
-//
-//            vAVDS485Device_SteveCommandsService_ValueChangeHandler(pCharData, arg0, arg1, ifHandle, NULL, NULL);
+            // Get Volume
+            char tempBuff[sizeof(char_data_t) + sizeof(AVDS485Device_serviceSteveCommand_charGetProperty_data)];
+            char_data_t *pCharData = (char_data_t *)tempBuff;
+            pCharData->paramID = CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_VOLUME_GET_ID;
+            AVDS485Device_serviceSteveCommand_charGetProperty_data *pData = (AVDS485Device_serviceSteveCommand_charGetProperty_data *)pCharData->data;
+            pData->outputChannel = 1;
+
+            vAVDS485Device_SteveCommandsService_ValueChangeHandler(pCharData, arg0, arg1, ifHandle, NULL, NULL);
         }
 
         if (events & DEVICE_APP_KILL_EVT) {
@@ -404,17 +404,19 @@ static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle)
         //        cmdRx.result = ntohl(cmdRx.result);
         status = CRC_addData(handle, &cmdRx.result, 4);
 
+        status = CRC_addData(handle, &cmdRx.crc, 2);
+
         /* Extract the result from the internal state */
         CRC_finalize(handle, &result);
 
         /* Close the driver to allow other users to access this driver instance */
         CRC_close(handle);
 
-        uint16_t crc;
-        crc = ntohs(cmdRx.crc);
-        if (crc == (result & 0x0000FFFF)) {
-            status = status;
-        }
+//        uint16_t crc;
+//        crc = ntohs(cmdRx.crc);
+//        if (crc == (result & 0x0000FFFF)) {
+//            status = status;
+//        }
 
     }
 
@@ -514,6 +516,8 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
     AVDS485Device_serviceSteveCommand_charGetPropertyResp_data getPropertyResData;
     bool transferOk;
     uint16_t ui16Result;
+
+    char tempBuff[24];
 
     union {
         AVDS485Device_Command_set_channel cmdSetCh;
@@ -660,10 +664,15 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
     case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_VOLUME_GET_ID:
         xAVDS485Device_cmdFrameVolumeGet(&bufferTxUnion.cmdGetCtlProperty, pGetPropertyData->outputChannel);
         ifTransaction.writeBuf = &bufferTxUnion.cmdGetCtlProperty;
-        ifTransaction.readBuf = &bufferRxUnion.cmdGetCtlPropertyResp;
+//        ifTransaction.readBuf = &bufferRxUnion.cmdGetCtlPropertyResp;
+        ifTransaction.readBuf = tempBuff;
         ifTransaction.writeCount = sizeof(AVDS485Device_Command_getControlProperty);
         ifTransaction.readCount = sizeof(AVDS485Device_Command_getControlProperty_Response);
+        ifTransaction.readCount = 24;
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        xAVDS485Device_CRC_calculateFull(&tempBuff[4],
+                                         12,
+                                         &ui16Result);
         if (transferOk) {
             bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength);
             bufferRxUnion.cmdGetCtlPropertyResp.crc = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.crc);
@@ -675,6 +684,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
                 {
                     getPropertyResData.result = bufferRxUnion.cmdGetCtlPropertyResp.result;
                     getPropertyResData.value = ntohl(bufferRxUnion.cmdGetCtlPropertyResp.value);
+//                    getPropertyResData.value = tempBuff[12];
                     vDevice_sendCharDataMsg (pCharData->retDeviceID,
                                              APP_MSG_SERVICE_WRITE,
                                              pCharData->connHandle,
