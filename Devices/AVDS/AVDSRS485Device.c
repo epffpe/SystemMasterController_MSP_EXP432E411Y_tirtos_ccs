@@ -28,7 +28,40 @@ DeviceList_Handler hAVDS485Device_open(DeviceList_Handler handle, void *params);
 int xAVDS485Device_createMsgFrameWithCRC(char *pCmdBuffer, char *pCmdData, uint32_t packetLength);
 int16_t xAVDS485Device_CRC_calculateFull(const void *pSource, size_t sourceBytes, uint16_t *pui16Result);
 void vAVDS485Device_InitWrapper(AVDS485Device_Command_Wrapper *pWrapper, uint16_t length);
-
+void vAVDS485Device_cmdFrameInitialezeComunications(AVDS485Device_Command_Initialize_Communication *pCmd);
+int xAVDS485Device_cmdFrameSetChannel(AVDS485Device_Command_set_channel *pCmd,
+                                      uint16_t outputChannel,
+                                      uint16_t audioInputChannel,
+                                      uint16_t videoInputChannel);
+int xAVDS485Device_cmdFrameGetChannel(AVDS485Device_Command_get_channel *pCmd,
+                                      uint16_t outputChannel);
+int xAVDS485Device_cmdFrameSetControlProperty(AVDS485Device_Command_setControlProperty *pCmd,
+                                              uint16_t outputChannel,
+                                              uint8_t property,
+                                              uint32_t value);
+int xAVDS485Device_cmdFrameGetControlProperty(AVDS485Device_Command_getControlProperty *pCmd,
+                                              uint16_t outputChannel,
+                                              uint8_t property);
+int xAVDS485Device_cmdFrameVolumeSet(AVDS485Device_Command_setControlProperty *pCmd,
+                                     uint16_t outputChannel,
+                                     uint32_t value);
+int xAVDS485Device_cmdFrameMuteSet(AVDS485Device_Command_setControlProperty *pCmd,
+                                     uint16_t outputChannel,
+                                     uint32_t value);
+int xAVDS485Device_cmdFrameBassSet(AVDS485Device_Command_setControlProperty *pCmd,
+                                     uint16_t outputChannel,
+                                     uint32_t value);
+int xAVDS485Device_cmdFrameTrebleSet(AVDS485Device_Command_setControlProperty *pCmd,
+                                   uint16_t outputChannel,
+                                   uint32_t value);
+int xAVDS485Device_cmdFrameVolumeGet(AVDS485Device_Command_getControlProperty *pCmd,
+                                     uint16_t outputChannel);
+int xAVDS485Device_cmdFrameMuteGet(AVDS485Device_Command_getControlProperty *pCmd,
+                                     uint16_t outputChannel);
+int xAVDS485Device_cmdFrameBassGet(AVDS485Device_Command_getControlProperty *pCmd,
+                                     uint16_t outputChannel);
+int xAVDS485Device_cmdFrameTrebleGet(AVDS485Device_Command_getControlProperty *pCmd,
+                                   uint16_t outputChannel);
 
 const Device_FxnTable g_AVDS485Device_fxnTable =
 {
@@ -50,16 +83,16 @@ Void vAVDS485Device_taskFxn(UArg arg0, UArg arg1)
 
     IF_Handle ifHandle;
     IF_Params params;
-//    IF_Transaction ifTransaction;
-//    bool transferOk;
+    //    IF_Transaction ifTransaction;
+    //    bool transferOk;
 
-//    uint32_t ui32SerialIndex;
-//    char rxbuff[70];
-//    char txbuff[70];
+    //    uint32_t ui32SerialIndex;
+    //    char rxbuff[70];
+    //    char txbuff[70];
     volatile tEEPROM_Data *psEEPROMData;
 
-//    Task_Handle taskTCPServerHandle;
-//    Task_Params taskParams;
+    //    Task_Handle taskTCPServerHandle;
+    //    Task_Params taskParams;
     Error_Block eb;
 
 
@@ -90,23 +123,23 @@ Void vAVDS485Device_taskFxn(UArg arg0, UArg arg1)
     params.uartParams.readReturnMode = UART_RETURN_FULL;
     params.uartParams.readEcho = UART_ECHO_OFF;
     params.uartParams.baudRate = (uint32_t)arg0 < 8 ? psEEPROMData->serialBaudRate[(uint32_t)arg0] : DEFAULT_EEPROM_SERIAL_BAUDRATE;
-//    ifHandle = hIF_open(IF_SERIAL_4, &params);
+    //    ifHandle = hIF_open(IF_SERIAL_4, &params);
     ifHandle = hIF_open((uint32_t)arg0, &params);
 
 
-//    /*
-//     * Prepare the transfer
-//     */
-//    memset(&ifTransaction, 0, sizeof(IF_Transaction));
-//    ifTransaction.readCount = sizeof(rxbuff);
-//    ifTransaction.readBuf = rxbuff;
-//    ifTransaction.readTimeout = 30;
-//    ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_NONE;
-////    ifTransaction.writeBuf = txbuff;
-//    ifTransaction.writeBuf = txbuff;
-//    ifTransaction.writeCount = sizeof(txbuff);
-//    ifTransaction.writeTimeout = BIOS_WAIT_FOREVER;
-//    ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
+    //    /*
+    //     * Prepare the transfer
+    //     */
+    //    memset(&ifTransaction, 0, sizeof(IF_Transaction));
+    //    ifTransaction.readCount = sizeof(rxbuff);
+    //    ifTransaction.readBuf = rxbuff;
+    //    ifTransaction.readTimeout = 30;
+    //    ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_NONE;
+    ////    ifTransaction.writeBuf = txbuff;
+    //    ifTransaction.writeBuf = txbuff;
+    //    ifTransaction.writeCount = sizeof(txbuff);
+    //    ifTransaction.writeTimeout = BIOS_WAIT_FOREVER;
+    //    ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
 
     /* Make sure Error_Block is initialized */
     Error_init(&eb);
@@ -118,10 +151,25 @@ Void vAVDS485Device_taskFxn(UArg arg0, UArg arg1)
 
         if (events & DEVICE_PERIODIC_EVT) {
             events &= ~DEVICE_PERIODIC_EVT;
-            char_data_t pCharData;
-            pCharData.paramID = CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_SET_ID;
 
-            vAVDS485Device_SteveCommandsService_ValueChangeHandler(&pCharData, arg0, arg1, ifHandle, NULL, NULL);
+//            // set channel
+//            char tempBuff[sizeof(char_data_t) + sizeof(AVDS485Device_serviceSteveCommand_charSetChannel_data)];
+//            char_data_t *pCharData = (char_data_t *)tempBuff;
+//            pCharData->paramID = CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_SET_ID;
+//            AVDS485Device_serviceSteveCommand_charSetChannel_data *pData = (AVDS485Device_serviceSteveCommand_charSetChannel_data *)pCharData->data;
+//            pData->outputChannel = 1;
+//            pData->audioInputChannel = 2;
+//            pData->videoInputChannel = 3;
+//
+
+            // Get Volume
+            char tempBuff[sizeof(char_data_t) + sizeof(AVDS485Device_serviceSteveCommand_charGetProperty_data)];
+            char_data_t *pCharData = (char_data_t *)tempBuff;
+            pCharData->paramID = CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_MUTE_GET_ID;
+            AVDS485Device_serviceSteveCommand_charGetProperty_data *pData = (AVDS485Device_serviceSteveCommand_charGetProperty_data *)pCharData->data;
+            pData->outputChannel = 1;
+
+            vAVDS485Device_SteveCommandsService_ValueChangeHandler(pCharData, arg0, arg1, ifHandle, NULL, NULL);
         }
 
         if (events & DEVICE_APP_KILL_EVT) {
@@ -150,7 +198,7 @@ Void vAVDS485Device_taskFxn(UArg arg0, UArg arg1)
         {
             pMsg = Queue_dequeue(msgQHandle);
 
-//            vAVDS485Device_processApplicationMessage(pMsg, arg0, arg1, ifHandle, txbuff, rxbuff);
+            //            vAVDS485Device_processApplicationMessage(pMsg, arg0, arg1, ifHandle, txbuff, rxbuff);
             vAVDS485Device_processApplicationMessage(pMsg, arg0, arg1, ifHandle, NULL, NULL);
 
             // Free the received message.
@@ -246,7 +294,7 @@ DeviceList_Handler hAVDS485Device_open(DeviceList_Handler handle, void *params)
     handle->deviceType = DEVICE_TYPE_AVDS;
 
 
-//    Event_Params_init(&paramsUnion.eventParams);
+    //    Event_Params_init(&paramsUnion.eventParams);
     handle->eventHandle = Event_create(NULL, &eb);
 
     handle->msgQHandle = Queue_create(NULL, NULL);
@@ -264,7 +312,7 @@ DeviceList_Handler hAVDS485Device_open(DeviceList_Handler handle, void *params)
     Task_Params_init(&paramsUnion.taskParams);
     paramsUnion.taskParams.stackSize = DEVICES_AVDS_AVDSRS485DEVICE_TASK_STACK_SIZE;
     paramsUnion.taskParams.priority = DEVICES_AVDS_AVDSRS485DEVICE_TASK_PRIORITY;
-//    paramsUnion.taskParams.arg0 = (UArg)handle->deviceID;
+    //    paramsUnion.taskParams.arg0 = (UArg)handle->deviceID;
     paramsUnion.taskParams.arg0 = (UArg)deviceParams->arg0;
     paramsUnion.taskParams.arg1 = (UArg)handle;
     handle->taskHandle = Task_create((Task_FuncPtr)vAVDS485Device_taskFxn, &paramsUnion.taskParams, &eb);
@@ -286,11 +334,8 @@ static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle)
 
     AVDS485Device_Command_Initialize_Communication cmdTx;
     AVDS485Device_Command_Initialize_Communication_Response cmdRx;
-    char pCmdBuffer[16];
-    char pRxBuffer[16];
-    char cmdData;
 
-    ASSERT(ptsCmdBuf != NULL);
+    ASSERT(ifHandle != NULL);
 
     if(ifHandle == NULL) {
         return;
@@ -311,29 +356,69 @@ static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle)
     ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
 
 
-//    int n = xAVDS485Device_createMsgFrameWithCRC(pCmdBuffer, &cmdData, 1);
+    vAVDS485Device_cmdFrameInitialezeComunications(&cmdTx);
 
-//    pCmdBuffer[0] = 0xAA;
-//    pCmdBuffer[1] = 0x55;
-//    pCmdBuffer[2] = 0x00;
-//    pCmdBuffer[3] = 0x01;
-//    pCmdBuffer[4] = 0x22;
-//    pCmdBuffer[5] = 0xE5;
-//    pCmdBuffer[6] = 0xD0;
-    vAVDS485Device_InitWrapper(&cmdTx.wrapper, 1);
-    cmdTx.command = 0x22;
 
-    uint16_t crc;
-    xAVDS485Device_CRC_calculateFull(&cmdTx.command, 1, &crc);
-    cmdTx.crc = htons(crc);
+    transferOk = bIF_transfer(ifHandle, &ifTransaction);
+    if (transferOk) {
+        //        uint16_t *pui16PacketLength;
+        CRC_Handle handle;
+        CRC_Params params;
+        int_fast16_t status;
+        uint32_t result;
 
-//    if ( n > 0) {
-//        ifTransaction.writeCount = n;
-//        transferOk = bIF_transfer(ifHandle, &ifTransaction);
-//        if (transferOk) {
-//
+
+        /* Set data processing options, including endianness control */
+        CRC_Params_init(&params);
+        params.polynomial = CRC_POLYNOMIAL_CRC_16_CCITT;
+        params.dataSize = CRC_DATA_SIZE_8BIT;
+        params.seed = 0xFFFF;
+        params.byteSwapInput = CRC_BYTESWAP_UNCHANGED;
+        //    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+
+        /* Open the driver using the settings above */
+        handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
+        if (handle == NULL)
+        {
+            /* If the handle is already open, execution will stop here */
+            return;
+        }
+
+        result = 0;
+        //        /* Calculate the CRC of all 32 bytes in the source array */
+        //        status = CRC_calculateFull(handle, &cmdRx.command, 5, &result);
+        //        if (status != CRC_STATUS_SUCCESS)
+        //        {
+        //            CRC_close(handle);
+        //            /* If the CRC engine is busy or if an error occurs execution will stop here */
+        //            return;
+        //        }
+
+        status = CRC_addData(handle, &cmdRx.command, 1);
+        //        if (status != CRC_STATUS_SUCCESS)
+        //        {
+        //            /* If the CRC engine is busy or if an error occurs execution will stop here */
+        //            while(1);
+        //        }
+
+        //        cmdRx.result = ntohl(cmdRx.result);
+        status = CRC_addData(handle, &cmdRx.result, 4);
+
+        status = CRC_addData(handle, &cmdRx.crc, 2);
+
+        /* Extract the result from the internal state */
+        CRC_finalize(handle, &result);
+
+        /* Close the driver to allow other users to access this driver instance */
+        CRC_close(handle);
+
+//        uint16_t crc;
+//        crc = ntohs(cmdRx.crc);
+//        if (crc == (result & 0x0000FFFF)) {
+//            status = status;
 //        }
-//    }
+
+    }
 
 }
 
@@ -342,34 +427,34 @@ static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle)
 
 static void vAVDS485Device_processApplicationMessage(device_msg_t *pMsg, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff)
 {
-  char_data_t *pCharData = (char_data_t *)pMsg->pdu;
+    char_data_t *pCharData = (char_data_t *)pMsg->pdu;
 
-  switch (pMsg->type)
-  {
-  case APP_MSG_SERVICE_WRITE: /* Message about received value write */
-      /* Call different handler per service */
-      switch(pCharData->svcUUID) {
-      case SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID:
-          vAVDS485Device_SteveCommandsService_ValueChangeHandler(pCharData, arg0, arg1, ifHandle, txbuff, rxbuff);
-          break;
-      default:
-          break;
-      }
+    switch (pMsg->type)
+    {
+    case APP_MSG_SERVICE_WRITE: /* Message about received value write */
+        /* Call different handler per service */
+        switch(pCharData->svcUUID) {
+        case SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID:
+            vAVDS485Device_SteveCommandsService_ValueChangeHandler(pCharData, arg0, arg1, ifHandle, txbuff, rxbuff);
+            break;
+        default:
+            break;
+        }
 
-      break;
-  case APP_MSG_SERVICE_CFG: /* Message about received CCCD write */
-      /* Call different handler per service */
-      //      switch(pCharData->svcUUID) {
-      //        case BUTTON_SERVICE_SERV_UUID:
-      //          user_ButtonService_CfgChangeHandler(pCharData);
-      //          break;
-      //        case DATA_SERVICE_SERV_UUID:
-      //          user_DataService_CfgChangeHandler(pCharData);
-      //          break;
-      //      }
-      break;
+        break;
+        case APP_MSG_SERVICE_CFG: /* Message about received CCCD write */
+            /* Call different handler per service */
+            //      switch(pCharData->svcUUID) {
+            //        case BUTTON_SERVICE_SERV_UUID:
+            //          user_ButtonService_CfgChangeHandler(pCharData);
+            //          break;
+            //        case DATA_SERVICE_SERV_UUID:
+            //          user_DataService_CfgChangeHandler(pCharData);
+            //          break;
+            //      }
+            break;
 
-  }
+    }
 }
 //
 //static void vAVDS485Device_ALTOEmulatorClassService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff)
@@ -421,19 +506,35 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
 {
     uint32_t myDeviceID;
     DeviceList_Handler devHandle;
-
-//    AVDS485Device_directCommandData_t cmd;
-//    AVDS485Device_pingResponse pingResponse;
-//    AVDS485Device_generalStatusResponse statusResponse;
-
-//    IF_Params params;
     IF_Transaction ifTransaction;
-    bool transferOk;
-//    AVDS485Device_SteveCommandData_t *pRxData = (AVDS485Device_SteveCommandData_t *)pCharData->data;
+    AVDS485Device_serviceSteveCommand_charSetChannel_data *pSetChannelData;
+    AVDS485Device_serviceSteveCommand_charGetChannel_data *pGetChannelData;
+    AVDS485Device_serviceSteveCommand_charSetProperty_data *pSetPropertyData;
+    AVDS485Device_serviceSteveCommand_charGetProperty_data *pGetPropertyData;
 
-    char pCmdBuffer[16];
-    char pRxBuffer[16];
-    char cmdData;
+    AVDS485Device_serviceSteveCommand_charSetPropertyResp_data setPropertyResData;
+    AVDS485Device_serviceSteveCommand_charGetPropertyResp_data getPropertyResData;
+    bool transferOk;
+    uint16_t ui16Result;
+
+    char tempBuff[24];
+
+    union {
+        AVDS485Device_Command_set_channel cmdSetCh;
+        AVDS485Device_Command_get_channel cmdGetCh;
+        AVDS485Device_Command_setControlProperty cmdSetCtlProperty;
+        AVDS485Device_Command_getControlProperty cmdGetCtlProperty;
+    } bufferTxUnion;
+
+    union {
+        AVDS485Device_Command_set_channel_Response cmdSetChResp;
+        AVDS485Device_Command_get_channel_Response cmdGetChResp;
+        AVDS485Device_Command_setControlProperty_Response cmdSetCtlPropertyResp;
+        AVDS485Device_Command_getControlProperty_Response cmdGetCtlPropertyResp;
+    } bufferRxUnion;
+
+
+    AVDS485Device_Command_getControlProperty_Response *pCmdGetCtlPropertyResp;
 
 
     if(arg1 == NULL) {
@@ -455,68 +556,361 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
      */
     memset(&ifTransaction, 0, sizeof(IF_Transaction));
     ifTransaction.readCount = 0;
-    ifTransaction.readBuf = rxbuff;
+    ifTransaction.readBuf = &bufferRxUnion.cmdGetChResp;
     ifTransaction.readTimeout = 30;
     ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_AVDS485;
-//    ifTransaction.writeBuf = txbuff;
-//    ifTransaction.writeBuf = &cmd;
+    //    ifTransaction.writeBuf = txbuff;
+    //    ifTransaction.writeBuf = &cmd;
     ifTransaction.writeCount = 0;
     ifTransaction.writeTimeout = BIOS_WAIT_FOREVER;
     ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
 
 
+    pSetChannelData = (AVDS485Device_serviceSteveCommand_charSetChannel_data *)pCharData->data;
+    pGetChannelData = (AVDS485Device_serviceSteveCommand_charGetChannel_data *)pCharData->data;
+    pSetPropertyData = (AVDS485Device_serviceSteveCommand_charSetProperty_data *)pCharData->data;
+    pGetPropertyData = (AVDS485Device_serviceSteveCommand_charGetProperty_data *)pCharData->data;
+
 
     switch (pCharData->paramID) {
     case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_SET_ID:
+        xAVDS485Device_cmdFrameSetChannel(&bufferTxUnion.cmdSetCh,
+                                          pSetChannelData->outputChannel,
+                                          pSetChannelData->audioInputChannel,
+                                          pSetChannelData->videoInputChannel);
+        ifTransaction.writeBuf = &bufferTxUnion.cmdSetCh;
+        ifTransaction.readBuf = &bufferRxUnion.cmdSetChResp;
+        ifTransaction.writeCount = sizeof(AVDS485Device_Command_set_channel);
+        ifTransaction.readCount = sizeof(AVDS485Device_Command_set_channel_Response);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+            bufferRxUnion.cmdSetChResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdSetChResp.wrapper.packetLength);
+            bufferRxUnion.cmdSetChResp.crc = ntohs(bufferRxUnion.cmdSetChResp.crc);
+            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdSetChResp.command,
+                                                 bufferRxUnion.cmdSetChResp.wrapper.packetLength,
+                                                 &ui16Result) == CRC_STATUS_SUCCESS)
+            {
+                if (ui16Result == bufferRxUnion.cmdSetChResp.crc)
+                {
+                    AVDS485Device_serviceSteveCommand_charSetChannelResp_data *pSetChannelResData = (AVDS485Device_serviceSteveCommand_charSetChannelResp_data *)&bufferRxUnion.cmdSetChResp.result;
+                    vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                             APP_MSG_SERVICE_WRITE,
+                                             pCharData->connHandle,
+                                             pCharData->retSvcUUID, pCharData->retParamID,
+                                             myDeviceID,
+                                             SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_SET_ID,
+                                             (uint8_t *)pSetChannelResData, sizeof(AVDS485Device_serviceSteveCommand_charSetChannelResp_data));
+                }
+            }
+        }
 
-        cmdData = 0x22;
-        ifTransaction.writeBuf = pCmdBuffer;
-        ifTransaction.readBuf = pRxBuffer;
-        ifTransaction.readCount = 6+5;
-        int n = xAVDS485Device_createMsgFrameWithCRC(pCmdBuffer, &cmdData, 1);
-
-        pCmdBuffer[0] = 0xAA;
-        pCmdBuffer[1] = 0x55;
-        pCmdBuffer[2] = 0x00;
-        pCmdBuffer[3] = 0x01;
-        pCmdBuffer[4] = 0x22;
-//        pCmdBuffer[5] = 0xE5;
-//        pCmdBuffer[6] = 0xD0;
-
-        int16_t crc;
-        xAVDS485Device_CRC_calculateFull(&pCmdBuffer[4], 1, &crc);
-        crc = htons(crc);
-
-        if ( n > 0) {
-            ifTransaction.writeCount = n;
-            transferOk = bIF_transfer(ifHandle, &ifTransaction);
-            if (transferOk) {
-
+        break;
+    case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_GET_ID:
+        xAVDS485Device_cmdFrameGetChannel(&bufferTxUnion.cmdGetCh, pGetChannelData->outputChannel);
+        ifTransaction.writeBuf = &bufferTxUnion.cmdGetCh;
+        ifTransaction.readBuf = &bufferRxUnion.cmdGetChResp;
+        ifTransaction.writeCount = sizeof(AVDS485Device_Command_get_channel);
+        ifTransaction.readCount = sizeof(AVDS485Device_Command_get_channel_Response);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+            bufferRxUnion.cmdGetChResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdGetChResp.wrapper.packetLength);
+            bufferRxUnion.cmdGetChResp.crc = ntohs(bufferRxUnion.cmdGetChResp.crc);
+            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdGetChResp.command,
+                                                 bufferRxUnion.cmdGetChResp.wrapper.packetLength,
+                                                 &ui16Result) == CRC_STATUS_SUCCESS)
+            {
+                if (ui16Result == bufferRxUnion.cmdGetChResp.crc)
+                {
+                    AVDS485Device_serviceSteveCommand_charGetChannelResp_data getChannelResData;
+                    getChannelResData.result = bufferRxUnion.cmdGetChResp.result;
+                    getChannelResData.audioInputChannel = ntohs(bufferRxUnion.cmdGetChResp.audioInputChannel);
+                    getChannelResData.videoInputChannel = ntohs(bufferRxUnion.cmdGetChResp.videoInputChannel);
+                    vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                             APP_MSG_SERVICE_WRITE,
+                                             pCharData->connHandle,
+                                             pCharData->retSvcUUID, pCharData->retParamID,
+                                             myDeviceID,
+                                             SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_GET_ID,
+                                             (uint8_t *)&getChannelResData, sizeof(AVDS485Device_serviceSteveCommand_charGetChannelResp_data));
+                }
             }
         }
         break;
-    case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_GET_ID:
-//        ifTransaction.readCount = sizeof(AVDS485Device_pingResponse);
-//        ifTransaction.readBuf = &pingResponse;
-//        xAVDS485Device_createMsgFrame(&cmd,
-//                                       AVDS485_Header_Ping,
-//                                       pRxData->command,
-//                                       pRxData->address);
+    case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_VOLUME_SET_ID:
+        xAVDS485Device_cmdFrameVolumeSet(&bufferTxUnion.cmdSetCtlProperty, pSetPropertyData->outputChannel, pSetPropertyData->value);
+        ifTransaction.writeBuf = &bufferTxUnion.cmdSetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdSetCtlPropertyResp;
+        ifTransaction.writeCount = sizeof(AVDS485Device_Command_setControlProperty);
+        ifTransaction.readCount = sizeof(AVDS485Device_Command_setControlProperty_Response);
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
         if (transferOk) {
-//            AVDS485Device_SteveCommandReturn1Data_t steveResponse1Data;
-//            steveResponse1Data.ui8NetworkID = pRxData->address;
-//            steveResponse1Data.ui8Value = pingResponse.ui1PowerOnOff;
-//            vDevice_sendCharDataMsg (pCharData->retDeviceID,
-//                                                     APP_MSG_SERVICE_WRITE,
-//                                                     pCharData->connHandle,
-//                                                     pCharData->retSvcUUID, pCharData->retParamID,
-//                                                     myDeviceID,
-//                                                     SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_POWER_GET_ID,
-//                                                     (uint8_t *)&steveResponse1Data, sizeof(AVDS485Device_SteveCommandReturn1Data_t));
+            bufferRxUnion.cmdSetCtlPropertyResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdSetCtlPropertyResp.wrapper.packetLength);
+            bufferRxUnion.cmdSetCtlPropertyResp.crc = ntohs(bufferRxUnion.cmdSetCtlPropertyResp.crc);
+            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdSetCtlPropertyResp.command,
+                                                 bufferRxUnion.cmdSetCtlPropertyResp.wrapper.packetLength,
+                                                 &ui16Result) == CRC_STATUS_SUCCESS)
+            {
+                if (ui16Result == bufferRxUnion.cmdSetCtlPropertyResp.crc)
+                {
+                    setPropertyResData.result = bufferRxUnion.cmdSetCtlPropertyResp.result;
+                    vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                             APP_MSG_SERVICE_WRITE,
+                                             pCharData->connHandle,
+                                             pCharData->retSvcUUID, pCharData->retParamID,
+                                             myDeviceID,
+                                             SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_VOLUME_SET_ID,
+                                             (uint8_t *)&setPropertyResData, sizeof(AVDS485Device_serviceSteveCommand_charSetPropertyResp_data));
+                }
+            }
         }
         break;
+    case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_VOLUME_GET_ID:
+        xAVDS485Device_cmdFrameVolumeGet(&bufferTxUnion.cmdGetCtlProperty, pGetPropertyData->outputChannel);
+        ifTransaction.writeBuf = &bufferTxUnion.cmdGetCtlProperty;
+//        ifTransaction.readBuf = &bufferRxUnion.cmdGetCtlPropertyResp;
+        ifTransaction.writeCount = sizeof(AVDS485Device_Command_getControlProperty);
+//        ifTransaction.readCount = sizeof(AVDS485Device_Command_getControlProperty_Response);
+        ifTransaction.readBuf = tempBuff;
+        ifTransaction.readCount = sizeof(tempBuff);
+        pCmdGetCtlPropertyResp = (AVDS485Device_Command_getControlProperty_Response *)tempBuff;
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+//        if (transferOk)
+        {
+//            bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength);
+//            bufferRxUnion.cmdGetCtlPropertyResp.crc = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.crc);
+//            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdGetCtlPropertyResp.command,
+//                                                 bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength,
+//                                                 &ui16Result) == CRC_STATUS_SUCCESS)
+            {
+//                if (ui16Result == bufferRxUnion.cmdGetCtlPropertyResp.crc)
+                {
+//                    getPropertyResData.result = bufferRxUnion.cmdGetCtlPropertyResp.result;
+//                    getPropertyResData.value = ntohl(bufferRxUnion.cmdGetCtlPropertyResp.value);
+////                    getPropertyResData.value = tempBuff[12];
+                    getPropertyResData.result = pCmdGetCtlPropertyResp->result;
+                    getPropertyResData.value = ntohl(pCmdGetCtlPropertyResp->value);
+                    vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                             APP_MSG_SERVICE_WRITE,
+                                             pCharData->connHandle,
+                                             pCharData->retSvcUUID, pCharData->retParamID,
+                                             myDeviceID,
+                                             SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_VOLUME_GET_ID,
+                                             (uint8_t *)&getPropertyResData, sizeof(AVDS485Device_serviceSteveCommand_charGetPropertyResp_data));
+                }
+            }
+        }
+        break;
+    case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_MUTE_SET_ID:
+        xAVDS485Device_cmdFrameMuteSet(&bufferTxUnion.cmdSetCtlProperty, pSetPropertyData->outputChannel, pSetPropertyData->value);
+        ifTransaction.writeBuf = &bufferTxUnion.cmdSetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdSetCtlPropertyResp;
+        ifTransaction.writeCount = sizeof(AVDS485Device_Command_setControlProperty);
+        ifTransaction.readCount = sizeof(AVDS485Device_Command_setControlProperty_Response);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+            bufferRxUnion.cmdSetCtlPropertyResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdSetCtlPropertyResp.wrapper.packetLength);
+            bufferRxUnion.cmdSetCtlPropertyResp.crc = ntohs(bufferRxUnion.cmdSetCtlPropertyResp.crc);
+            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdSetCtlPropertyResp.command,
+                                                 bufferRxUnion.cmdSetCtlPropertyResp.wrapper.packetLength,
+                                                 &ui16Result) == CRC_STATUS_SUCCESS)
+            {
+                if (ui16Result == bufferRxUnion.cmdSetCtlPropertyResp.crc)
+                {
+                    setPropertyResData.result = bufferRxUnion.cmdSetCtlPropertyResp.result;
+                    vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                             APP_MSG_SERVICE_WRITE,
+                                             pCharData->connHandle,
+                                             pCharData->retSvcUUID, pCharData->retParamID,
+                                             myDeviceID,
+                                             SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_MUTE_SET_ID,
+                                             (uint8_t *)&setPropertyResData, sizeof(AVDS485Device_serviceSteveCommand_charSetPropertyResp_data));
+                }
+            }
+        }
+        break;
+    case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_MUTE_GET_ID:
+        xAVDS485Device_cmdFrameMuteGet(&bufferTxUnion.cmdGetCtlProperty, pGetPropertyData->outputChannel);
+        ifTransaction.writeBuf = &bufferTxUnion.cmdGetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdGetCtlPropertyResp;
+        ifTransaction.writeCount = sizeof(AVDS485Device_Command_getControlProperty);
+        ifTransaction.readCount = sizeof(AVDS485Device_Command_getControlProperty_Response);
+//        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+//        if (transferOk) {
+//            bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength);
+//            bufferRxUnion.cmdGetCtlPropertyResp.crc = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.crc);
+//            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdGetCtlPropertyResp.command,
+//                                                 bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength,
+//                                                 &ui16Result) == CRC_STATUS_SUCCESS)
+//            {
+//                if (ui16Result == bufferRxUnion.cmdGetCtlPropertyResp.crc)
+//                {
+//                    getPropertyResData.result = bufferRxUnion.cmdGetCtlPropertyResp.result;
+//                    getPropertyResData.value = ntohl(bufferRxUnion.cmdGetCtlPropertyResp.value);
+//                    vDevice_sendCharDataMsg (pCharData->retDeviceID,
+//                                             APP_MSG_SERVICE_WRITE,
+//                                             pCharData->connHandle,
+//                                             pCharData->retSvcUUID, pCharData->retParamID,
+//                                             myDeviceID,
+//                                             SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_MUTE_GET_ID,
+//                                             (uint8_t *)&getPropertyResData, sizeof(AVDS485Device_serviceSteveCommand_charGetPropertyResp_data));
+//                }
+//            }
+//        }
+        ifTransaction.readBuf = tempBuff;
+        ifTransaction.readCount = sizeof(tempBuff);
+        pCmdGetCtlPropertyResp = (AVDS485Device_Command_getControlProperty_Response *)tempBuff;
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        getPropertyResData.result = pCmdGetCtlPropertyResp->result;
+        getPropertyResData.value = ntohl(pCmdGetCtlPropertyResp->value);
+        vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                 APP_MSG_SERVICE_WRITE,
+                                 pCharData->connHandle,
+                                 pCharData->retSvcUUID, pCharData->retParamID,
+                                 myDeviceID,
+                                 SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_MUTE_GET_ID,
+                                 (uint8_t *)&getPropertyResData, sizeof(AVDS485Device_serviceSteveCommand_charGetPropertyResp_data));
+        break;
+    case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_BASS_SET_ID:
+        xAVDS485Device_cmdFrameBassSet(&bufferTxUnion.cmdSetCtlProperty, pSetPropertyData->outputChannel, pSetPropertyData->value);
+        ifTransaction.writeBuf = &bufferTxUnion.cmdSetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdSetCtlPropertyResp;
+        ifTransaction.writeCount = sizeof(AVDS485Device_Command_setControlProperty);
+        ifTransaction.readCount = sizeof(AVDS485Device_Command_setControlProperty_Response);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+            bufferRxUnion.cmdSetCtlPropertyResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdSetCtlPropertyResp.wrapper.packetLength);
+            bufferRxUnion.cmdSetCtlPropertyResp.crc = ntohs(bufferRxUnion.cmdSetCtlPropertyResp.crc);
+            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdSetCtlPropertyResp.command,
+                                                 bufferRxUnion.cmdSetCtlPropertyResp.wrapper.packetLength,
+                                                 &ui16Result) == CRC_STATUS_SUCCESS)
+            {
+                if (ui16Result == bufferRxUnion.cmdSetCtlPropertyResp.crc)
+                {
+                    setPropertyResData.result = bufferRxUnion.cmdSetCtlPropertyResp.result;
+                    vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                             APP_MSG_SERVICE_WRITE,
+                                             pCharData->connHandle,
+                                             pCharData->retSvcUUID, pCharData->retParamID,
+                                             myDeviceID,
+                                             SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_BASS_SET_ID,
+                                             (uint8_t *)&setPropertyResData, sizeof(AVDS485Device_serviceSteveCommand_charSetPropertyResp_data));
+                }
+            }
+        }
+        break;
+    case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_BASS_GET_ID:
+        xAVDS485Device_cmdFrameBassGet(&bufferTxUnion.cmdGetCtlProperty, pGetPropertyData->outputChannel);
+        ifTransaction.writeBuf = &bufferTxUnion.cmdGetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdGetCtlPropertyResp;
+        ifTransaction.writeCount = sizeof(AVDS485Device_Command_getControlProperty);
+        ifTransaction.readCount = sizeof(AVDS485Device_Command_getControlProperty_Response);
+//        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+//        if (transferOk) {
+//            bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength);
+//            bufferRxUnion.cmdGetCtlPropertyResp.crc = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.crc);
+//            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdGetCtlPropertyResp.command,
+//                                                 bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength,
+//                                                 &ui16Result) == CRC_STATUS_SUCCESS)
+//            {
+//                if (ui16Result == bufferRxUnion.cmdGetCtlPropertyResp.crc)
+//                {
+//                    getPropertyResData.result = bufferRxUnion.cmdGetCtlPropertyResp.result;
+//                    getPropertyResData.value = ntohl(bufferRxUnion.cmdGetCtlPropertyResp.value);
+//                    vDevice_sendCharDataMsg (pCharData->retDeviceID,
+//                                             APP_MSG_SERVICE_WRITE,
+//                                             pCharData->connHandle,
+//                                             pCharData->retSvcUUID, pCharData->retParamID,
+//                                             myDeviceID,
+//                                             SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_BASS_GET_ID,
+//                                             (uint8_t *)&getPropertyResData, sizeof(AVDS485Device_serviceSteveCommand_charGetPropertyResp_data));
+//                }
+//            }
+//        }
+        ifTransaction.readBuf = tempBuff;
+        ifTransaction.readCount = sizeof(tempBuff);
+        pCmdGetCtlPropertyResp = (AVDS485Device_Command_getControlProperty_Response *)tempBuff;
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        getPropertyResData.result = pCmdGetCtlPropertyResp->result;
+        getPropertyResData.value = ntohl(pCmdGetCtlPropertyResp->value);
+        vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                 APP_MSG_SERVICE_WRITE,
+                                 pCharData->connHandle,
+                                 pCharData->retSvcUUID, pCharData->retParamID,
+                                 myDeviceID,
+                                 SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_BASS_GET_ID,
+                                 (uint8_t *)&getPropertyResData, sizeof(AVDS485Device_serviceSteveCommand_charGetPropertyResp_data));
+        break;
 
+    case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_TREBLE_SET_ID:
+        xAVDS485Device_cmdFrameTrebleSet(&bufferTxUnion.cmdSetCtlProperty, pSetPropertyData->outputChannel, pSetPropertyData->value);
+        ifTransaction.writeBuf = &bufferTxUnion.cmdSetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdSetCtlPropertyResp;
+        ifTransaction.writeCount = sizeof(AVDS485Device_Command_setControlProperty);
+        ifTransaction.readCount = sizeof(AVDS485Device_Command_setControlProperty_Response);
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        if (transferOk) {
+            bufferRxUnion.cmdSetCtlPropertyResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdSetCtlPropertyResp.wrapper.packetLength);
+            bufferRxUnion.cmdSetCtlPropertyResp.crc = ntohs(bufferRxUnion.cmdSetCtlPropertyResp.crc);
+            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdSetCtlPropertyResp.command,
+                                                 bufferRxUnion.cmdSetCtlPropertyResp.wrapper.packetLength,
+                                                 &ui16Result) == CRC_STATUS_SUCCESS)
+            {
+                if (ui16Result == bufferRxUnion.cmdSetCtlPropertyResp.crc)
+                {
+                    setPropertyResData.result = bufferRxUnion.cmdSetCtlPropertyResp.result;
+                    vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                             APP_MSG_SERVICE_WRITE,
+                                             pCharData->connHandle,
+                                             pCharData->retSvcUUID, pCharData->retParamID,
+                                             myDeviceID,
+                                             SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_TREBLE_SET_ID,
+                                             (uint8_t *)&setPropertyResData, sizeof(AVDS485Device_serviceSteveCommand_charSetPropertyResp_data));
+                }
+            }
+        }
+        break;
+    case CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_TREBLE_GET_ID:
+        xAVDS485Device_cmdFrameTrebleGet(&bufferTxUnion.cmdGetCtlProperty, pGetPropertyData->outputChannel);
+        ifTransaction.writeBuf = &bufferTxUnion.cmdGetCtlProperty;
+        ifTransaction.readBuf = &bufferRxUnion.cmdGetCtlPropertyResp;
+        ifTransaction.writeCount = sizeof(AVDS485Device_Command_getControlProperty);
+        ifTransaction.readCount = sizeof(AVDS485Device_Command_getControlProperty_Response);
+//        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+//        if (transferOk) {
+//            bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength);
+//            bufferRxUnion.cmdGetCtlPropertyResp.crc = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.crc);
+//            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdGetCtlPropertyResp.command,
+//                                                 bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength,
+//                                                 &ui16Result) == CRC_STATUS_SUCCESS)
+//            {
+//                if (ui16Result == bufferRxUnion.cmdGetCtlPropertyResp.crc)
+//                {
+//                    getPropertyResData.result = bufferRxUnion.cmdGetCtlPropertyResp.result;
+//                    getPropertyResData.value = ntohl(bufferRxUnion.cmdGetCtlPropertyResp.value);
+//                    vDevice_sendCharDataMsg (pCharData->retDeviceID,
+//                                             APP_MSG_SERVICE_WRITE,
+//                                             pCharData->connHandle,
+//                                             pCharData->retSvcUUID, pCharData->retParamID,
+//                                             myDeviceID,
+//                                             SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_TREBLE_GET_ID,
+//                                             (uint8_t *)&getPropertyResData, sizeof(AVDS485Device_serviceSteveCommand_charGetPropertyResp_data));
+//                }
+//            }
+//        }
+        ifTransaction.readBuf = tempBuff;
+        ifTransaction.readCount = sizeof(tempBuff);
+        pCmdGetCtlPropertyResp = (AVDS485Device_Command_getControlProperty_Response *)tempBuff;
+        transferOk = bIF_transfer(ifHandle, &ifTransaction);
+        getPropertyResData.result = pCmdGetCtlPropertyResp->result;
+        getPropertyResData.value = ntohl(pCmdGetCtlPropertyResp->value);
+        vDevice_sendCharDataMsg (pCharData->retDeviceID,
+                                 APP_MSG_SERVICE_WRITE,
+                                 pCharData->connHandle,
+                                 pCharData->retSvcUUID, pCharData->retParamID,
+                                 myDeviceID,
+                                 SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_TREBLE_GET_ID,
+                                 (uint8_t *)&getPropertyResData, sizeof(AVDS485Device_serviceSteveCommand_charGetPropertyResp_data));
+        break;
     default:
         break;
     }
@@ -526,34 +920,6 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
  * ==================================================================================
  *
  */
-//
-//uint32_t xAVDS485Device_createMsgFrame(AVDS485Device_directCommandData_t *ptsCmdBuf, uint8_t header, uint8_t command, uint8_t address)
-//{
-//    ASSERT(ptsCmdBuf != NULL);
-//
-//    if (ptsCmdBuf == NULL) {
-//        return 0;
-//    }
-//    ptsCmdBuf->header = header;
-//    ptsCmdBuf->command = command;
-//    ptsCmdBuf->address = address;
-//    return 3;
-//}
-//
-//uint32_t xAVDS485Device_SingleBlueRayDVDCreateMsgFrame(AVDS485Device_directCommandData_t *ptsCmdBuf, uint32_t command, uint32_t address)
-//{
-//    ASSERT(ptsCmdBuf != NULL);
-//    ASSERT(command <= 0xFF);
-//    ASSERT((address >= ROSSEN_BlueRayDVD_Network_Address_20 ) && (address <= ROSSEN_BlueRayDVD_Network_Address_27));
-//
-//    if (ptsCmdBuf == NULL) {
-//        return 0;
-//    }
-//    if ((address < ROSSEN_BlueRayDVD_Network_Address_20 ) || (address > ROSSEN_BlueRayDVD_Network_Address_27)) {
-//        return 0;
-//    }
-//    return xAVDS485Device_createMsgFrame(ptsCmdBuf, AVDS_Header_Single_BlueRay_DVD, command, address);
-//}
 
 int xAVDS485Device_createMsgFrameWithCRC(char *pCmdBuffer, char *pCmdData, uint32_t packetLength)
 {
@@ -576,7 +942,7 @@ int xAVDS485Device_createMsgFrameWithCRC(char *pCmdBuffer, char *pCmdData, uint3
     params.dataSize = CRC_DATA_SIZE_8BIT;
     params.seed = 0xFFFF;
     params.byteSwapInput = CRC_BYTESWAP_UNCHANGED;
-//    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+    //    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
 
     /* Open the driver using the settings above */
     handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
@@ -607,7 +973,7 @@ int xAVDS485Device_createMsgFrameWithCRC(char *pCmdBuffer, char *pCmdData, uint3
 
 int16_t xAVDS485Device_CRC_calculateFull(const void *pSource, size_t sourceBytes, uint16_t *pui16Result)
 {
-    uint16_t *pui16PacketLength;
+    //    uint16_t *pui16PacketLength;
     CRC_Handle handle;
     CRC_Params params;
     int_fast16_t status;
@@ -620,7 +986,7 @@ int16_t xAVDS485Device_CRC_calculateFull(const void *pSource, size_t sourceBytes
     params.dataSize = CRC_DATA_SIZE_8BIT;
     params.seed = 0xFFFF;
     params.byteSwapInput = CRC_BYTESWAP_UNCHANGED;
-//    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+    //    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
 
     /* Open the driver using the settings above */
     handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
@@ -652,4 +1018,299 @@ void vAVDS485Device_InitWrapper(AVDS485Device_Command_Wrapper *pWrapper, uint16_
     pWrapper->preamble1 = 0xAA;
     pWrapper->preamble2 = 0x55;
     pWrapper->packetLength = htons(length);
+}
+
+void vAVDS485Device_cmdFrameInitialezeComunications(AVDS485Device_Command_Initialize_Communication *pCmd)
+{
+    uint16_t crc;
+    vAVDS485Device_InitWrapper(&pCmd->wrapper, AVDS485DEVICE_COMMAND_INITIALIZE_COMMUNICATIONS_SIZE);
+    pCmd->command = AVDS485DEVICE_COMMAND_INITIALIZE_COMMUNICATIONS;
+
+    xAVDS485Device_CRC_calculateFull(&pCmd->command, AVDS485DEVICE_COMMAND_INITIALIZE_COMMUNICATIONS_SIZE, &crc);
+    pCmd->crc = htons(crc);
+}
+
+int xAVDS485Device_cmdFrameSetChannel(AVDS485Device_Command_set_channel *pCmd,
+                                      uint16_t outputChannel,
+                                      uint16_t audioInputChannel,
+                                      uint16_t videoInputChannel)
+{
+    uint16_t crc;
+    CRC_Handle handle;
+    CRC_Params params;
+    int_fast16_t status;
+    uint32_t result;
+
+    vAVDS485Device_InitWrapper(&pCmd->wrapper, AVDS485DEVICE_COMMAND_SET_CHANNEL_SIZE);
+    pCmd->command = AVDS485DEVICE_COMMAND_SET_CHANNEL;
+
+    pCmd->outputChannel = htons(outputChannel);
+    pCmd->audioInputChannel = htons(audioInputChannel);
+    pCmd->videoInputChannel = htons(videoInputChannel);
+
+    /* Set data processing options, including endianness control */
+    CRC_Params_init(&params);
+    params.polynomial = CRC_POLYNOMIAL_CRC_16_CCITT;
+    params.dataSize = CRC_DATA_SIZE_8BIT;
+    params.seed = 0xFFFF;
+    params.byteSwapInput = CRC_BYTESWAP_UNCHANGED;
+    //    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+
+    /* Open the driver using the settings above */
+    handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
+    if (handle == NULL)
+    {
+        /* If the handle is already open, execution will stop here */
+        return CRC_STATUS_RESOURCE_UNAVAILABLE;
+    }
+    result = 0;
+
+    status = CRC_calculateFull(handle, &pCmd->command, AVDS485DEVICE_COMMAND_SET_CHANNEL_SIZE, &result);
+
+    //    result = 0;
+    //    status = CRC_addData(handle, &pCmd->command, 1);
+    //    status = CRC_addData(handle, &pCmd->outputChannel, 2);
+    //    status = CRC_addData(handle, &pCmd->audioInputChannel, 2);
+    //    status = CRC_addData(handle, &pCmd->videoInputChannel, 2);
+    //
+    //    /* Extract the result from the internal state */
+    //    CRC_finalize(handle, &result);
+    if (status){
+
+    }
+
+
+    /* Close the driver to allow other users to access this driver instance */
+    CRC_close(handle);
+
+    crc = (result & 0x0000FFFF);
+    pCmd->crc = htons(crc);
+
+    return 1;
+}
+
+int xAVDS485Device_cmdFrameGetChannel(AVDS485Device_Command_get_channel *pCmd,
+                                      uint16_t outputChannel)
+{
+    uint16_t crc;
+    CRC_Handle handle;
+    CRC_Params params;
+    int_fast16_t status;
+    uint32_t result;
+
+    vAVDS485Device_InitWrapper(&pCmd->wrapper, AVDS485DEVICE_COMMAND_GET_CHANNEL_SIZE);
+    pCmd->command = AVDS485DEVICE_COMMAND_GET_CHANNEL;
+
+    pCmd->outputChannel = htons(outputChannel);
+
+    /* Set data processing options, including endianness control */
+    CRC_Params_init(&params);
+    params.polynomial = CRC_POLYNOMIAL_CRC_16_CCITT;
+    params.dataSize = CRC_DATA_SIZE_8BIT;
+    params.seed = 0xFFFF;
+    params.byteSwapInput = CRC_BYTESWAP_UNCHANGED;
+    //    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+
+    /* Open the driver using the settings above */
+    handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
+    if (handle == NULL)
+    {
+        /* If the handle is already open, execution will stop here */
+        return CRC_STATUS_RESOURCE_UNAVAILABLE;
+    }
+    result = 0;
+
+    status = CRC_calculateFull(handle, &pCmd->command, AVDS485DEVICE_COMMAND_GET_CHANNEL_SIZE, &result);
+    if (status){
+
+    }
+
+    /* Close the driver to allow other users to access this driver instance */
+    CRC_close(handle);
+
+    crc = (result & 0x0000FFFF);
+    pCmd->crc = htons(crc);
+
+    return 1;
+}
+
+
+int xAVDS485Device_cmdFrameSetControlProperty(AVDS485Device_Command_setControlProperty *pCmd,
+                                              uint16_t outputChannel,
+                                              uint8_t property,
+                                              uint32_t value)
+{
+    uint16_t crc;
+    CRC_Handle handle;
+    CRC_Params params;
+    int_fast16_t status;
+    uint32_t result;
+
+    vAVDS485Device_InitWrapper(&pCmd->wrapper, AVDS485DEVICE_COMMAND_SET_CONTROL_PROPERTY_SIZE);
+    pCmd->command = AVDS485DEVICE_COMMAND_SET_CONTROL_PROPERTY;
+
+    pCmd->outputChannel = htons(outputChannel);
+    pCmd->property = htons(property);
+    pCmd->value = htonl(value);
+
+    /* Set data processing options, including endianness control */
+    CRC_Params_init(&params);
+    params.polynomial = CRC_POLYNOMIAL_CRC_16_CCITT;
+    params.dataSize = CRC_DATA_SIZE_8BIT;
+    params.seed = 0xFFFF;
+    params.byteSwapInput = CRC_BYTESWAP_UNCHANGED;
+    //    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+
+    /* Open the driver using the settings above */
+    handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
+    if (handle == NULL)
+    {
+        /* If the handle is already open, execution will stop here */
+        return CRC_STATUS_RESOURCE_UNAVAILABLE;
+    }
+    result = 0;
+
+    status = CRC_calculateFull(handle, &pCmd->command, AVDS485DEVICE_COMMAND_SET_CONTROL_PROPERTY_SIZE, &result);
+    if (status){
+
+    }
+
+    /* Close the driver to allow other users to access this driver instance */
+    CRC_close(handle);
+
+    crc = (result & 0x0000FFFF);
+    pCmd->crc = htons(crc);
+
+    return 1;
+}
+
+
+int xAVDS485Device_cmdFrameGetControlProperty(AVDS485Device_Command_getControlProperty *pCmd,
+                                              uint16_t outputChannel,
+                                              uint8_t property)
+{
+    uint16_t crc;
+    CRC_Handle handle;
+    CRC_Params params;
+    int_fast16_t status;
+    uint32_t result;
+
+    vAVDS485Device_InitWrapper(&pCmd->wrapper, AVDS485DEVICE_COMMAND_GET_CONTROL_PROPERTY_SIZE);
+    pCmd->command = AVDS485DEVICE_COMMAND_GET_CONTROL_PROPERTY;
+
+    pCmd->outputChannel = htons(outputChannel);
+    pCmd->property = property;
+
+    /* Set data processing options, including endianness control */
+    CRC_Params_init(&params);
+    params.polynomial = CRC_POLYNOMIAL_CRC_16_CCITT;
+    params.dataSize = CRC_DATA_SIZE_8BIT;
+    params.seed = 0xFFFF;
+    params.byteSwapInput = CRC_BYTESWAP_UNCHANGED;
+    //    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+
+    /* Open the driver using the settings above */
+    handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
+    if (handle == NULL)
+    {
+        /* If the handle is already open, execution will stop here */
+        return CRC_STATUS_RESOURCE_UNAVAILABLE;
+    }
+    result = 0;
+
+    status = CRC_calculateFull(handle, &pCmd->command, AVDS485DEVICE_COMMAND_GET_CONTROL_PROPERTY_SIZE, &result);
+    if (status){
+
+    }
+
+    /* Close the driver to allow other users to access this driver instance */
+    CRC_close(handle);
+
+    crc = (result & 0x0000FFFF);
+    pCmd->crc = htons(crc);
+
+    return 1;
+}
+
+int xAVDS485Device_cmdFrameVolumeSet(AVDS485Device_Command_setControlProperty *pCmd,
+                                     uint16_t outputChannel,
+                                     uint32_t value)
+{
+    return xAVDS485Device_cmdFrameSetControlProperty(pCmd,
+                                                     outputChannel,
+                                                     AVDS485DEVICE_PROPERTY_VOLUME,
+                                                     value);
+}
+
+
+int xAVDS485Device_cmdFrameMuteSet(AVDS485Device_Command_setControlProperty *pCmd,
+                                   uint16_t outputChannel,
+                                   uint32_t value)
+{
+    return xAVDS485Device_cmdFrameSetControlProperty(pCmd,
+                                                     outputChannel,
+                                                     AVDS485DEVICE_PROPERTY_MUTE,
+                                                     value);
+}
+
+
+
+
+int xAVDS485Device_cmdFrameBassSet(AVDS485Device_Command_setControlProperty *pCmd,
+                                   uint16_t outputChannel,
+                                   uint32_t value)
+{
+    return xAVDS485Device_cmdFrameSetControlProperty(pCmd,
+                                                     outputChannel,
+                                                     AVDS485DEVICE_PROPERTY_BASS,
+                                                     value);
+}
+
+
+
+
+int xAVDS485Device_cmdFrameTrebleSet(AVDS485Device_Command_setControlProperty *pCmd,
+                                   uint16_t outputChannel,
+                                   uint32_t value)
+{
+    return xAVDS485Device_cmdFrameSetControlProperty(pCmd,
+                                                     outputChannel,
+                                                     AVDS485DEVICE_PROPERTY_TREBLE,
+                                                     value);
+}
+
+
+int xAVDS485Device_cmdFrameVolumeGet(AVDS485Device_Command_getControlProperty *pCmd,
+                                     uint16_t outputChannel)
+{
+    return xAVDS485Device_cmdFrameGetControlProperty(pCmd,
+                                                     outputChannel,
+                                                     AVDS485DEVICE_PROPERTY_VOLUME);
+}
+
+
+int xAVDS485Device_cmdFrameMuteGet(AVDS485Device_Command_getControlProperty *pCmd,
+                                   uint16_t outputChannel)
+{
+    return xAVDS485Device_cmdFrameGetControlProperty(pCmd,
+                                                     outputChannel,
+                                                     AVDS485DEVICE_PROPERTY_MUTE);
+}
+
+
+int xAVDS485Device_cmdFrameBassGet(AVDS485Device_Command_getControlProperty *pCmd,
+                                   uint16_t outputChannel)
+{
+    return xAVDS485Device_cmdFrameGetControlProperty(pCmd,
+                                                     outputChannel,
+                                                     AVDS485DEVICE_PROPERTY_BASS);
+}
+
+
+int xAVDS485Device_cmdFrameTrebleGet(AVDS485Device_Command_getControlProperty *pCmd,
+                                   uint16_t outputChannel)
+{
+    return xAVDS485Device_cmdFrameGetControlProperty(pCmd,
+                                                     outputChannel,
+                                                     AVDS485DEVICE_PROPERTY_TREBLE);
 }
