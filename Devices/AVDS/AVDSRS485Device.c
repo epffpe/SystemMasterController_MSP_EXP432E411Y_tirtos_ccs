@@ -162,14 +162,14 @@ Void vAVDS485Device_taskFxn(UArg arg0, UArg arg1)
 //            pData->videoInputChannel = 3;
 //
 
-            // Get Volume
-            char tempBuff[sizeof(char_data_t) + sizeof(AVDS485Device_serviceSteveCommand_charGetProperty_data)];
-            char_data_t *pCharData = (char_data_t *)tempBuff;
-            pCharData->paramID = CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_MUTE_GET_ID;
-            AVDS485Device_serviceSteveCommand_charGetProperty_data *pData = (AVDS485Device_serviceSteveCommand_charGetProperty_data *)pCharData->data;
-            pData->outputChannel = 1;
-
-            vAVDS485Device_SteveCommandsService_ValueChangeHandler(pCharData, arg0, arg1, ifHandle, NULL, NULL);
+//            // Get Volume
+//            char tempBuff[sizeof(char_data_t) + sizeof(AVDS485Device_serviceSteveCommand_charGetProperty_data)];
+//            char_data_t *pCharData = (char_data_t *)tempBuff;
+//            pCharData->paramID = CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_MUTE_GET_ID;
+//            AVDS485Device_serviceSteveCommand_charGetProperty_data *pData = (AVDS485Device_serviceSteveCommand_charGetProperty_data *)pCharData->data;
+//            pData->outputChannel = 1;
+//
+//            vAVDS485Device_SteveCommandsService_ValueChangeHandler(pCharData, arg0, arg1, ifHandle, NULL, NULL);
         }
 
         if (events & DEVICE_APP_KILL_EVT) {
