@@ -683,8 +683,8 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
                 if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_GPIOCount)) {
                     GPIO_write(hwAttrs->receiverEnablePin, IF_UART_SERIAL_RECEIVER_ENABLE);
                 }
-                System_printf("Start RX\n");
-                System_flush();
+//                System_printf("Start RX\n");
+//                System_flush();
                 do {
                     switch(state){
                     case IFUART_AVDSRX_State_preamble1:
@@ -697,20 +697,20 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
                                     pStr[0] = i8Preamble;
                                     i32CounterRead = 1;
                                     state = IFUART_AVDSRX_State_preamble2;
-                                    System_printf("--> IFUART_AVDSRX_State_preamble2\n");
+//                                    System_printf("--> IFUART_AVDSRX_State_preamble2\n");
                                 }
                             }
                         }else{ // if not data available
-                            System_printf(" No data timeout\n");
+//                            System_printf(" No data timeout\n");
                             Task_sleep(1);
                             if (timeout) timeout--;
                             if (pPayload != NULL)
                             {
-                                System_printf(" Free Memory\n");
-                                System_flush();
+//                                System_printf(" Free Memory\n");
+//                                System_flush();
                                 Memory_free(NULL, pPayload, ui16PacketLength);
                                 pPayload = NULL;
-                                System_printf(" Memory is free\n");
+//                                System_printf(" Memory is free\n");
                             }
                         }
                         break;
@@ -724,24 +724,24 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
                                     pStr[1] = i8Preamble;
                                     i32CounterRead = 2;
                                     state = IFUART_AVDSRX_State_packetLength;
-                                    System_printf("--> IFUART_AVDSRX_State_packetLength\n");
+//                                    System_printf("--> IFUART_AVDSRX_State_packetLength\n");
                                 }else {
                                     i32CounterRead = 0;
                                     state = IFUART_AVDSRX_State_preamble1;
-                                    System_printf("--> IFUART_AVDSRX_State_preamble1\n");
+//                                    System_printf("--> IFUART_AVDSRX_State_preamble1\n");
                                 }
                             }
                         }else{ // if not data available
-                            System_printf(" No data timeout\n");
+//                            System_printf(" No data timeout\n");
                             Task_sleep(1);
                             if (timeout) timeout--;
                             if (pPayload != NULL)
                             {
-                                System_printf(" Free Memory\n");
-                                System_flush();
+//                                System_printf(" Free Memory\n");
+//                                System_flush();
                                 Memory_free(NULL, pPayload, ui16PacketLength);
                                 pPayload = NULL;
-                                System_printf(" Memory is free\n");
+//                                System_printf(" Memory is free\n");
                             }
                         }
                         break;
@@ -765,36 +765,36 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
                                             ui16PayloadLength = 0;
                                             pPayloadRx = pPayload;
                                             state = IFUART_AVDSRX_State_payload;
-                                            System_printf("--> IFUART_AVDSRX_State_payload. Size = %d\n", ui16PacketLength);
+//                                            System_printf("--> IFUART_AVDSRX_State_payload. Size = %d\n", ui16PacketLength);
                                         }else {
                                             i32CounterRead = 4;
                                             isError = true;
                                             isFinish = true;
-                                            System_printf("--> Couldn't allocate memory\n");
+//                                            System_printf("--> Couldn't allocate memory\n");
                                         }
                                     }else {
                                         i32CounterRead = 4;
                                         isError = true;
                                         isFinish = true;
-                                        System_printf("--> Packet Length > IFUART_AVDSRX_MAX_PAYLOAD_SIZE\n");
+//                                        System_printf("--> Packet Length > IFUART_AVDSRX_MAX_PAYLOAD_SIZE\n");
                                     }
                                 }
                             }else{
                                 Task_sleep(1);
                                 if (timeout) timeout--;
-                                System_printf("--> timeout\n");
+//                                System_printf("--> timeout\n");
                             }
                         }else{ // if not data available
-                            System_printf(" No data timeout\n");
+//                            System_printf(" No data timeout\n");
                             Task_sleep(1);
                             if (timeout) timeout--;
                             if (pPayload != NULL && !timeout)
                             {
-                                System_printf(" Free Memory\n");
-                                System_flush();
+//                                System_printf(" Free Memory\n");
+//                                System_flush();
                                 Memory_free(NULL, pPayload, ui16PacketLength);
                                 pPayload = NULL;
-                                System_printf(" Memory is free\n");
+//                                System_printf(" Memory is free\n");
                             }
                         }
                         break;
@@ -805,25 +805,25 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
                             if ( (ui16PacketLength - ui16PayloadLength) > i32dataAvailable) {
                                 if (pPayloadRx < pPayload + ui16PacketLength) {
                                     i32retValue = UART_read(object->hBSPSerial_uart, pPayloadRx, i32dataAvailable);
-                                    System_printf(" - Read1 = %d\n", i32retValue);
+//                                    System_printf(" - Read1 = %d\n", i32retValue);
                                 }else {
                                     i32retValue = UART_read(object->hBSPSerial_uart, pPayloadRx, pPayload + ui16PacketLength - pPayloadRx);
-                                    System_printf(" - Read2 = %d\n", i32retValue);
+//                                    System_printf(" - Read2 = %d\n", i32retValue);
                                     isError = true;
                                     state = IFUART_AVDSRX_State_end;
-                                    System_printf("--> IFUART_AVDSRX_State_end\n");
+//                                    System_printf("--> IFUART_AVDSRX_State_end\n");
                                 }
                             }else{
                                 i32retValue = UART_read(object->hBSPSerial_uart, pPayloadRx, (ui16PacketLength - ui16PayloadLength));
                                 state = IFUART_AVDSRX_State_end;
-                                System_printf(" - Read3 = %d\n", i32retValue);
-                                System_printf("--> IFUART_AVDSRX_State_end\n");
+//                                System_printf(" - Read3 = %d\n", i32retValue);
+//                                System_printf("--> IFUART_AVDSRX_State_end\n");
                             }
                             ui16PayloadLength += i32retValue;
                             i32CounterRead += i32retValue;
                             pPayloadRx += i32retValue;
                         }else{ // if not data available
-                            System_printf(" No data timeout\n");
+//                            System_printf(" No data timeout\n");
                             Task_sleep(1);
                             if (timeout) timeout--;
 
@@ -831,55 +831,35 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
                             {
                                 if (length >= ui16PayloadLength + 4) {
                                     memcpy(&pStr[4], pPayload, ui16PayloadLength);
-                                    System_printf(" Copy buffer\n");
+//                                    System_printf(" Copy buffer\n");
                                 }
-                                System_printf(" Free Memory\n");
-                                System_flush();
+//                                System_printf(" Free Memory\n");
+//                                System_flush();
                                 Memory_free(NULL, pPayload, ui16PacketLength);
                                 pPayload = NULL;
-                                System_printf(" Memory is free\n");
+//                                System_printf(" Memory is free\n");
                             }
                         }
                         break;
                     case IFUART_AVDSRX_State_end:
-                        System_printf("* IFUART_AVDSRX_State_end\n");
+//                        System_printf("* IFUART_AVDSRX_State_end\n");
                         if (isError) {
                             // empty buffer
                         }
                         if (length >= ui16PacketLength + 4) {
                             memcpy(&pStr[4], pPayload, ui16PayloadLength);
-                            System_printf(" Copy buffer\n");
+//                            System_printf(" Copy buffer\n");
                         }
-                        System_printf(" Free Memory\n");
-                        System_flush();
+//                        System_printf(" Free Memory\n");
+//                        System_flush();
                         Memory_free(NULL, pPayload, ui16PacketLength);
                         isFinish = true;
-                        System_printf(" Memory is free\n");
+//                        System_printf(" Memory is free\n");
                         break;
                     default:
                         break;
                     }
-
-
-//                    UART_control(object->hBSPSerial_uart, UART_CMD_GETRXCOUNT, &i32dataAvailable);
-//                    if (i32dataAvailable) {
-//                    }else{ // if not data available
-//                        System_printf(" No data timeout\n");
-//                        Task_sleep(1);
-//                        if (timeout) timeout--;
-//                        if (pPayload != NULL)
-//                        {
-//                            System_printf(" Free Memory\n");
-//                            System_flush();
-//                            Memory_free(NULL, pPayload, ui16PacketLength);
-//                            pPayload = NULL;
-//                            System_printf(" Memory is free\n");
-//                        }
-//                    }
-
-
-                    System_flush();
-                    //            }while(timeout && (i32CounterRead < length));
+//                    System_flush();
                 }while(timeout && !isFinish);
 
 
