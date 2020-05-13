@@ -534,6 +534,9 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
     } bufferRxUnion;
 
 
+    AVDS485Device_Command_getControlProperty_Response *pCmdGetCtlPropertyResp;
+
+
     if(arg1 == NULL) {
         return;
     }
@@ -667,24 +670,25 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
 //        ifTransaction.readBuf = &bufferRxUnion.cmdGetCtlPropertyResp;
         ifTransaction.readBuf = tempBuff;
         ifTransaction.writeCount = sizeof(AVDS485Device_Command_getControlProperty);
-        ifTransaction.readCount = sizeof(AVDS485Device_Command_getControlProperty_Response);
-        ifTransaction.readCount = 24;
+//        ifTransaction.readCount = sizeof(AVDS485Device_Command_getControlProperty_Response);
+        ifTransaction.readCount = sizeof(tempBuff);
+        pCmdGetCtlPropertyResp = (AVDS485Device_Command_getControlProperty_Response *)tempBuff;
         transferOk = bIF_transfer(ifHandle, &ifTransaction);
-        xAVDS485Device_CRC_calculateFull(&tempBuff[4],
-                                         12,
-                                         &ui16Result);
-        if (transferOk) {
-            bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength);
-            bufferRxUnion.cmdGetCtlPropertyResp.crc = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.crc);
-            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdGetCtlPropertyResp.command,
-                                                 bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength,
-                                                 &ui16Result) == CRC_STATUS_SUCCESS)
+//        if (transferOk)
+        {
+//            bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength);
+//            bufferRxUnion.cmdGetCtlPropertyResp.crc = ntohs(bufferRxUnion.cmdGetCtlPropertyResp.crc);
+//            if (xAVDS485Device_CRC_calculateFull(&bufferRxUnion.cmdGetCtlPropertyResp.command,
+//                                                 bufferRxUnion.cmdGetCtlPropertyResp.wrapper.packetLength,
+//                                                 &ui16Result) == CRC_STATUS_SUCCESS)
             {
-                if (ui16Result == bufferRxUnion.cmdGetCtlPropertyResp.crc)
+//                if (ui16Result == bufferRxUnion.cmdGetCtlPropertyResp.crc)
                 {
-                    getPropertyResData.result = bufferRxUnion.cmdGetCtlPropertyResp.result;
-                    getPropertyResData.value = ntohl(bufferRxUnion.cmdGetCtlPropertyResp.value);
-//                    getPropertyResData.value = tempBuff[12];
+//                    getPropertyResData.result = bufferRxUnion.cmdGetCtlPropertyResp.result;
+//                    getPropertyResData.value = ntohl(bufferRxUnion.cmdGetCtlPropertyResp.value);
+////                    getPropertyResData.value = tempBuff[12];
+                    getPropertyResData.result = pCmdGetCtlPropertyResp->result;
+                    getPropertyResData.value = ntohl(pCmdGetCtlPropertyResp->value);
                     vDevice_sendCharDataMsg (pCharData->retDeviceID,
                                              APP_MSG_SERVICE_WRITE,
                                              pCharData->connHandle,
