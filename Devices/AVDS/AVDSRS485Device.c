@@ -1151,7 +1151,7 @@ int xAVDS485Device_cmdFrameSetControlProperty(AVDS485Device_Command_setControlPr
     pCmd->command = AVDS485DEVICE_COMMAND_SET_CONTROL_PROPERTY;
 
     pCmd->outputChannel = htons(outputChannel);
-    pCmd->property = htons(property);
+    pCmd->property = property;
     pCmd->value = htonl(value);
 
     /* Set data processing options, including endianness control */
