@@ -622,6 +622,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
                 if (ui16Result == bufferRxUnion.cmdGetChResp.crc)
                 {
                     AVDS485Device_serviceSteveCommand_charGetChannelResp_data getChannelResData;
+                    getChannelResData.outputChannel = pGetChannelData->outputChannel;
                     getChannelResData.result = bufferRxUnion.cmdGetChResp.result;
                     getChannelResData.audioInputChannel = ntohs(bufferRxUnion.cmdGetChResp.audioInputChannel);
                     getChannelResData.videoInputChannel = ntohs(bufferRxUnion.cmdGetChResp.videoInputChannel);

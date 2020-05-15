@@ -104,6 +104,7 @@ typedef struct  {
 
 typedef struct  {
     uint32_t                        result;
+    uint8_t                         outputChannel;
     uint8_t                         audioInputChannel;
     uint8_t                         videoInputChannel;
 }AVDS485Device_serviceSteveCommand_charGetChannelResp_data;
