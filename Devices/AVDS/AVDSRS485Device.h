@@ -88,10 +88,10 @@ typedef enum {
 
 
 
-typedef struct  {
+typedef struct __attribute__ ((__packed__))  {
     uint8_t                         outputChannel;
-    uint8_t                         audioInputChannel;
-    uint8_t                         videoInputChannel;
+    uint16_t                        audioInputChannel;
+    uint16_t                        videoInputChannel;
 }AVDS485Device_serviceSteveCommand_charSetChannel_data;
 
 typedef struct  {
@@ -102,11 +102,11 @@ typedef struct  {
     uint8_t                         outputChannel;
 }AVDS485Device_serviceSteveCommand_charGetChannel_data;
 
-typedef struct  {
+typedef struct  __attribute__ ((__packed__))  {
     uint32_t                        result;
     uint8_t                         outputChannel;
-    uint8_t                         audioInputChannel;
-    uint8_t                         videoInputChannel;
+    uint16_t                        audioInputChannel;
+    uint16_t                        videoInputChannel;
 }AVDS485Device_serviceSteveCommand_charGetChannelResp_data;
 
 

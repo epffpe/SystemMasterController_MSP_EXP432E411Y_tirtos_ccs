@@ -155,8 +155,14 @@ int xTCPRCBin_AVDS_Serial_SteveCommand_ValueChangeHandler(char_data_t *pCharData
                 case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_CHANNEL_SET_ID:
                     pFrame->type = TCP_CMD_AVDS_Serial_Steve_ChannelSetResponse | 0x80000000;
                     break;
+                case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_VIDEO_CHANNEL_SET_ID:
+                    pFrame->type = TCP_CMD_AVDS_Serial_Steve_VideoChannelSetResponse | 0x80000000;
+                    break;
                 case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_CHANNEL_GET_ID:
                     pFrame->type = TCP_CMD_AVDS_Serial_Steve_ChannelGetResponse | 0x80000000;
+                    break;
+                case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_VIDEO_CHANNEL_GET_ID:
+                    pFrame->type = TCP_CMD_AVDS_Serial_Steve_VideoChannelGetResponse | 0x80000000;
                     break;
                 case CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_VOLUME_SET_ID:
                     pFrame->type = TCP_CMD_AVDS_Serial_Steve_VolumeSetResponse | 0x80000000;
@@ -254,6 +260,21 @@ void TCPBin_AVDSSerialSteveChannelSet(int clientfd, char *payload, int32_t size)
 }
 
 
+void TCPBin_AVDSSerialSteveVideoChannelSet(int clientfd, char *payload, int32_t size)
+{
+    TCP_CMD_AVDS_Serial_SteveCommand_characteristic_payload_t *ptPayload = (TCP_CMD_AVDS_Serial_SteveCommand_characteristic_payload_t *)payload;
+    if(!xDevice_sendCharDataMsg( ptPayload->deviceID,
+                                 APP_MSG_SERVICE_WRITE,
+                                 clientfd,
+                                 SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_SET_ID,
+                                 TCPRCBINDEVICE_ID,
+                                 SERVICE_TCPBIN_REMOTECONTROL_AVDS_SERIAL_CLASS_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_VIDEO_CHANNEL_SET_ID,
+                                 (uint8_t *)ptPayload->data, sizeof(AVDS485Device_serviceSteveCommand_charSetChannel_data) )) {
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_Serial_Steve_ChannelSet, ptPayload->deviceID);
+    }
+}
+
+
 void TCPBin_AVDSSerialSteveChannelGet(int clientfd, char *payload, int32_t size)
 {
     TCP_CMD_AVDS_Serial_SteveCommand_characteristic_payload_t *ptPayload = (TCP_CMD_AVDS_Serial_SteveCommand_characteristic_payload_t *)payload;
@@ -268,6 +289,19 @@ void TCPBin_AVDSSerialSteveChannelGet(int clientfd, char *payload, int32_t size)
     }
 }
 
+void TCPBin_AVDSSerialSteveVideoChannelGet(int clientfd, char *payload, int32_t size)
+{
+    TCP_CMD_AVDS_Serial_SteveCommand_characteristic_payload_t *ptPayload = (TCP_CMD_AVDS_Serial_SteveCommand_characteristic_payload_t *)payload;
+    if(!xDevice_sendCharDataMsg( ptPayload->deviceID,
+                                 APP_MSG_SERVICE_WRITE,
+                                 clientfd,
+                                 SERVICE_AVDSRS485DEVICE_STEVE_COMMANDS_UUID, CHARACTERISTIC_SERVICE_AVDSRS485DEVICE_STEVE_COMMAND_SERIAL_CHANNEL_GET_ID,
+                                 TCPRCBINDEVICE_ID,
+                                 SERVICE_TCPBIN_REMOTECONTROL_AVDS_SERIAL_CLASS_RETURN_UUID, CHARACTERISTIC_TCPRCBIN_ADVS_SERIAL_STEVE_COMMAND_VIDEO_CHANNEL_GET_ID,
+                                 (uint8_t *)ptPayload->data, sizeof(AVDS485Device_serviceSteveCommand_charGetChannel_data) )) {
+        TCPBin_sendDeviceIdError(clientfd, TCP_CMD_AVDS_Serial_Steve_ChannelGet, ptPayload->deviceID);
+    }
+}
 
 void TCPBin_AVDSSerialSteveVolumeSet(int clientfd, char *payload, int32_t size)
 {

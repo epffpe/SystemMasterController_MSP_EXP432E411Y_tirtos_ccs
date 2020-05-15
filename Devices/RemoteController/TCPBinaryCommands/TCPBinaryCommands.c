@@ -167,7 +167,9 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_AVDS_DirectCommand2] = TCPBin_AVDSGenericDirectCommand2,
 
  [TCP_CMD_AVDS_Serial_Steve_ChannelSet] = TCPBin_AVDSSerialSteveChannelSet,
+ [TCP_CMD_AVDS_Serial_Steve_VideoChannelSet] = TCPBin_AVDSSerialSteveVideoChannelSet,
  [TCP_CMD_AVDS_Serial_Steve_ChannelGet] = TCPBin_AVDSSerialSteveChannelGet,
+ [TCP_CMD_AVDS_Serial_Steve_VideoChannelGet] = TCPBin_AVDSSerialSteveVideoChannelGet,
  [TCP_CMD_AVDS_Serial_Steve_VolumeSet] = TCPBin_AVDSSerialSteveVolumeSet,
  [TCP_CMD_AVDS_Serial_Steve_VolumeGet] = TCPBin_AVDSSerialSteveVolumeGet,
  [TCP_CMD_AVDS_Serial_Steve_MuteSet] = TCPBin_AVDSSerialSteveMuteSet,
