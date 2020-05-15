@@ -688,7 +688,7 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
                 do {
                     switch(state){
                     case IFUART_AVDSRX_State_preamble1:
-                        System_printf("* IFUART_AVDSRX_State_preamble1\n");
+//                        System_printf("* IFUART_AVDSRX_State_preamble1\n");
                         UART_control(object->hBSPSerial_uart, UART_CMD_GETRXCOUNT, &i32dataAvailable);
                         if (i32dataAvailable) {
                             i32retValue = UART_read(object->hBSPSerial_uart, &i8Preamble, 1);
@@ -715,7 +715,7 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
                         }
                         break;
                     case IFUART_AVDSRX_State_preamble2:
-                        System_printf("* IFUART_AVDSRX_State_preamble2\n");
+//                        System_printf("* IFUART_AVDSRX_State_preamble2\n");
                         UART_control(object->hBSPSerial_uart, UART_CMD_GETRXCOUNT, &i32dataAvailable);
                         if (i32dataAvailable) {
                             i32retValue = UART_read(object->hBSPSerial_uart, &i8Preamble, 1);
@@ -746,7 +746,7 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
                         }
                         break;
                     case IFUART_AVDSRX_State_packetLength:
-                        System_printf("* IFUART_AVDSRX_State_packetLength\n");
+//                        System_printf("* IFUART_AVDSRX_State_packetLength\n");
                         UART_control(object->hBSPSerial_uart, UART_CMD_GETRXCOUNT, &i32dataAvailable);
                         if (i32dataAvailable) {
                             if (i32dataAvailable >= 2) {
