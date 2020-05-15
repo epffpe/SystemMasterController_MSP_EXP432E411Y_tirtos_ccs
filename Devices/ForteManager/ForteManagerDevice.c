@@ -380,26 +380,29 @@ static void vForteManagerDevice_processAppRXMsgEvent(device_msg_t *pMsg, DeviceL
                                                         (const char *)txbuff,
                                                         sizeof(txbuff),
                                                         BIOS_WAIT_FOREVER);
+                        Task_sleep((unsigned int)4);
                         ui32retValue = ui32retValue;
                     }
 
-//                    if (ui32retValue2 == IF_ALTO_SERIAL_FRAME_SIZE) {
+                    if (ui32retValue2 == IF_ALTO_SERIAL_FRAME_SIZE) {
                         xALTOFrame_convert_ASCII_to_binary((char *)rxbuff2, &tALTOFrameRx);
                         vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
                         ui32retValue = xIFUART_sendData(ifHandleFM,
                                                         (const char *)txbuff,
                                                         sizeof(txbuff),
                                                         BIOS_WAIT_FOREVER);
-//                    }
+                        Task_sleep((unsigned int)4);
+                    }
 
-//                    if (ui32retValue3 == IF_ALTO_SERIAL_FRAME_SIZE) {
+                    if (ui32retValue3 == IF_ALTO_SERIAL_FRAME_SIZE) {
                         xALTOFrame_convert_ASCII_to_binary((char *)rxbuff3, &tALTOFrameRx);
                         vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
                         ui32retValue = xIFUART_sendData(ifHandleFM,
                                                         (const char *)txbuff,
                                                         sizeof(txbuff),
                                                         BIOS_WAIT_FOREVER);
-//                    }
+                        Task_sleep((unsigned int)4);
+                    }
                 }
             }
             break;
