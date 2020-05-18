@@ -557,7 +557,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
     memset(&ifTransaction, 0, sizeof(IF_Transaction));
     ifTransaction.readCount = 0;
     ifTransaction.readBuf = &bufferRxUnion.cmdGetChResp;
-    ifTransaction.readTimeout = 30;
+    ifTransaction.readTimeout = 200;
     ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_AVDS485;
     //    ifTransaction.writeBuf = txbuff;
     //    ifTransaction.writeBuf = &cmd;

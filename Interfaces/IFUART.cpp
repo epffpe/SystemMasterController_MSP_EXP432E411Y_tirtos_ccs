@@ -30,6 +30,7 @@ unsigned int xIFUART_sendData(IF_Handle handle, const char *pStr, unsigned int l
 int xIFUART_receiveDataSimple(IF_Handle handle, char *pStr, unsigned int length, unsigned int timeout);
 int xIFUART_receiveData(IF_Handle handle, char *pStr, unsigned int length, unsigned int timeout);
 int xIFUART_getRXCount(IF_Handle handle, unsigned int timeout);
+int xIFUART_RXflush(IF_Handle handle, unsigned int timeout);
 bool bIFUART_waitForConnect(IF_Handle handle, unsigned int timeout);
 
 int xIFUART_receiveALTOFrame(IF_Handle handle, char *p64Buffer, unsigned int timeout);
@@ -250,6 +251,16 @@ bool bIFUART_transfer(IF_Handle handle, IF_Transaction *transaction)
         key = GateMutexPri_enter(object->hBSPSerial_gateTransfer);
         {
             if (transaction->writeCount) {
+                switch(transaction->transactionRxProtocol) {
+                case IF_TRANSACTION_RX_PROTOCOL_AVDS485:
+                case IF_TRANSACTION_RX_PROTOCOL_ALTO_MULTINET:
+                case IF_TRANSACTION_RX_PROTOCOL_ALTO_NET:
+                case IF_TRANSACTION_RX_PROTOCOL_ROSEN485:
+                    xIFUART_RXflush(handle, 0);
+                    break;
+                default:
+                    break;
+                }
                 ui32retValue = xIFUART_sendData(handle,
                                                 (const char *)transaction->writeBuf,
                                                 transaction->writeCount,
@@ -450,6 +461,40 @@ int xIFUART_getRXCount(IF_Handle handle, unsigned int timeout)
     return (i32retValue);
 }
 
+int xIFUART_RXflush(IF_Handle handle, unsigned int timeout)
+{
+    char *pDumpData;
+    Error_Block eb;
+    int i32retValue = 0;
+    IFUART_Object *object = (IFUART_Object *)handle->object;
+
+    ASSERT(handle != NULL);
+
+    if (handle == NULL) {
+        return (NULL);
+    }
+
+    /* Make sure Error_Block is initialized */
+    Error_init(&eb);
+    if (object->state.opened) {
+        UART_control(object->hBSPSerial_uart, UART_CMD_GETRXCOUNT, &i32retValue);
+        if(i32retValue > 0) {
+            pDumpData = NULL;
+            pDumpData = (char *)Memory_alloc(NULL, i32retValue, 0, &eb);
+            if (pDumpData != NULL)
+            {
+                UART_read(object->hBSPSerial_uart, pDumpData, i32retValue);
+                Memory_free(NULL, pDumpData, i32retValue);
+                pDumpData = NULL;
+
+            }
+        }
+
+    }else {
+        bIFUART_waitForConnect(handle, timeout);
+    }
+    return i32retValue;
+}
 
 bool bIFUART_waitForConnect(IF_Handle handle, unsigned int timeout)
 {
