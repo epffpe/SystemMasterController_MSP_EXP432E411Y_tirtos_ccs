@@ -37,9 +37,14 @@
 
 HEAPSIZE = 0x20000;  /* Size of heap buffer used by HeapMem */
 
+// #define APP_BASE 0x00004000
+#define APP_BASE 0x00000000
+
 MEMORY
 {
-    FLASH (RX) : origin = 0x00000000, length = 0x00100000
+//    FLASH (RX) : origin = 0x00000000, length = 0x00100000
+//    FLASH (RX) : origin = APP_BASE, length = 0x000FC000
+    FLASH (RX) : origin = APP_BASE, length = 0x00100000
     SRAM (RWX) : origin = 0x20000000, length = 0x00040000
 }
 

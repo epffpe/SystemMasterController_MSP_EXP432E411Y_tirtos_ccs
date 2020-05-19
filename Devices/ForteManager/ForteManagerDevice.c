@@ -365,13 +365,25 @@ static void vForteManagerDevice_processAppRXMsgEvent(device_msg_t *pMsg, DeviceL
                     uint32_t ui32retValue2;
                     uint32_t ui32retValue3;
                     ui32retValue2 = 0;
+
+                    ifTransaction.readCount = 0;
+                    ifTransaction.readBuf = rxbuff;
                     transferOk = bIF_transfer(ifHandle, &ifTransaction);
-                    ui32retValue2 = xIFUART_receiveALTOFrame(ifHandle,
-                                                             (char *)rxbuff2,
-                                                             50);
-                    ui32retValue3 = xIFUART_receiveALTOFrame(ifHandle,
-                                                             (char *)rxbuff3,
-                                                             50);
+                    ui32retValue = xIFUART_receiveALTOFrameFSMData(ifHandle,
+                                                                   (char *)rxbuff,
+                                                                   50);
+                    ui32retValue2 = xIFUART_receiveALTOFrameFSMData(ifHandle,
+                                                                    (char *)rxbuff2,
+                                                                    50);
+                    ui32retValue3 = xIFUART_receiveALTOFrameFSMData(ifHandle,
+                                                                    (char *)rxbuff3,
+                                                                    50);
+//                    ui32retValue2 = xIFUART_receiveALTOFrame(ifHandle,
+//                                                             (char *)rxbuff2,
+//                                                             50);
+//                    ui32retValue3 = xIFUART_receiveALTOFrame(ifHandle,
+//                                                             (char *)rxbuff3,
+//                                                             50);
 
                     if (transferOk) {
                         xALTOFrame_convert_ASCII_to_binary((char *)rxbuff, &tALTOFrameRx);
