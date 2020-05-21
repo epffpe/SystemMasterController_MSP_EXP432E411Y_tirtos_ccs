@@ -366,8 +366,10 @@ static void vForteManagerDevice_processAppRXMsgEvent(device_msg_t *pMsg, DeviceL
                     uint32_t ui32retValue3;
                     ui32retValue2 = 0;
 
-                    ifTransaction.readCount = 0;
-//                    ifTransaction.readBuf = rxbuff;
+                    ifTransaction.readCount = 3*70;
+                    ifTransaction.readBuf = rxbuff3;
+                    ifTransaction.readTimeout = 200;
+                    ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_ALTO_NET;
                     transferOk = bIF_transfer(ifHandle, &ifTransaction);
 //                    ui32retValue = xIFUART_receiveALTOFrameFSMData(ifHandle,
 //                                                                   (char *)rxbuff,
@@ -468,16 +470,16 @@ static void vForteManagerDevice_processAppRXMsgEvent(device_msg_t *pMsg, DeviceL
 //                        }
 //                    }
 
-                    ui32retValue3 = xIFUART_receiveDataSimple(ifHandle,
-                                                              (char *)rxbuff3,
-                                                              3*70,
-                                                              200);
-//                    if (ui32retValue3 == 3*70) {
+//                    ui32retValue3 = xIFUART_receiveDataSimple(ifHandle,
+//                                                              (char *)rxbuff3,
+//                                                              3*70,
+//                                                              200);
+
                         ui32retValue = xIFUART_sendData(ifHandleFM,
                                                         (const char *)rxbuff3,
-                                                        ui32retValue3,
+                                                        ifTransaction.readCount,
                                                         BIOS_WAIT_FOREVER);
-//                    }
+
                 }
             }
             break;

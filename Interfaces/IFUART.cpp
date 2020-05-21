@@ -256,6 +256,7 @@ bool bIFUART_transfer(IF_Handle handle, IF_Transaction *transaction)
                 case IF_TRANSACTION_RX_PROTOCOL_ALTO_MULTINET:
                 case IF_TRANSACTION_RX_PROTOCOL_ALTO_NET:
                 case IF_TRANSACTION_RX_PROTOCOL_ROSEN485:
+                case IF_TRANSACTION_RX_PROTOCOL_ALTO_3MESSAGES:
                     xIFUART_RXflush(handle, 0);
                     break;
                 default:
@@ -291,6 +292,16 @@ bool bIFUART_transfer(IF_Handle handle, IF_Transaction *transaction)
                         transaction->readCount = ui32retValue;
                     }else {
                         ret = false;
+                    }
+                    break;
+                case IF_TRANSACTION_RX_PROTOCOL_ALTO_3MESSAGES:
+                    if (transaction->readCount) {
+                        ui32retValue = xIFUART_receiveDataSimple(handle,
+                                                                 (char *)transaction->readBuf,
+                                                                 transaction->readCount,
+                                                                 transaction->readTimeout);
+                        if (ui32retValue != transaction->readCount) ret = false;
+                        transaction->readCount = ui32retValue;
                     }
                     break;
                 case IF_TRANSACTION_RX_PROTOCOL_ROSEN485:
