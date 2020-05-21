@@ -361,7 +361,7 @@ static void vForteManagerDevice_processAppRXMsgEvent(device_msg_t *pMsg, DeviceL
                     }
                 }else{
                     char rxbuff2[70];
-                    char rxbuff3[70];
+                    char rxbuff3[3*70];
                     uint32_t ui32retValue2;
                     uint32_t ui32retValue3;
                     ui32retValue2 = 0;
@@ -369,104 +369,115 @@ static void vForteManagerDevice_processAppRXMsgEvent(device_msg_t *pMsg, DeviceL
                     ifTransaction.readCount = 0;
 //                    ifTransaction.readBuf = rxbuff;
                     transferOk = bIF_transfer(ifHandle, &ifTransaction);
-                    ui32retValue = xIFUART_receiveALTOFrameFSMData(ifHandle,
-                                                                   (char *)rxbuff,
-                                                                   70,
-                                                                   50);
-                    ui32retValue2 = xIFUART_receiveALTOFrameFSMData(ifHandle,
-                                                                    (char *)rxbuff2,
-                                                                    70,
-                                                                    50);
-                    ui32retValue3 = xIFUART_receiveALTOFrameFSMData(ifHandle,
-                                                                    (char *)rxbuff3,
-                                                                    70,
-                                                                    50);
-//                    ui32retValue2 = xIFUART_receiveALTOFrame(ifHandle,
-//                                                             (char *)rxbuff2,
-//                                                             50);
-//                    ui32retValue3 = xIFUART_receiveALTOFrame(ifHandle,
-//                                                             (char *)rxbuff3,
-//                                                             50);
+//                    ui32retValue = xIFUART_receiveALTOFrameFSMData(ifHandle,
+//                                                                   (char *)rxbuff,
+//                                                                   70,
+//                                                                   50);
+//                    ui32retValue2 = xIFUART_receiveALTOFrameFSMData(ifHandle,
+//                                                                    (char *)rxbuff2,
+//                                                                    70,
+//                                                                    50);
+//                    ui32retValue3 = xIFUART_receiveALTOFrameFSMData(ifHandle,
+//                                                                    (char *)rxbuff3,
+//                                                                    70,
+//                                                                    50);
+////                    ui32retValue2 = xIFUART_receiveALTOFrame(ifHandle,
+////                                                             (char *)rxbuff2,
+////                                                             50);
+////                    ui32retValue3 = xIFUART_receiveALTOFrame(ifHandle,
+////                                                             (char *)rxbuff3,
+////                                                             50);
+//
+//                    if (transferOk) {
+//                        if (ui32retValue2 == 70) {
+//                            //                        xALTOFrame_convert_ASCII_to_binary((char *)rxbuff, &tALTOFrameRx);
+//                            //                        vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
+//                            //                        ui32retValue = xIFUART_sendData(ifHandleFM,
+//                            //                                                        (const char *)txbuff,
+//                            //                                                        sizeof(txbuff),
+//                            //                                                        BIOS_WAIT_FOREVER);
+//                            //                        Task_sleep((unsigned int)6);
+//                            //                        ui32retValue = ui32retValue;
+//                            ui32retValue = xIFUART_sendData(ifHandleFM,
+//                                                            (const char *)"AA55",
+//                                                            4,
+//                                                            BIOS_WAIT_FOREVER);
+//                            Task_sleep((unsigned int)4);
+//                            ui32retValue = xIFUART_sendData(ifHandleFM,
+//                                                            (const char *)rxbuff,
+//                                                            64,
+//                                                            BIOS_WAIT_FOREVER);
+//                            Task_sleep((unsigned int)4);
+//                            ui32retValue = xIFUART_sendData(ifHandleFM,
+//                                                            (const char *)"\r\n",
+//                                                            2,
+//                                                            BIOS_WAIT_FOREVER);
+//                            Task_sleep((unsigned int)4);
+//                        }
+//
+//                        //                    if (ui32retValue2 == IF_ALTO_SERIAL_FRAME_SIZE) {
+//                        if (ui32retValue2 == 70) {
+//                            //                        xALTOFrame_convert_ASCII_to_binary((char *)rxbuff2, &tALTOFrameRx);
+//                            //                        vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
+//                            //                        ui32retValue = xIFUART_sendData(ifHandleFM,
+//                            //                                                        (const char *)txbuff,
+//                            //                                                        sizeof(txbuff),
+//                            //                                                        BIOS_WAIT_FOREVER);
+//                            //                        Task_sleep((unsigned int)6);
+//                            ui32retValue = xIFUART_sendData(ifHandleFM,
+//                                                            (const char *)"AA55",
+//                                                            4,
+//                                                            BIOS_WAIT_FOREVER);
+//                            Task_sleep((unsigned int)4);
+//                            ui32retValue = xIFUART_sendData(ifHandleFM,
+//                                                            (const char *)rxbuff2,
+//                                                            64,
+//                                                            BIOS_WAIT_FOREVER);
+//                            Task_sleep((unsigned int)4);
+//                            ui32retValue = xIFUART_sendData(ifHandleFM,
+//                                                            (const char *)"\r\n",
+//                                                            2,
+//                                                            BIOS_WAIT_FOREVER);
+//                            Task_sleep((unsigned int)4);
+//                        }
+//
+//                        //                    if (ui32retValue3 == IF_ALTO_SERIAL_FRAME_SIZE) {
+//                        if (ui32retValue3 == 70) {
+//                            //                        xALTOFrame_convert_ASCII_to_binary((char *)rxbuff3, &tALTOFrameRx);
+//                            //                        vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
+//                            //                        ui32retValue = xIFUART_sendData(ifHandleFM,
+//                            //                                                        (const char *)txbuff,
+//                            //                                                        sizeof(txbuff),
+//                            //                                                        BIOS_WAIT_FOREVER);
+//                            //                        Task_sleep((unsigned int)6);
+//                            ui32retValue = xIFUART_sendData(ifHandleFM,
+//                                                            (const char *)"AA55",
+//                                                            4,
+//                                                            BIOS_WAIT_FOREVER);
+//                            Task_sleep((unsigned int)4);
+//                            ui32retValue = xIFUART_sendData(ifHandleFM,
+//                                                            (const char *)rxbuff3,
+//                                                            64,
+//                                                            BIOS_WAIT_FOREVER);
+//                            Task_sleep((unsigned int)4);
+//                            ui32retValue = xIFUART_sendData(ifHandleFM,
+//                                                            (const char *)"\r\n",
+//                                                            2,
+//                                                            BIOS_WAIT_FOREVER);
+//                            Task_sleep((unsigned int)4);
+//                        }
+//                    }
 
-                    if (transferOk) {
-                        if (ui32retValue2 == 70) {
-                            //                        xALTOFrame_convert_ASCII_to_binary((char *)rxbuff, &tALTOFrameRx);
-                            //                        vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
-                            //                        ui32retValue = xIFUART_sendData(ifHandleFM,
-                            //                                                        (const char *)txbuff,
-                            //                                                        sizeof(txbuff),
-                            //                                                        BIOS_WAIT_FOREVER);
-                            //                        Task_sleep((unsigned int)6);
-                            //                        ui32retValue = ui32retValue;
-                            ui32retValue = xIFUART_sendData(ifHandleFM,
-                                                            (const char *)"AA55",
-                                                            4,
-                                                            BIOS_WAIT_FOREVER);
-                            Task_sleep((unsigned int)4);
-                            ui32retValue = xIFUART_sendData(ifHandleFM,
-                                                            (const char *)rxbuff,
-                                                            64,
-                                                            BIOS_WAIT_FOREVER);
-                            Task_sleep((unsigned int)4);
-                            ui32retValue = xIFUART_sendData(ifHandleFM,
-                                                            (const char *)"\r\n",
-                                                            2,
-                                                            BIOS_WAIT_FOREVER);
-                            Task_sleep((unsigned int)4);
-                        }
-
-                        //                    if (ui32retValue2 == IF_ALTO_SERIAL_FRAME_SIZE) {
-                        if (ui32retValue2 == 70) {
-                            //                        xALTOFrame_convert_ASCII_to_binary((char *)rxbuff2, &tALTOFrameRx);
-                            //                        vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
-                            //                        ui32retValue = xIFUART_sendData(ifHandleFM,
-                            //                                                        (const char *)txbuff,
-                            //                                                        sizeof(txbuff),
-                            //                                                        BIOS_WAIT_FOREVER);
-                            //                        Task_sleep((unsigned int)6);
-                            ui32retValue = xIFUART_sendData(ifHandleFM,
-                                                            (const char *)"AA55",
-                                                            4,
-                                                            BIOS_WAIT_FOREVER);
-                            Task_sleep((unsigned int)4);
-                            ui32retValue = xIFUART_sendData(ifHandleFM,
-                                                            (const char *)rxbuff2,
-                                                            64,
-                                                            BIOS_WAIT_FOREVER);
-                            Task_sleep((unsigned int)4);
-                            ui32retValue = xIFUART_sendData(ifHandleFM,
-                                                            (const char *)"\r\n",
-                                                            2,
-                                                            BIOS_WAIT_FOREVER);
-                            Task_sleep((unsigned int)4);
-                        }
-
-                        //                    if (ui32retValue3 == IF_ALTO_SERIAL_FRAME_SIZE) {
-                        if (ui32retValue3 == 70) {
-                            //                        xALTOFrame_convert_ASCII_to_binary((char *)rxbuff3, &tALTOFrameRx);
-                            //                        vALTOFrame_create_ASCII(txbuff, &tALTOFrameRx);
-                            //                        ui32retValue = xIFUART_sendData(ifHandleFM,
-                            //                                                        (const char *)txbuff,
-                            //                                                        sizeof(txbuff),
-                            //                                                        BIOS_WAIT_FOREVER);
-                            //                        Task_sleep((unsigned int)6);
-                            ui32retValue = xIFUART_sendData(ifHandleFM,
-                                                            (const char *)"AA55",
-                                                            4,
-                                                            BIOS_WAIT_FOREVER);
-                            Task_sleep((unsigned int)4);
-                            ui32retValue = xIFUART_sendData(ifHandleFM,
-                                                            (const char *)rxbuff3,
-                                                            64,
-                                                            BIOS_WAIT_FOREVER);
-                            Task_sleep((unsigned int)4);
-                            ui32retValue = xIFUART_sendData(ifHandleFM,
-                                                            (const char *)"\r\n",
-                                                            2,
-                                                            BIOS_WAIT_FOREVER);
-                            Task_sleep((unsigned int)4);
-                        }
-                    }
+                    ui32retValue3 = xIFUART_receiveDataSimple(ifHandle,
+                                                              (char *)rxbuff3,
+                                                              3*70,
+                                                              200);
+//                    if (ui32retValue3 == 3*70) {
+                        ui32retValue = xIFUART_sendData(ifHandleFM,
+                                                        (const char *)rxbuff3,
+                                                        ui32retValue3,
+                                                        BIOS_WAIT_FOREVER);
+//                    }
                 }
             }
             break;

@@ -157,6 +157,8 @@ __INTERFACES_IFUART_EXT
 int xIFUART_receiveALTOFrame(IF_Handle handle, char *p64Buffer, unsigned int timeout);
 __INTERFACES_IFUART_EXT
 int xIFUART_receiveALTOFrameFSMData(IF_Handle handle, char *p64Buffer, unsigned int length, unsigned int timeout);
+__INTERFACES_IFUART_EXT
+int xIFUART_receiveDataSimple(IF_Handle handle, char *pStr, unsigned int length, unsigned int timeout);
 
 extern const IF_FxnTable IFUART_fxnTable;
 
