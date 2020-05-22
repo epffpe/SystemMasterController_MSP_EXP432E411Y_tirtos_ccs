@@ -583,7 +583,8 @@ int xIFUART_receiveALTOFrame(IF_Handle handle, char *p64Buffer, unsigned int tim
     std::size_t indexEOF = 0;
     std::size_t indexHeader = 0;
     std::string receivedPacket;
-    std::string endFrame ("\r\n");
+    // ALTO Amp ends frame with \r\n. Relay box only sends \r at the end
+    std::string endFrame ("\r");
     std::string startFrame ("AA55");
     IFUART_Object *object = (IFUART_Object *)handle->object;
     IFUART_HWAttrs *hwAttrs = (IFUART_HWAttrs *)handle->hwAttrs;

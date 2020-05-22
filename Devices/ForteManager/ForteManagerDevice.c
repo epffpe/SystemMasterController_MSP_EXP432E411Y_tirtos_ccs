@@ -369,7 +369,7 @@ static void vForteManagerDevice_processAppRXMsgEvent(device_msg_t *pMsg, DeviceL
                     ifTransaction.readCount = 3*70;
                     ifTransaction.readBuf = rxbuff3;
                     ifTransaction.readTimeout = 200;
-                    ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_ALTO_NET;
+                    ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_ALTO_3MESSAGES;
                     transferOk = bIF_transfer(ifHandle, &ifTransaction);
 //                    ui32retValue = xIFUART_receiveALTOFrameFSMData(ifHandle,
 //                                                                   (char *)rxbuff,
