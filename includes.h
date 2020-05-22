@@ -55,7 +55,7 @@
 #include <ti/sysbios/knl/Swi.h>
 #include <ti/sysbios/knl/Clock.h>
 #include <ti/sysbios/knl/Semaphore.h>
-#include <ti/sysbios/knl/MailBox.h>
+#include <ti/sysbios/knl/Mailbox.h>
 #include <ti/sysbios/knl/Queue.h>
 #include <ti/sysbios/knl/Event.h>
 #include <ti/sysbios/gates/GateMutex.h>

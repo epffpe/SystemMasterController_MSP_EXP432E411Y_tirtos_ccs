@@ -30,6 +30,7 @@ unsigned int xIFUART_sendData(IF_Handle handle, const char *pStr, unsigned int l
 int xIFUART_receiveDataSimple(IF_Handle handle, char *pStr, unsigned int length, unsigned int timeout);
 int xIFUART_receiveData(IF_Handle handle, char *pStr, unsigned int length, unsigned int timeout);
 int xIFUART_getRXCount(IF_Handle handle, unsigned int timeout);
+int xIFUART_RXflush(IF_Handle handle, unsigned int timeout);
 bool bIFUART_waitForConnect(IF_Handle handle, unsigned int timeout);
 
 int xIFUART_receiveALTOFrame(IF_Handle handle, char *p64Buffer, unsigned int timeout);
@@ -250,6 +251,17 @@ bool bIFUART_transfer(IF_Handle handle, IF_Transaction *transaction)
         key = GateMutexPri_enter(object->hBSPSerial_gateTransfer);
         {
             if (transaction->writeCount) {
+                switch(transaction->transactionRxProtocol) {
+                case IF_TRANSACTION_RX_PROTOCOL_AVDS485:
+                case IF_TRANSACTION_RX_PROTOCOL_ALTO_MULTINET:
+                case IF_TRANSACTION_RX_PROTOCOL_ALTO_NET:
+                case IF_TRANSACTION_RX_PROTOCOL_ROSEN485:
+                case IF_TRANSACTION_RX_PROTOCOL_ALTO_3MESSAGES:
+                    xIFUART_RXflush(handle, 0);
+                    break;
+                default:
+                    break;
+                }
                 ui32retValue = xIFUART_sendData(handle,
                                                 (const char *)transaction->writeBuf,
                                                 transaction->writeCount,
@@ -280,6 +292,16 @@ bool bIFUART_transfer(IF_Handle handle, IF_Transaction *transaction)
                         transaction->readCount = ui32retValue;
                     }else {
                         ret = false;
+                    }
+                    break;
+                case IF_TRANSACTION_RX_PROTOCOL_ALTO_3MESSAGES:
+                    if (transaction->readCount) {
+                        ui32retValue = xIFUART_receiveDataSimple(handle,
+                                                                 (char *)transaction->readBuf,
+                                                                 transaction->readCount,
+                                                                 transaction->readTimeout);
+                        if (ui32retValue != transaction->readCount) ret = false;
+                        transaction->readCount = ui32retValue;
                     }
                     break;
                 case IF_TRANSACTION_RX_PROTOCOL_ROSEN485:
@@ -450,6 +472,40 @@ int xIFUART_getRXCount(IF_Handle handle, unsigned int timeout)
     return (i32retValue);
 }
 
+int xIFUART_RXflush(IF_Handle handle, unsigned int timeout)
+{
+    char *pDumpData;
+    Error_Block eb;
+    int i32retValue = 0;
+    IFUART_Object *object = (IFUART_Object *)handle->object;
+
+    ASSERT(handle != NULL);
+
+    if (handle == NULL) {
+        return (NULL);
+    }
+
+    /* Make sure Error_Block is initialized */
+    Error_init(&eb);
+    if (object->state.opened) {
+        UART_control(object->hBSPSerial_uart, UART_CMD_GETRXCOUNT, &i32retValue);
+        if(i32retValue > 0) {
+            pDumpData = NULL;
+            pDumpData = (char *)Memory_alloc(NULL, i32retValue, 0, &eb);
+            if (pDumpData != NULL)
+            {
+                UART_read(object->hBSPSerial_uart, pDumpData, i32retValue);
+                Memory_free(NULL, pDumpData, i32retValue);
+                pDumpData = NULL;
+
+            }
+        }
+
+    }else {
+        bIFUART_waitForConnect(handle, timeout);
+    }
+    return i32retValue;
+}
 
 bool bIFUART_waitForConnect(IF_Handle handle, unsigned int timeout)
 {
@@ -527,6 +583,7 @@ int xIFUART_receiveALTOFrame(IF_Handle handle, char *p64Buffer, unsigned int tim
     std::size_t indexEOF = 0;
     std::size_t indexHeader = 0;
     std::string receivedPacket;
+    // ALTO Amp ends frame with \r\n. Relay box only sends \r at the end
     std::string endFrame ("\r");
     std::string startFrame ("AA55");
     IFUART_Object *object = (IFUART_Object *)handle->object;
@@ -553,6 +610,8 @@ int xIFUART_receiveALTOFrame(IF_Handle handle, char *p64Buffer, unsigned int tim
                     }else{
                         nbytes = UART_read(object->hBSPSerial_uart, cmdbuf, ALTO_FRAME_CMD_BUFF_SIZE);
                     }
+//                    System_printf("RX %d\n", i32dataAvailable);
+//                    System_flush();
                     /*
                      * Convert to Capital letters
                      */
@@ -688,7 +747,7 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
                 do {
                     switch(state){
                     case IFUART_AVDSRX_State_preamble1:
-                        System_printf("* IFUART_AVDSRX_State_preamble1\n");
+//                        System_printf("* IFUART_AVDSRX_State_preamble1\n");
                         UART_control(object->hBSPSerial_uart, UART_CMD_GETRXCOUNT, &i32dataAvailable);
                         if (i32dataAvailable) {
                             i32retValue = UART_read(object->hBSPSerial_uart, &i8Preamble, 1);
@@ -715,7 +774,7 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
                         }
                         break;
                     case IFUART_AVDSRX_State_preamble2:
-                        System_printf("* IFUART_AVDSRX_State_preamble2\n");
+//                        System_printf("* IFUART_AVDSRX_State_preamble2\n");
                         UART_control(object->hBSPSerial_uart, UART_CMD_GETRXCOUNT, &i32dataAvailable);
                         if (i32dataAvailable) {
                             i32retValue = UART_read(object->hBSPSerial_uart, &i8Preamble, 1);
@@ -746,7 +805,7 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
                         }
                         break;
                     case IFUART_AVDSRX_State_packetLength:
-                        System_printf("* IFUART_AVDSRX_State_packetLength\n");
+//                        System_printf("* IFUART_AVDSRX_State_packetLength\n");
                         UART_control(object->hBSPSerial_uart, UART_CMD_GETRXCOUNT, &i32dataAvailable);
                         if (i32dataAvailable) {
                             if (i32dataAvailable >= 2) {
@@ -877,6 +936,224 @@ int xIFUART_receiveAVDSFrameData(IF_Handle handle, char *pStr, unsigned int leng
     return (i32retValue);
 }
 
+
+/*
+ *
+ *
+ */
+
+typedef enum {
+    IFUART_ALTOFRAME_State_prefix0,
+    IFUART_ALTOFRAME_State_prefix1,
+    IFUART_ALTOFRAME_State_prefix2,
+    IFUART_ALTOFRAME_State_prefix3,
+    IFUART_ALTOFRAME_State_payload,
+    IFUART_ALTOFRAME_State_cr,
+    IFUART_ALTOFRAME_State_lf,
+//    IFUART_ALTOFRAME_State_end,
+}IFUART_ALTOFRAME_State;
+
+#define IFUART_ALTOFRAME_PREFIX1             'A'
+#define IFUART_ALTOFRAME_PREFIX2             '5'
+
+int xIFUART_receiveALTOFrameFSMData(IF_Handle handle, char *pStr, unsigned int length, unsigned int timeout)
+{
+    int i32retValue = 0;
+    int i32dataAvailable = 0, i32CounterRead = 0;
+    IFUART_Object *object = (IFUART_Object *)handle->object;
+    IFUART_HWAttrs *hwAttrs = (IFUART_HWAttrs *)handle->hwAttrs;
+
+    char frameBuffer[IF_ALTO_SERIAL_FRAME_SIZE];
+//    char *pPayload;
+    char *pPayloadRx;
+    IFUART_ALTOFRAME_State state;
+
+    char i8Preamble;
+    uint32_t ui32PacketLength;
+
+    bool isError, isFinish;
+
+    Error_Block eb;
+    /* Make sure Error_Block is initialized */
+    Error_init(&eb);
+
+
+
+    ASSERT(handle != NULL);
+
+    if (handle == NULL) {
+        return (NULL);
+    }
+
+    state = IFUART_ALTOFRAME_State_prefix0;
+
+    isError = false;
+    isFinish = false;
+
+    if (length >= 64) {
+        if (object->state.opened) {
+            if (Semaphore_pend(object->hBSPSerial_semRxSerial, timeout)) {
+                if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_GPIOCount)) {
+                    GPIO_write(hwAttrs->receiverEnablePin, IF_UART_SERIAL_RECEIVER_ENABLE);
+                }
+//                System_printf("Start RX\n");
+//                System_flush();
+                do {
+
+                    UART_control(object->hBSPSerial_uart, UART_CMD_GETRXCOUNT, &i32dataAvailable);
+                    if (!i32dataAvailable) {
+//                        System_p7rintf(" No data timeout\n");
+                        Task_sleep(1);
+                        if (timeout) timeout--;
+
+                    }else{ // if not data available
+
+                        switch(state){
+                        case IFUART_ALTOFRAME_State_prefix0:
+//                            System_printf(" IFUART_ALTOFRAME_State_prefix0 %d\n" , i32dataAvailable);
+                            i32retValue = UART_read(object->hBSPSerial_uart, &i8Preamble, 1);
+                            if ( i32retValue != UART_STATUS_ERROR) {
+                                if ((i8Preamble == 'A') || (i8Preamble == 'a'))  {
+                                    i32CounterRead = 1;
+                                    state = IFUART_ALTOFRAME_State_prefix1;
+                                }
+                            }
+                            break;
+                        case IFUART_ALTOFRAME_State_prefix1:
+//                            System_printf(" IFUART_ALTOFRAME_State_prefix1 %d\n", i32dataAvailable);
+                            i32retValue = UART_read(object->hBSPSerial_uart, &i8Preamble, 1);
+                            if ( i32retValue != UART_STATUS_ERROR) {
+                                if  ((i8Preamble == 'A') || (i8Preamble == 'a')) {
+                                    i32CounterRead = 2;
+                                    state = IFUART_ALTOFRAME_State_prefix2;
+                                }else {
+                                    i32CounterRead = 0;
+                                    state = IFUART_ALTOFRAME_State_prefix0;
+                                }
+                            }
+                            break;
+                        case IFUART_ALTOFRAME_State_prefix2:
+//                            System_printf(" IFUART_ALTOFRAME_State_prefix2 %d\n", i32dataAvailable);
+                            i32retValue = UART_read(object->hBSPSerial_uart, &i8Preamble, 1);
+                            if ( i32retValue != UART_STATUS_ERROR) {
+                                switch(i8Preamble) {
+                                case 'A':
+                                case 'a':
+                                    i32CounterRead = 1;
+                                    state = IFUART_ALTOFRAME_State_prefix1;
+                                    break;
+                                case IFUART_ALTOFRAME_PREFIX2:
+                                    i32CounterRead = 3;
+                                    state = IFUART_ALTOFRAME_State_prefix3;
+                                    break;
+                                default:
+                                    i32CounterRead = 0;
+                                    state = IFUART_ALTOFRAME_State_prefix0;
+                                    break;
+                                }
+                            }
+                            break;
+                        case IFUART_ALTOFRAME_State_prefix3:
+//                            System_printf(" IFUART_ALTOFRAME_State_prefix3 %d\n" , i32dataAvailable);
+                            i32retValue = UART_read(object->hBSPSerial_uart, &i8Preamble, 1);
+                            if ( i32retValue != UART_STATUS_ERROR) {
+                                switch(i8Preamble) {
+                                case 'A':
+                                case 'a':
+                                    i32CounterRead = 1;
+                                    state = IFUART_ALTOFRAME_State_prefix1;
+                                    break;
+                                case IFUART_ALTOFRAME_PREFIX2:
+                                    i32CounterRead = 4;
+                                    ui32PacketLength = 0;
+                                    pPayloadRx = frameBuffer;
+                                    state = IFUART_ALTOFRAME_State_payload;
+                                    break;
+                                default:
+                                    i32CounterRead = 0;
+                                    state = IFUART_ALTOFRAME_State_prefix0;
+                                    break;
+                                }
+                            }
+                            break;
+                        case IFUART_ALTOFRAME_State_payload:
+//                            System_printf(" IFUART_ALTOFRAME_State_payload %d\n" , i32dataAvailable);
+                            if (IF_ALTO_SERIAL_FRAME_SIZE - ui32PacketLength > i32dataAvailable) {
+                                i32retValue = UART_read(object->hBSPSerial_uart, pPayloadRx, i32dataAvailable);
+                            }else {
+                                i32retValue = UART_read(object->hBSPSerial_uart, pPayloadRx, (IF_ALTO_SERIAL_FRAME_SIZE - ui32PacketLength));
+                            }
+
+//                            if ( i32retValue != UART_STATUS_ERROR)
+                            {
+                                pPayloadRx += i32retValue;
+                                ui32PacketLength += i32retValue;
+                                i32CounterRead += i32retValue;
+                            }
+//                            else{
+//                                isError = true;
+//                            }
+                            if (ui32PacketLength >= IF_ALTO_SERIAL_FRAME_SIZE) {
+                                memcpy(pStr, frameBuffer, IF_ALTO_SERIAL_FRAME_SIZE);
+                                state = IFUART_ALTOFRAME_State_cr;
+                            }
+
+                            break;
+                        case IFUART_ALTOFRAME_State_cr:
+//                            System_printf(" IFUART_ALTOFRAME_State_cr\n");
+                            i32retValue = UART_read(object->hBSPSerial_uart, &i8Preamble, 1);
+                            if ( i32retValue != UART_STATUS_ERROR) {
+                                switch(i8Preamble) {
+                                case '\r':
+                                    i32CounterRead++;
+                                    state = IFUART_ALTOFRAME_State_lf;
+                                    break;
+                                default:
+                                    isError = true;
+                                    isFinish = true;
+                                    break;
+                                }
+                            }
+                            break;
+                        case IFUART_ALTOFRAME_State_lf:
+//                            System_printf(" IFUART_ALTOFRAME_State_lf\n");
+                            i32retValue = UART_read(object->hBSPSerial_uart, &i8Preamble, 1);
+                            if ( i32retValue != UART_STATUS_ERROR) {
+                                switch(i8Preamble) {
+                                case '\n':
+                                    i32CounterRead++;
+                                    isFinish = true;
+//                                    state = IFUART_AVDSRX_State_end;
+                                    break;
+                                default:
+                                    isError = true;
+                                    isFinish = true;
+                                    break;
+                                }
+                            }
+                            break;
+                        default:
+                            state = IFUART_ALTOFRAME_State_prefix0;
+                            break;
+                        }
+                    }
+//                    System_flush();
+                }while(timeout && !isFinish);
+
+
+
+                if (hwAttrs->receiverEnablePin && (hwAttrs->receiverEnablePin < Board_GPIOCount)) {
+                    GPIO_write(hwAttrs->receiverEnablePin, IF_UART_SERIAL_RECEIVER_DISABLE);
+                }
+                Semaphore_post(object->hBSPSerial_semRxSerial);
+                if (i32CounterRead) i32retValue = i32CounterRead;
+            }
+        }else {
+            bIFUART_waitForConnect(handle, timeout);
+        }
+    }
+    return (i32retValue);
+}
 
 /*
  *  ======== readBlockingTimeout ========

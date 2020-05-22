@@ -557,7 +557,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
     memset(&ifTransaction, 0, sizeof(IF_Transaction));
     ifTransaction.readCount = 0;
     ifTransaction.readBuf = &bufferRxUnion.cmdGetChResp;
-    ifTransaction.readTimeout = 30;
+    ifTransaction.readTimeout = 200;
     ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_AVDS485;
     //    ifTransaction.writeBuf = txbuff;
     //    ifTransaction.writeBuf = &cmd;
@@ -622,6 +622,7 @@ static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *
                 if (ui16Result == bufferRxUnion.cmdGetChResp.crc)
                 {
                     AVDS485Device_serviceSteveCommand_charGetChannelResp_data getChannelResData;
+                    getChannelResData.outputChannel = pGetChannelData->outputChannel;
                     getChannelResData.result = bufferRxUnion.cmdGetChResp.result;
                     getChannelResData.audioInputChannel = ntohs(bufferRxUnion.cmdGetChResp.audioInputChannel);
                     getChannelResData.videoInputChannel = ntohs(bufferRxUnion.cmdGetChResp.videoInputChannel);
@@ -1150,7 +1151,7 @@ int xAVDS485Device_cmdFrameSetControlProperty(AVDS485Device_Command_setControlPr
     pCmd->command = AVDS485DEVICE_COMMAND_SET_CONTROL_PROPERTY;
 
     pCmd->outputChannel = htons(outputChannel);
-    pCmd->property = htons(property);
+    pCmd->property = property;
     pCmd->value = htonl(value);
 
     /* Set data processing options, including endianness control */

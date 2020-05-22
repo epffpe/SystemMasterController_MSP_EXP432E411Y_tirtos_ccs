@@ -187,27 +187,27 @@ int xIFS_createDefaultFiles()
     SPIFFS_close(&g_IFSfs, fd);
 
     /**************************************************************************************************/
-    Display_printf(g_SMCDisplay, 0, 0, "Creating %s...", IFS_STARTUP_DEVICE_1_FILE_NAME);
+//    Display_printf(g_SMCDisplay, 0, 0, "Creating %s...", IFS_STARTUP_DEVICE_1_FILE_NAME);
 
-    fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_DEVICE_1_FILE_NAME, SPIFFS_CREAT | SPIFFS_RDWR, 0);
-    if (fd < 0) {
-        Display_printf(g_SMCDisplay, 0, 0, "Error creating %s.\n", IFS_STARTUP_DEVICE_1_FILE_NAME);
-        return -1;
-    }
-
-    Display_printf(g_SMCDisplay, 0, 0, "Writing to %s...", IFS_STARTUP_DEVICE_1_FILE_NAME);
-
-    devInfo.params.deviceType = DEVICE_TYPE_ALTO_AMP;
-    devInfo.params.deviceID = 33;
-    devInfo.params.arg0 = (void *)IF_SERIAL_3;
-    strcpy (devInfo.description,"ALTO Amp 1");
-
-    if (SPIFFS_write(&g_IFSfs, fd, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t)) < 0) {
-        Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_STARTUP_DEVICE_1_FILE_NAME);
-        return -1;
-    }
-
-    SPIFFS_close(&g_IFSfs, fd);
+//    fd = SPIFFS_open(&g_IFSfs, IFS_STARTUP_DEVICE_1_FILE_NAME, SPIFFS_CREAT | SPIFFS_RDWR, 0);
+//    if (fd < 0) {
+//        Display_printf(g_SMCDisplay, 0, 0, "Error creating %s.\n", IFS_STARTUP_DEVICE_1_FILE_NAME);
+//        return -1;
+//    }
+//
+//    Display_printf(g_SMCDisplay, 0, 0, "Writing to %s...", IFS_STARTUP_DEVICE_1_FILE_NAME);
+//
+//    devInfo.params.deviceType = DEVICE_TYPE_ALTO_AMP;
+//    devInfo.params.deviceID = 33;
+//    devInfo.params.arg0 = (void *)IF_SERIAL_3;
+//    strcpy (devInfo.description,"ALTO Amp 1");
+//
+//    if (SPIFFS_write(&g_IFSfs, fd, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t)) < 0) {
+//        Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", IFS_STARTUP_DEVICE_1_FILE_NAME);
+//        return -1;
+//    }
+//
+//    SPIFFS_close(&g_IFSfs, fd);
 
     /**************************************************************************************************/
     Display_printf(g_SMCDisplay, 0, 0, "Creating %s...", IFS_STARTUP_DEVICE_2_FILE_NAME);
@@ -222,7 +222,7 @@ int xIFS_createDefaultFiles()
 
     devInfo.params.deviceType = DEVICE_TYPE_ALTO_AMP;
     devInfo.params.deviceID = 34;
-    devInfo.params.arg0 = (void *)IF_SERIAL_4;
+    devInfo.params.arg0 = (void *)IF_SERIAL_0;
     strcpy (devInfo.description,"ALTO Amp 2");
 
     if (SPIFFS_write(&g_IFSfs, fd, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t)) < 0) {

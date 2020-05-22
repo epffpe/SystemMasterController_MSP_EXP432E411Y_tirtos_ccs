@@ -459,6 +459,7 @@ static void vALTOMultinet_LocalRemoteService_ValueChangeHandler(char_data_t *pCh
                                     SERVICE_ALTO_MULTINET_CLUPINVINGATE_SELECT_VIRTUAL,
                                     ifHandle, txbuff, rxbuff);
         }
+        Task_sleep((unsigned int)100);
         ack = xALTOMultinet_setVirtualRemoteAt(pPayload->ui8MultinetAddress,
                                                pPayload->tORTInput.inputAddress,
                                                0,
