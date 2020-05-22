@@ -418,6 +418,12 @@ Void heartBeatFxn(UArg arg0, UArg arg1)
         DOSet(DIO_LED_D6, DO_OFF);
 //        GPIO_write(SMC_BLE_2OE, 0);
         Task_sleep((unsigned int)850);
+
+//        Task_sleep((unsigned int)10000);
+////        if ( DIGet(DIO_GPI_5) == 0)
+//        {
+//            JumpToBootLoader();
+//        }
     }
 }
 
