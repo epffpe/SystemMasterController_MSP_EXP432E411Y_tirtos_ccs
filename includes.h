@@ -172,6 +172,9 @@
 
 /* Board Header file */
 #include "BoardRev10.h"
+/* Example/Board Header files */
+//#include "ti_drivers_config.h"
+#include "ti_usblib_config.h"
 
 //#define __LOG_TTY
 //#include "cmdline.h"
@@ -189,6 +192,9 @@
 //#include "EEPROMStorage.h"
 //#include "CANTest.h"
 #include "DISPLAY/SMCDisplay.h"
+#include "USB/USBComposite.h"
+
+
 
 
 #include "DiscreteIO/DIO.h"

@@ -1,0 +1,43 @@
+/**
+ * These arguments were used when this file was generated. They will be automatically applied on subsequent loads
+ * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
+ * @cliArgs --device "MSP432E" --package "212 Pin BGA|19x19" --part "MSP432E411YTZAD" --product "simplelink_msp432e4_sdk@3.40.01.02"
+ * @versions {"data":"2020021217","timestamp":"2020021217","tool":"1.4.0+1234","templates":"2020021217"}
+ */
+
+/**
+ * Import the modules used in this configuration.
+ */
+const Settings  = scripting.addModule("/ti/usblib/Settings", {}, false);
+const Settings1 = Settings.addInstance();
+
+/**
+ * Write custom configuration values to the imported modules.
+ */
+Settings1.$name                                        = "CONFIG_USB_0";
+Settings1.usb.$name                                    = "MyUSB1";
+Settings1.stringDescriptor.$name                       = "usb_string0";
+Settings1.stringDescriptor.manufacturerName            = "ALTO Aviation";
+Settings1.stringDescriptor.productName                 = "System Master Controller";
+Settings1.stringDescriptor.configurationDescription    = "Self Powered Configuration";
+Settings1.stringDescriptor.interfaceDescription        = "ACM Control Interface";
+Settings1.configuration.$name                          = "usb_configuration0";
+Settings1.configuration.deviceClass                    = "Composite";
+Settings1.configuration.composite.numCdc               = 1;
+Settings1.configuration.composite.$name                = "compositeDevice";
+Settings1.configuration.composite.usbHandler           = "cbCompositeHandler";
+Settings1.configuration.composite.cdc0.rxBufferHandler = "cbRxHandler";
+Settings1.configuration.composite.cdc0.txBufferHandler = "cbTxHandler";
+Settings1.configuration.composite.cdc0.$name           = "serialDevice";
+Settings1.configuration.composite.cdc0.controlHandler  = "cbSerialHandler";
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+Settings1.usb.$suggestSolution         = "USB0";
+Settings1.usb.dmPin.$suggestSolution   = "B18";
+Settings1.usb.dpPin.$suggestSolution   = "C18";
+Settings1.usb.idPin.$suggestSolution   = "A16";
+Settings1.usb.vbusPin.$suggestSolution = "B16";
