@@ -122,6 +122,8 @@
 #include <ti/drivers/PWM.h>
 //#include <ti/drivers/pwm/PWMTiva.h>
 
+/* For usleep() */
+#include <ti/drivers/dpl/ClockP.h>
 
 //#include <inc/hw_ints.h>
 //#include "inc/hw_nvic.h"

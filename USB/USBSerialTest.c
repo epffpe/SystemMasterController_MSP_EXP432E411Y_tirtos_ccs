@@ -6,25 +6,8 @@
  */
 
 
+#include "includes.h"
 
-
-#include <stdbool.h>
-#include <string.h>
-
-/* For usleep() */
-#include <ti/drivers/dpl/ClockP.h> 
-
-/* Driver Header files */
-#include <ti/display/Display.h>
-
-/* TI-RTOS Header files */
-#include <ti/drivers/GPIO.h>
-
-/* Example/Board Header files */
-//#include "ti_drivers_config.h"
-
-/* USB Reference Module Header file */
-#include "USB/USBComposite.h"
 
 /*
  *  ======== transmitFxn ========
@@ -39,9 +22,9 @@ void *vSUBSerialTest_transmitFxn(void *arg0)
     while (true) {
 
         /* Block while the device is NOT connected to the USB */
-        USBCDCD_waitForConnect(WAIT_FOREVER);
+        USBCDCD_waitForConnect(USBCDCD_RemoteControl, WAIT_FOREVER);
 
-        USBCDCD_sendData(text, strlen(text)+1, WAIT_FOREVER);
+        USBCDCD_sendData(USBCDCD_RemoteControl, text, strlen(text)+1, WAIT_FOREVER);
 //        GPIO_toggle(CONFIG_LED_0);
 
         /* Send data periodically */
@@ -65,14 +48,60 @@ void *vSUBSerialTest_receiveFxn(void *arg0)
     while (true) {
 
         /* Block while the device is NOT connected to the USB */
-        USBCDCD_waitForConnect(WAIT_FOREVER);
+        USBCDCD_waitForConnect(USBCDCD_RemoteControl, WAIT_FOREVER);
 
-        received = USBCDCD_receiveData(data, 31, WAIT_FOREVER);
+        received = USBCDCD_receiveData(USBCDCD_RemoteControl, data, 31, WAIT_FOREVER);
         data[received] = '\0';
 //        GPIO_toggle(CONFIG_LED_1);
         if (received) {
 //            Display_printf(displayHandle, 0, 0, "Received \"%s\" (%d bytes)\r\n", data, received);
         }
+    }
+}
+
+
+
+void USBSerialTest_init()
+{
+    pthread_t         thread;
+    pthread_attr_t    attrs;
+    struct sched_param  priParam;
+    int                 retc;
+
+    char *text = "TI-RTOS controls USB.\r\n";
+
+      /* Set priority and stack size attributes */
+    pthread_attr_init(&attrs);
+    priParam.sched_priority = 1;
+
+    retc = pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED);
+    if (retc != 0) {
+        /* pthread_attr_setdetachstate() failed */
+        while (1);
+    }
+
+    pthread_attr_setschedparam(&attrs, &priParam);
+
+    retc |= pthread_attr_setstacksize(&attrs, 768);
+    if (retc != 0) {
+        /* pthread_attr_setstacksize() failed */
+        while (1);
+    }
+
+    retc = pthread_create(&thread, &attrs, vSUBSerialTest_transmitFxn, (void *)text);
+    if (retc != 0) {
+        /* pthread_create() failed */
+        while (1);
+    }
+
+    priParam.sched_priority = 2;
+
+    pthread_attr_setschedparam(&attrs, &priParam);
+
+    retc = pthread_create(&thread, &attrs, vSUBSerialTest_receiveFxn, NULL);
+    if (retc != 0) {
+        /* pthread_create() failed */
+        while (1);
     }
 }
 

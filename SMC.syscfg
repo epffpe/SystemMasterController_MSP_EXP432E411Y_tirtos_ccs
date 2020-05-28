@@ -23,13 +23,13 @@ Settings1.stringDescriptor.configurationDescription    = "Self Powered Configura
 Settings1.stringDescriptor.interfaceDescription        = "ACM Control Interface";
 Settings1.configuration.$name                          = "usb_configuration0";
 Settings1.configuration.deviceClass                    = "Composite";
-Settings1.configuration.composite.numCdc               = 1;
 Settings1.configuration.composite.$name                = "compositeDevice";
 Settings1.configuration.composite.usbHandler           = "cbCompositeHandler";
-Settings1.configuration.composite.cdc0.rxBufferHandler = "cbRxHandler";
-Settings1.configuration.composite.cdc0.txBufferHandler = "cbTxHandler";
-Settings1.configuration.composite.cdc0.$name           = "serialDevice";
-Settings1.configuration.composite.cdc0.controlHandler  = "cbSerialHandler";
+Settings1.configuration.composite.numCdc               = 1;
+Settings1.configuration.composite.cdc0.txBufferHandler = "cbTxHandler0";
+Settings1.configuration.composite.cdc0.rxBufferHandler = "cbRxHandler0";
+Settings1.configuration.composite.cdc0.controlHandler  = "cbSerialHandler0";
+Settings1.configuration.composite.cdc0.$name           = "serialDevice0";
 
 /**
  * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future

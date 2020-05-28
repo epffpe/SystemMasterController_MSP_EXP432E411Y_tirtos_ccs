@@ -60,30 +60,46 @@ typedef volatile enum {
 } USBCDCD_USBState;
 
 /* Static variables and handles */
-static volatile USBCDCD_USBState            g_USBCDCDState;
 static volatile USBCDCCOMPOSITE_USBState    g_USBCompositeState;
 static uint8_t                              descriptorData[DESCRIPTOR_DATA_SIZE_compositeDevice];
 
-static MutexP_Handle mutexTxSerial;
-static MutexP_Handle mutexRxSerial;
-static MutexP_Handle mutexUSBWait;
-static SemaphoreP_Handle semTxSerial;
-static SemaphoreP_Handle semRxSerial;
-static SemaphoreP_Handle semUSBConnected;
+
+typedef struct {
+    USBCDCD_USBState    state;
+    MutexP_Handle       mutexTxSerial;
+    MutexP_Handle       mutexRxSerial;
+    MutexP_Handle       mutexUSBWait;
+    SemaphoreP_Handle   semTxSerial;
+    SemaphoreP_Handle   semRxSerial;
+    SemaphoreP_Handle   semUSBConnected;
+}USBCDCD_Object;
+
+static volatile USBCDCD_Object g_USBCDCDObjects[USBCDCD_NUM_DEVICES];
+
 
 /* Function prototypes */
 static void USBCDCD_hwiHandler(uintptr_t arg0);
-static unsigned int rxData(unsigned char *pStr,
+static unsigned int rxData(uint32_t index,
+                           unsigned char *pStr,
                            unsigned int length,
                            unsigned int timeout);
-static unsigned int txData(char *pStr,
+static unsigned int txData(uint32_t index,
+                           char *pStr,
                            int length, unsigned int timeout);
 
-static tLineCoding g_sLineCoding = {
-    115200,                     /* 115200 baud rate. */
-    1,                          /* 1 Stop Bit. */
-    0,                          /* No Parity. */
-    8                           /* 8 Bits of data. */
+static tLineCoding g_sLineCoding[USBCDCD_NUM_DEVICES] = {
+ [USBCDCD_RemoteControl] = {
+                            115200,                     /* 115200 baud rate. */
+                            1,                          /* 1 Stop Bit. */
+                            0,                          /* No Parity. */
+                            8                           /* 8 Bits of data. */
+ },
+#ifdef USBCDCD_CONSOLE_EN
+ [USBCDCD_Console] = {115200, 1, 0, 8},
+#endif
+#ifdef USBCDCD_FORTEVERIFIER_EN
+ [USBCDCD_ForteVerifier] = {115200, 1, 0, 8},
+#endif
 };
 
 /*
@@ -145,13 +161,14 @@ USBCDCDEventType cbCompositeHandler(void *cbData, USBCDCDEventType event,
  *  @param(eventMsgPtr)     A data pointer associated with a particular event.
  *
  */
-USBCDCDEventType cbRxHandler(void *cbData, USBCDCDEventType event,
-                                    USBCDCDEventType eventMsg,
-                                    void *eventMsgPtr)
+USBCDCDEventType cbRxHandler(uint32_t index, void *cbData, USBCDCDEventType event,
+                             USBCDCDEventType eventMsg,
+                             void *eventMsgPtr)
 {
-    switch (event) {
+    if (index < USBCDCD_NUM_DEVICES) {
+        switch (event) {
         case USB_EVENT_RX_AVAILABLE:
-            SemaphoreP_post(semRxSerial);
+            SemaphoreP_post(g_USBCDCDObjects[index].semRxSerial);
             break;
 
         case USB_EVENT_DATA_REMAINING:
@@ -162,6 +179,7 @@ USBCDCDEventType cbRxHandler(void *cbData, USBCDCDEventType event,
 
         default:
             break;
+        }
     }
 
     return (0);
@@ -184,21 +202,21 @@ USBCDCDEventType cbRxHandler(void *cbData, USBCDCDEventType event,
  *  @param(eventMsgPtr)     A data pointer associated with a particular event.
  *
  */
-USBCDCDEventType cbSerialHandler(void *cbData, USBCDCDEventType event,
-                                        USBCDCDEventType eventMsg,
-                                        void *eventMsgPtr)
+USBCDCDEventType cbSerialHandler(uint32_t index, void *cbData, USBCDCDEventType event,
+                                 USBCDCDEventType eventMsg,
+                                 void *eventMsgPtr)
 {
     tLineCoding *psLineCoding;
-
+    if (index < USBCDCD_NUM_DEVICES) {
     /* Determine what event has happened */
-    switch (event) {
+        switch (event) {
         case USB_EVENT_CONNECTED:
-            g_USBCDCDState = USBCDCD_STATE_INIT;
-            SemaphoreP_post(semUSBConnected);
+            g_USBCDCDObjects[index].state = USBCDCD_STATE_INIT;
+            SemaphoreP_post(g_USBCDCDObjects[index].semUSBConnected);
             break;
 
         case USB_EVENT_DISCONNECTED:
-            g_USBCDCDState = USBCDCD_STATE_UNCONFIGURED;
+            g_USBCDCDObjects[index].state = USBCDCD_STATE_UNCONFIGURED;
             break;
 
         case USBD_CDC_EVENT_GET_LINE_CODING:
@@ -206,7 +224,7 @@ USBCDCDEventType cbSerialHandler(void *cbData, USBCDCDEventType event,
             psLineCoding = (tLineCoding *)eventMsgPtr;
 
             /* Copy the current line coding information into the structure. */
-            *(psLineCoding) = g_sLineCoding;
+            *(psLineCoding) = g_sLineCoding[index];
             break;
 
         case USBD_CDC_EVENT_SET_LINE_CODING:
@@ -217,7 +235,7 @@ USBCDCDEventType cbSerialHandler(void *cbData, USBCDCDEventType event,
              * Copy the line coding information into the current line coding
              * structure.
              */
-            g_sLineCoding = *(psLineCoding);
+            g_sLineCoding[index] = *(psLineCoding);
             break;
 
         case USBD_CDC_EVENT_SET_CONTROL_LINE_STATE:
@@ -237,6 +255,7 @@ USBCDCDEventType cbSerialHandler(void *cbData, USBCDCDEventType event,
 
         default:
             break;
+        }
     }
 
     return (0);
@@ -259,26 +278,104 @@ USBCDCDEventType cbSerialHandler(void *cbData, USBCDCDEventType event,
  *  @param(eventMsgPtr)     A data pointer associated with a particular event.
  *
  */
-USBCDCDEventType cbTxHandler(void *cbData, USBCDCDEventType event,
-                                    USBCDCDEventType eventMsg,
-                                    void *eventMsgPtr)
+USBCDCDEventType cbTxHandler(uint32_t index, void *cbData, USBCDCDEventType event,
+                             USBCDCDEventType eventMsg,
+                             void *eventMsgPtr)
 {
-    switch (event) {
+    if (index < USBCDCD_NUM_DEVICES) {
+        switch (event) {
         case USB_EVENT_TX_COMPLETE:
             /*
              * Data was sent, so there should be some space available on the
              * buffer
              */
-            SemaphoreP_post(semTxSerial);
+            SemaphoreP_post(g_USBCDCDObjects[index].semTxSerial);
             break;
 
         default:
             break;
+        }
     }
-
     return (0);
 }
 
+
+
+/*
+ * USB CDC 0
+ */
+
+USBCDCDEventType cbRxHandler0(void *cbData, USBCDCDEventType event,
+                                    USBCDCDEventType eventMsg,
+                                    void *eventMsgPtr)
+{
+    return cbRxHandler(USBCDCD_RemoteControl, cbData, event, eventMsg, eventMsgPtr);
+}
+
+USBCDCDEventType cbSerialHandler0(void *cbData, USBCDCDEventType event,
+                                        USBCDCDEventType eventMsg,
+                                        void *eventMsgPtr)
+{
+    return cbSerialHandler(USBCDCD_RemoteControl, cbData, event, eventMsg, eventMsgPtr);
+}
+
+USBCDCDEventType cbTxHandler0(void *cbData, USBCDCDEventType event,
+                                    USBCDCDEventType eventMsg,
+                                    void *eventMsgPtr)
+{
+    return cbTxHandler(USBCDCD_RemoteControl, cbData, event, eventMsg, eventMsgPtr);
+}
+
+/*
+ * USB CDC 1
+ */
+#ifdef USBCDCD_CONSOLE_EN
+USBCDCDEventType cbRxHandler1(void *cbData, USBCDCDEventType event,
+                                    USBCDCDEventType eventMsg,
+                                    void *eventMsgPtr)
+{
+    return cbRxHandler(USBCDCD_Console, cbData, event, eventMsg, eventMsgPtr);
+}
+
+USBCDCDEventType cbSerialHandler1(void *cbData, USBCDCDEventType event,
+                                        USBCDCDEventType eventMsg,
+                                        void *eventMsgPtr)
+{
+    return cbSerialHandler(USBCDCD_Console, cbData, event, eventMsg, eventMsgPtr);
+}
+
+USBCDCDEventType cbTxHandler1(void *cbData, USBCDCDEventType event,
+                                    USBCDCDEventType eventMsg,
+                                    void *eventMsgPtr)
+{
+    return cbTxHandler(USBCDCD_Console, cbData, event, eventMsg, eventMsgPtr);
+}
+#endif
+/*
+ * USB CDC 2
+ */
+#ifdef USBCDCD_FORTEVERIFIER_EN
+USBCDCDEventType cbRxHandler2(void *cbData, USBCDCDEventType event,
+                                    USBCDCDEventType eventMsg,
+                                    void *eventMsgPtr)
+{
+    return cbRxHandler(USBCDCD_ForteVerifier, cbData, event, eventMsg, eventMsgPtr);
+}
+
+USBCDCDEventType cbSerialHandler2(void *cbData, USBCDCDEventType event,
+                                        USBCDCDEventType eventMsg,
+                                        void *eventMsgPtr)
+{
+    return cbSerialHandler(USBCDCD_ForteVerifier, cbData, event, eventMsg, eventMsgPtr);
+}
+
+USBCDCDEventType cbTxHandler2(void *cbData, USBCDCDEventType event,
+                                    USBCDCDEventType eventMsg,
+                                    void *eventMsgPtr)
+{
+    return cbTxHandler(USBCDCD_ForteVerifier, cbData, event, eventMsg, eventMsgPtr);
+}
+#endif
 /*
  *  ======== USBCDCD_hwiHandler ========
  *  This function calls the USB library's device interrupt handler.
@@ -291,14 +388,35 @@ static void USBCDCD_hwiHandler(uintptr_t arg0)
 /*
  *  ======== rxData ========
  */
-static unsigned int rxData(unsigned char *pStr,
+static unsigned int rxData(uint32_t index,
+                           unsigned char *pStr,
                            unsigned int length,
                            unsigned int timeout)
 {
     unsigned int read = 0;
-
-    if (USBBufferDataAvailable(&g_sRxBuffer_serialDevice) || !(SemaphoreP_pend(semRxSerial, timeout) == SemaphoreP_TIMEOUT)) {
-       read = USBBufferRead(&g_sRxBuffer_serialDevice, pStr, length);
+    tUSBBuffer *psRxBuffer_serialDevice;
+    if (index < USBCDCD_NUM_DEVICES) {
+        switch (index) {
+        case USBCDCD_RemoteControl:
+            psRxBuffer_serialDevice = &g_sRxBuffer_serialDevice0;
+            break;
+#ifdef USBCDCD_CONSOLE_EN
+        case USBCDCD_Console:
+            psRxBuffer_serialDevice = &g_sRxBuffer_serialDevice1;
+            break;
+#endif
+#ifdef USBCDCD_FORTEVERIFIER_EN
+        case USBCDCD_ForteVerifier:
+            psRxBuffer_serialDevice = &g_sRxBuffer_serialDevice2;
+            break;
+#endif
+        default:
+            psRxBuffer_serialDevice = &g_sRxBuffer_serialDevice0;
+            break;
+        }
+        if (USBBufferDataAvailable(psRxBuffer_serialDevice) || !(SemaphoreP_pend(g_USBCDCDObjects[index].semRxSerial, timeout) == SemaphoreP_TIMEOUT)) {
+            read = USBBufferRead(psRxBuffer_serialDevice, pStr, length);
+        }
     }
 
     return (read);
@@ -308,36 +426,59 @@ static unsigned int rxData(unsigned char *pStr,
 /*
  *  ======== txData ========
  */
-static unsigned int txData(char *pStr,
+static unsigned int txData(uint32_t index,
+                           char *pStr,
                            int length, unsigned int timeout)
 {
     unsigned int buffAvailSize;
     unsigned int bufferedCount = 0;
     unsigned int sendCount = 0;
     unsigned char *sendPtr;
+    tUSBBuffer *psTxBuffer_serialDevice;
 
-    while (bufferedCount != length) {
-        /* Determine the buffer size available */
-        buffAvailSize = USBBufferSpaceAvailable(&g_sTxBuffer_serialDevice);
-
-        /* Determine how much needs to be sent */
-        if ((length - bufferedCount) > buffAvailSize) {
-            sendCount = buffAvailSize;
-        }
-        else {
-            sendCount = length - bufferedCount;
-        }
-
-        /* Adjust the pointer to the data */
-        sendPtr = (unsigned char *)pStr + bufferedCount;
-
-        /* Place the contents into the USB BUffer */
-        bufferedCount += USBBufferWrite(&g_sTxBuffer_serialDevice, sendPtr, sendCount);
-
-        /* Pend until some data was sent through the USB*/
-        if (SemaphoreP_pend(semTxSerial, timeout) == SemaphoreP_TIMEOUT) {
+    if (index < USBCDCD_NUM_DEVICES) {
+        switch (index) {
+        case USBCDCD_RemoteControl:
+            psTxBuffer_serialDevice = &g_sTxBuffer_serialDevice0;
+            break;
+#ifdef USBCDCD_CONSOLE_EN
+        case USBCDCD_Console:
+            psTxBuffer_serialDevice = &g_sTxBuffer_serialDevice1;
+            break;
+#endif
+#ifdef USBCDCD_FORTEVERIFIER_EN
+        case USBCDCD_ForteVerifier:
+            psTxBuffer_serialDevice = &g_sTxBuffer_serialDevice2;
+            break;
+#endif
+        default:
+            psTxBuffer_serialDevice = &g_sTxBuffer_serialDevice0;
             break;
         }
+        while (bufferedCount != length) {
+            /* Determine the buffer size available */
+            buffAvailSize = USBBufferSpaceAvailable(psTxBuffer_serialDevice);
+
+            /* Determine how much needs to be sent */
+            if ((length - bufferedCount) > buffAvailSize) {
+                sendCount = buffAvailSize;
+            }
+            else {
+                sendCount = length - bufferedCount;
+            }
+
+            /* Adjust the pointer to the data */
+            sendPtr = (unsigned char *)pStr + bufferedCount;
+
+            /* Place the contents into the USB BUffer */
+            bufferedCount += USBBufferWrite(psTxBuffer_serialDevice, sendPtr, sendCount);
+
+            /* Pend until some data was sent through the USB*/
+            if (SemaphoreP_pend(g_USBCDCDObjects[index].semTxSerial, timeout) == SemaphoreP_TIMEOUT) {
+                break;
+            }
+        }
+
     }
 
     return (bufferedCount);
@@ -347,45 +488,76 @@ static unsigned int txData(char *pStr,
 /*
  *  ======== USBCDCD_receiveData ========
  */
-unsigned int USBCDCD_receiveData(unsigned char *pStr,
+unsigned int USBCDCD_receiveData(uint32_t index,
+                                 unsigned char *pStr,
                                  unsigned int length,
                                  unsigned int timeout)
 {
     unsigned int retValue = 0;
     unsigned int key;
 
-    switch (g_USBCDCDState) {
+    if (index < USBCDCD_NUM_DEVICES) {
+        switch (g_USBCDCDObjects[index].state) {
         case USBCDCD_STATE_UNCONFIGURED:
-            USBCDCD_waitForConnect(timeout);
+            USBCDCD_waitForConnect(index, timeout);
             break;
 
         case USBCDCD_STATE_INIT:
             /* Acquire lock */
-            key = MutexP_lock(mutexRxSerial);
+            key = MutexP_lock(g_USBCDCDObjects[index].mutexRxSerial);
+            switch(index) {
+            case USBCDCD_RemoteControl:
+                USBBufferInit(&g_sTxBuffer_serialDevice0);
+                USBBufferInit(&g_sRxBuffer_serialDevice0);
+                break;
+#ifdef USBCDCD_CONSOLE_EN
+            case USBCDCD_Console:
+                USBBufferInit(&g_sTxBuffer_serialDevice1);
+                USBBufferInit(&g_sRxBuffer_serialDevice1);
+                break;
+#endif
+#ifdef USBCDCD_FORTEVERIFIER_EN
+            case USBCDCD_ForteVerifier:
+                USBBufferInit(&g_sTxBuffer_serialDevice2);
+                USBBufferInit(&g_sRxBuffer_serialDevice2);
+                break;
+#endif
+            default:
+                USBBufferInit(&g_sTxBuffer_serialDevice0);
+                USBBufferInit(&g_sRxBuffer_serialDevice0);
+#ifdef USBCDCD_CONSOLE_EN
+                USBBufferInit(&g_sTxBuffer_serialDevice1);
+                USBBufferInit(&g_sRxBuffer_serialDevice1);
+#endif
+#ifdef USBCDCD_FORTEVERIFIER_EN
+                USBBufferInit(&g_sTxBuffer_serialDevice2);
+                USBBufferInit(&g_sRxBuffer_serialDevice2);
+#endif
+                break;
 
-            USBBufferInit(&g_sTxBuffer_serialDevice);
-            USBBufferInit(&g_sRxBuffer_serialDevice);
+            }
 
-            g_USBCDCDState = USBCDCD_STATE_IDLE;
+            g_USBCDCDObjects[index].state = USBCDCD_STATE_IDLE;
 
-            retValue = rxData(pStr, length, timeout);
+            retValue = rxData(index, pStr, length, timeout);
 
             /* Release lock */
-            MutexP_unlock(mutexRxSerial, key);
+            MutexP_unlock(g_USBCDCDObjects[index].mutexRxSerial, key);
             break;
 
         case USBCDCD_STATE_IDLE:
             /* Acquire lock */
-            key = MutexP_lock(mutexRxSerial);
+            key = MutexP_lock(g_USBCDCDObjects[index].mutexRxSerial);
 
-            retValue = rxData(pStr, length, timeout);
+            retValue = rxData(index, pStr, length, timeout);
 
             /* Release lock */
-            MutexP_unlock(mutexRxSerial, key);
+            MutexP_unlock(g_USBCDCDObjects[index].mutexRxSerial, key);
             break;
 
         default:
             break;
+        }
     }
 
     return (retValue);
@@ -394,45 +566,75 @@ unsigned int USBCDCD_receiveData(unsigned char *pStr,
 /*
  *  ======== USBCDCD_sendData ========
  */
-unsigned int USBCDCD_sendData(char *pStr,
+unsigned int USBCDCD_sendData(uint32_t index,
+                              char *pStr,
                               unsigned int length,
                               unsigned int timeout)
 {
     unsigned int retValue = 0;
     unsigned int key;
 
-    switch (g_USBCDCDState) {
+    if (index < USBCDCD_NUM_DEVICES) {
+        switch (g_USBCDCDObjects[index].state) {
         case USBCDCD_STATE_UNCONFIGURED:
-            USBCDCD_waitForConnect(timeout);
+            USBCDCD_waitForConnect(index, timeout);
             break;
 
         case USBCDCD_STATE_INIT:
             /* Acquire lock */
-            key = MutexP_lock(mutexTxSerial);
+            key = MutexP_lock(g_USBCDCDObjects[index].mutexTxSerial);
+            switch(index) {
+            case USBCDCD_RemoteControl:
+                USBBufferInit(&g_sTxBuffer_serialDevice0);
+                USBBufferInit(&g_sRxBuffer_serialDevice0);
+                break;
+#ifdef USBCDCD_CONSOLE_EN
+            case USBCDCD_Console:
+                USBBufferInit(&g_sTxBuffer_serialDevice1);
+                USBBufferInit(&g_sRxBuffer_serialDevice1);
+#endif
+                break;
+#ifdef USBCDCD_FORTEVERIFIER_EN
+            case USBCDCD_ForteVerifier:
+                USBBufferInit(&g_sTxBuffer_serialDevice2);
+                USBBufferInit(&g_sRxBuffer_serialDevice2);
+                break;
+#endif
+            default:
+                USBBufferInit(&g_sTxBuffer_serialDevice0);
+                USBBufferInit(&g_sRxBuffer_serialDevice0);
+#ifdef USBCDCD_CONSOLE_EN
+                USBBufferInit(&g_sTxBuffer_serialDevice1);
+                USBBufferInit(&g_sRxBuffer_serialDevice1);
+#endif
+#ifdef USBCDCD_FORTEVERIFIER_EN
+                USBBufferInit(&g_sTxBuffer_serialDevice2);
+                USBBufferInit(&g_sRxBuffer_serialDevice2);
+#endif
+                break;
+            }
 
-            USBBufferInit(&g_sTxBuffer_serialDevice);
-            USBBufferInit(&g_sRxBuffer_serialDevice);
+            g_USBCDCDObjects[index].state = USBCDCD_STATE_IDLE;
 
-            g_USBCDCDState = USBCDCD_STATE_IDLE;
-
-            retValue = txData(pStr, length, timeout);
+            retValue = txData(index, pStr, length, timeout);
 
             /* Release lock */
-            MutexP_unlock(mutexTxSerial, key);
+            MutexP_unlock(g_USBCDCDObjects[index].mutexTxSerial, key);
             break;
 
         case USBCDCD_STATE_IDLE:
             /* Acquire lock */
-            key = MutexP_lock(mutexTxSerial);
+            key = MutexP_lock(g_USBCDCDObjects[index].mutexTxSerial);
 
-            retValue = txData(pStr, length, timeout);
+            retValue = txData(index, pStr, length, timeout);
 
             /* Release lock */
-            MutexP_unlock(mutexTxSerial, key);
+            MutexP_unlock(g_USBCDCDObjects[index].mutexTxSerial, key);
             break;
 
         default:
             break;
+        }
     }
 
     return (retValue);
@@ -441,22 +643,25 @@ unsigned int USBCDCD_sendData(char *pStr,
 /*
  *  ======== USBCDCD_waitForConnect ========
  */
-bool USBCDCD_waitForConnect(unsigned int timeout)
+bool USBCDCD_waitForConnect(uint32_t index, unsigned int timeout)
 {
     bool ret = true;
     unsigned int key;
 
-    /* Need exclusive access to prevent a race condition */
-    key = MutexP_lock(mutexUSBWait);
+    if (index < USBCDCD_NUM_DEVICES) {
+        /* Need exclusive access to prevent a race condition */
+        key = MutexP_lock(g_USBCDCDObjects[index].mutexUSBWait);
 
-    if (g_USBCDCDState == USBCDCD_STATE_UNCONFIGURED) {
-        if (SemaphoreP_pend(semUSBConnected, timeout)== SemaphoreP_TIMEOUT) {
-            ret = false;
+        if (g_USBCDCDObjects[index].state == USBCDCD_STATE_UNCONFIGURED) {
+            if (SemaphoreP_pend(g_USBCDCDObjects[index].semUSBConnected, timeout)== SemaphoreP_TIMEOUT) {
+                ret = false;
+            }
         }
+
+        MutexP_unlock(g_USBCDCDObjects[index].mutexUSBWait, key);
+    }else {
+        ret = false;
     }
-
-    MutexP_unlock(mutexUSBWait, key);
-
     return (ret);
 }
 
@@ -568,6 +773,7 @@ void USBComposite_init(bool usbInternal)
     HwiP_Handle hwi;
     uint32_t ui32ULPI;
     uint32_t ui32PLLRate;
+    uint32_t index;
 
 //    Display_Handle display;
 //
@@ -588,46 +794,49 @@ void USBComposite_init(bool usbInternal)
         while(1);
     }
 
-    /* RTOS primitives */
-    semTxSerial = SemaphoreP_createBinary(0);
-    if (semTxSerial == NULL) {
-        Display_printf(g_SMCDisplay, 0, 0, "Can't create TX semaphore.\n");
-        while(1);
-    }
+    for (index = 0; index < USBCDCD_NUM_DEVICES; index++) {
+        /* RTOS primitives */
+        g_USBCDCDObjects[0].semTxSerial = SemaphoreP_createBinary(0);
+        if (g_USBCDCDObjects[0].semTxSerial == NULL) {
+            Display_printf(g_SMCDisplay, 0, 0, "Can't create TX semaphore.\n");
+            while(1);
+        }
 
-    semRxSerial = SemaphoreP_createBinary(0);
-    if (semRxSerial == NULL) {
-        Display_printf(g_SMCDisplay, 0, 0, "Can't create RX semaphore.\n");
-        while(1);
-    }
+        g_USBCDCDObjects[0].semRxSerial = SemaphoreP_createBinary(0);
+        if (g_USBCDCDObjects[0].semRxSerial == NULL) {
+            Display_printf(g_SMCDisplay, 0, 0, "Can't create RX semaphore.\n");
+            while(1);
+        }
 
-    semUSBConnected = SemaphoreP_createBinary(0);
-    if (semUSBConnected == NULL) {
-        Display_printf(g_SMCDisplay, 0, 0, "Can't create USB semaphore.\n");
-        while(1);
-    }
+        g_USBCDCDObjects[0].semUSBConnected = SemaphoreP_createBinary(0);
+        if (g_USBCDCDObjects[0].semUSBConnected == NULL) {
+            Display_printf(g_SMCDisplay, 0, 0, "Can't create USB semaphore.\n");
+            while(1);
+        }
 
-    mutexTxSerial = MutexP_create(NULL);
-    if (mutexTxSerial == NULL) {
-        Display_printf(g_SMCDisplay, 0, 0, "Can't create TX mutex.\n");
-        while(1);
-    }
+        g_USBCDCDObjects[0].mutexTxSerial = MutexP_create(NULL);
+        if (g_USBCDCDObjects[0].mutexTxSerial == NULL) {
+            Display_printf(g_SMCDisplay, 0, 0, "Can't create TX mutex.\n");
+            while(1);
+        }
 
-    mutexRxSerial = MutexP_create(NULL);
-    if (mutexRxSerial == NULL) {
-        Display_printf(g_SMCDisplay, 0, 0, "Can't create RX mutex.\n");
-        while(1);
-    }
+        g_USBCDCDObjects[0].mutexRxSerial = MutexP_create(NULL);
+        if (g_USBCDCDObjects[0].mutexRxSerial == NULL) {
+            Display_printf(g_SMCDisplay, 0, 0, "Can't create RX mutex.\n");
+            while(1);
+        }
 
-    mutexUSBWait = MutexP_create(NULL);
-    if (mutexUSBWait == NULL) {
-        Display_printf(g_SMCDisplay, 0, 0, "Could not create USB Wait mutex.\n");
-        while(1);
+        g_USBCDCDObjects[0].mutexUSBWait = MutexP_create(NULL);
+        if (g_USBCDCDObjects[0].mutexUSBWait == NULL) {
+            Display_printf(g_SMCDisplay, 0, 0, "Could not create USB Wait mutex.\n");
+            while(1);
+        }
+        /* State specific variables */
+        g_USBCDCDObjects[0].state = USBCDCD_STATE_UNCONFIGURED;
     }
 
     /* State specific variables */
     g_USBCompositeState = USBCDCCOMPOSITE_DISCONNECTED;
-    g_USBCDCDState = USBCDCD_STATE_UNCONFIGURED;
 
     /* Check if the ULPI mode is to be used or not */
     if(!(usbInternal)) {
@@ -648,7 +857,7 @@ void USBComposite_init(bool usbInternal)
 //     * Pass our device information to the USB HID device class driver,
 //     * initialize the USB controller and connect the device to the bus.
 //     */
-//    if (!USBDCDCInit(0, &serialDevice)) {
+//    if (!USBDCDCInit(0, &serialDevice0)) {
 //        Display_printf(g_SMCDisplay, 0, 0, "Error initializing the serial device.\n");
 //        while(1);
 //    }
@@ -656,19 +865,42 @@ void USBComposite_init(bool usbInternal)
 
     /* Install the composite instances */
 
-//    if (!USBDCDCCompositeInit(0, &serialDevice, &compositeDevice_entries[1]))
-    if (!USBDCDCCompositeInit(0, &serialDevice, &compositeDevice_entries[0]))
+//    if (!USBDCDCCompositeInit(0, &serialDevice0, &compositeDevice_entries[1]))
+    if (!USBDCDCCompositeInit(0, &serialDevice0, &compositeDevice_entries[0]))
     {
         //Can't initialize CDC composite component
         Display_printf(g_SMCDisplay, 0, 0, "Can't initialize CDC composite component.\n");
         while(1);
     }
+#ifdef USBCDCD_CONSOLE_EN
+    if (!USBDCDCCompositeInit(0, &serialDevice1, &compositeDevice_entries[1]))
+    {
+        //Can't initialize CDC composite component
+        Display_printf(g_SMCDisplay, 0, 0, "Can't initialize CDC composite component.\n");
+        while(1);
+    }
+#endif
+#ifdef USBCDCD_FORTEVERIFIER_EN
+    if (!USBDCDCCompositeInit(0, &serialDevice2, &compositeDevice_entries[2]))
+    {
+        //Can't initialize CDC composite component
+        Display_printf(g_SMCDisplay, 0, 0, "Can't initialize CDC composite component.\n");
+        while(1);
+    }
+#endif
 
 //    USBDMSCCompositeInit(0, &g_sMSCDevice, &compositeDevice_entries[1]);
 //    USBDDFUCompositeInit(0, &g_sDFUDevice, &compositeDevice_entries[2]);
 
-//    if (!compositeDevice_entries[0].pvInstance || !compositeDevice_entries[1].pvInstance)
-    if (!compositeDevice_entries[0].pvInstance)
+    if (!compositeDevice_entries[0].pvInstance
+#ifdef USBCDCD_CONSOLE_EN
+            || !compositeDevice_entries[1].pvInstance
+#endif
+#ifdef USBCDCD_FORTEVERIFIER_EN
+            || !compositeDevice_entries[2].pvInstance
+#endif
+            )
+//    if (!compositeDevice_entries[0].pvInstance)
     {
         //Can't initialize Error initializing the composite device
         Display_printf(g_SMCDisplay, 0, 0, "Error initializing the composite device.\n");

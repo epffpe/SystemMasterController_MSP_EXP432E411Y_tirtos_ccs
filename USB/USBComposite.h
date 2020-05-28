@@ -8,6 +8,25 @@
 #ifndef USB_USBCOMPOSITE_H_
 #define USB_USBCOMPOSITE_H_
 
+#define WAIT_FOREVER    (~(0))
+
+//#define USBCDCD_CONSOLE_EN
+//#define USBCDCD_FORTEVERIFIER_EN
+
+
+typedef enum {
+    USBCDCD_RemoteControl = 0,
+
+#ifdef USBCDCD_CONSOLE_EN
+    USBCDCD_Console,
+#endif
+
+#ifdef USBCDCD_FORTEVERIFIER_EN
+    USBCDCD_ForteVerifier,
+#endif
+    USBCDCD_NUM_DEVICES,
+}USBCDCD_Devices_name;
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,7 +38,6 @@ extern "C" {
     #define __USB_USBCOMPOSITE_EXT  extern
 #endif
 
-#define WAIT_FOREVER    (~(0))
 
 /*!
  *  ======== USBComposite_init ========
@@ -43,9 +61,10 @@ void USBComposite_init(bool usbInternal);
  *  @return         Number of bytes added to the USB Buffer for transmission
  */
 __USB_USBCOMPOSITE_EXT
-unsigned int USBCDCD_sendData(char *pStr,
-                                     unsigned int length,
-                                     unsigned int timeout);
+unsigned int USBCDCD_sendData(uint32_t index,
+                              char *pStr,
+                              unsigned int length,
+                              unsigned int timeout);
 
 /*!
  *  ======== USBCDCD_receiveData ========
@@ -67,16 +86,17 @@ unsigned int USBCDCD_sendData(char *pStr,
  *                  Buffer.
  */
 __USB_USBCOMPOSITE_EXT
-unsigned int USBCDCD_receiveData(unsigned char *pStr,
-                                        unsigned int length,
-                                        unsigned int timeout);
+unsigned int USBCDCD_receiveData(uint32_t index,
+                                 unsigned char *pStr,
+                                 unsigned int length,
+                                 unsigned int timeout);
 
 /*!
  *  ======== USBCDCD_waitForConnect ========
  *  This function blocks while the USB is not connected
  */
 __USB_USBCOMPOSITE_EXT
-bool USBCDCD_waitForConnect(unsigned int timeout);
+bool USBCDCD_waitForConnect(uint32_t index, unsigned int timeout);
 
 #ifdef __cplusplus
 }

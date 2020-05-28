@@ -42,7 +42,7 @@ void vDiscreteIO_init();
 void vHeartBeat_init();
 void test();
 void vTest_CRC() ;
-void testUSBCDC();
+void USBSerialTest_init();
 
 extern void pvPPPCU_inputLineIntHandler(uint_least8_t index);
 //extern void test2();
@@ -156,7 +156,7 @@ void *SMC_initThread(void *arg0)
 
     USBComposite_init(MSP_EXP432E401Y_USBDEVICE);
 
-    testUSBCDC();
+    USBSerialTest_init();
 
     vDiscreteIO_init();
     vHeartBeat_init();
@@ -607,52 +607,5 @@ void vTest_CRC()
     CRC_close(handle);
 }
 
-extern void *vSUBSerialTest_transmitFxn(void *arg0);
-extern void *vSUBSerialTest_receiveFxn(void *arg0);
-
-char *text = "TI-RTOS controls USB.\r\n";
-
-void testUSBCDC()
-{
-    pthread_t         thread;
-    pthread_attr_t    attrs;
-    struct sched_param  priParam;
-    int                 retc;
-
-
-      /* Set priority and stack size attributes */
-    pthread_attr_init(&attrs);
-    priParam.sched_priority = 1;
-
-    retc = pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED);
-    if (retc != 0) {
-        /* pthread_attr_setdetachstate() failed */
-        while (1);
-    }
-
-    pthread_attr_setschedparam(&attrs, &priParam);
-
-    retc |= pthread_attr_setstacksize(&attrs, 768);
-    if (retc != 0) {
-        /* pthread_attr_setstacksize() failed */
-        while (1);
-    }
-
-    retc = pthread_create(&thread, &attrs, vSUBSerialTest_transmitFxn, (void *)text);
-    if (retc != 0) {
-        /* pthread_create() failed */
-        while (1);
-    }
-
-    priParam.sched_priority = 2;
-
-    pthread_attr_setschedparam(&attrs, &priParam);
-
-    retc = pthread_create(&thread, &attrs, vSUBSerialTest_receiveFxn, NULL);
-    if (retc != 0) {
-        /* pthread_create() failed */
-        while (1);
-    }
-}
 
 
