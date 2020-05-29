@@ -144,6 +144,10 @@ void *SMC_initThread(void *arg0)
     // Watchdog_init();
     CRC_init();
 
+    MSP_EXP432E401Y_initUSB(MSP_EXP432E401Y_USBDEVICE);
+
+    USBSerialTest_init();
+
 #if !(defined(TEST_FIXTURE) || defined(DUT))
 //    SMCDisplay_init();
 #endif
@@ -152,11 +156,8 @@ void *SMC_initThread(void *arg0)
                    "-- Compiled: "__DATE__" "__TIME__" --\n");
 
 
-    MSP_EXP432E401Y_initUSB(MSP_EXP432E401Y_USBDEVICE);
 
     USBComposite_init(MSP_EXP432E401Y_USBDEVICE);
-
-    USBSerialTest_init();
 
     vDiscreteIO_init();
     vHeartBeat_init();
@@ -208,6 +209,9 @@ void *SMC_initThread(void *arg0)
 
     Error_init(&eb);
     Device_Params deviceParams;
+
+    vUSBRCBinaryDevice_Params_init(&deviceParams, 6);
+    xDevice_add(&deviceParams, &eb);
 
     vForteManagerDevice_Params_init(&deviceParams, 301, IF_SERIAL_0);
     xDevice_add(&deviceParams, &eb);

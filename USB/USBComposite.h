@@ -10,8 +10,8 @@
 
 #define WAIT_FOREVER    (~(0))
 
-//#define USBCDCD_CONSOLE_EN
-//#define USBCDCD_FORTEVERIFIER_EN
+#define USBCDCD_CONSOLE_EN
+#define USBCDCD_FORTEVERIFIER_EN
 
 
 typedef enum {

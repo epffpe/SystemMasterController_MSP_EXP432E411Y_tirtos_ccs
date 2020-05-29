@@ -273,6 +273,10 @@
 #include "Devices/Rosen/RosenDevice.h"
 #include "Devices/Rosen/RosenRS485Device.h"
 
+#include "Devices/USBSerial/USBRemoteController/USBRemoteControllerBinaryDevice.h"
+#include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/USBBinaryCommands.h"
+#include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/FirmwareUpgrade/USBBinaryCMD_FirmwareUpgrade.h"
+
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"
 

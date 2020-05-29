@@ -66,6 +66,7 @@ static uint8_t                              descriptorData[DESCRIPTOR_DATA_SIZE_
 
 typedef struct {
     USBCDCD_USBState    state;
+    USBCDCD_USBState    stateTx;
     MutexP_Handle       mutexTxSerial;
     MutexP_Handle       mutexRxSerial;
     MutexP_Handle       mutexUSBWait;
@@ -212,11 +213,13 @@ USBCDCDEventType cbSerialHandler(uint32_t index, void *cbData, USBCDCDEventType 
         switch (event) {
         case USB_EVENT_CONNECTED:
             g_USBCDCDObjects[index].state = USBCDCD_STATE_INIT;
+            g_USBCDCDObjects[index].stateTx = USBCDCD_STATE_INIT;
             SemaphoreP_post(g_USBCDCDObjects[index].semUSBConnected);
             break;
 
         case USB_EVENT_DISCONNECTED:
             g_USBCDCDObjects[index].state = USBCDCD_STATE_UNCONFIGURED;
+            g_USBCDCDObjects[index].stateTx = USBCDCD_STATE_UNCONFIGURED;
             break;
 
         case USBD_CDC_EVENT_GET_LINE_CODING:
@@ -575,7 +578,7 @@ unsigned int USBCDCD_sendData(uint32_t index,
     unsigned int key;
 
     if (index < USBCDCD_NUM_DEVICES) {
-        switch (g_USBCDCDObjects[index].state) {
+        switch (g_USBCDCDObjects[index].stateTx) {
         case USBCDCD_STATE_UNCONFIGURED:
             USBCDCD_waitForConnect(index, timeout);
             break;
@@ -614,7 +617,7 @@ unsigned int USBCDCD_sendData(uint32_t index,
                 break;
             }
 
-            g_USBCDCDObjects[index].state = USBCDCD_STATE_IDLE;
+            g_USBCDCDObjects[index].stateTx = USBCDCD_STATE_IDLE;
 
             retValue = txData(index, pStr, length, timeout);
 
@@ -775,18 +778,6 @@ void USBComposite_init(bool usbInternal)
     uint32_t ui32PLLRate;
     uint32_t index;
 
-//    Display_Handle display;
-//
-//    Display_init();
-//
-//    /* Open the display for output */
-//    display = Display_open(Display_Type_UART, NULL);
-
-//    if (display == NULL) {
-//        /* Failed to open display driver */
-//        while (1);
-//    }
-
     /* Install interrupt handler */
     hwi = HwiP_create(INT_USB0, USBCDCD_hwiHandler, NULL);
     if (hwi == NULL) {
@@ -796,43 +787,43 @@ void USBComposite_init(bool usbInternal)
 
     for (index = 0; index < USBCDCD_NUM_DEVICES; index++) {
         /* RTOS primitives */
-        g_USBCDCDObjects[0].semTxSerial = SemaphoreP_createBinary(0);
-        if (g_USBCDCDObjects[0].semTxSerial == NULL) {
+        g_USBCDCDObjects[index].semTxSerial = SemaphoreP_createBinary(0);
+        if (g_USBCDCDObjects[index].semTxSerial == NULL) {
             Display_printf(g_SMCDisplay, 0, 0, "Can't create TX semaphore.\n");
             while(1);
         }
 
-        g_USBCDCDObjects[0].semRxSerial = SemaphoreP_createBinary(0);
-        if (g_USBCDCDObjects[0].semRxSerial == NULL) {
+        g_USBCDCDObjects[index].semRxSerial = SemaphoreP_createBinary(0);
+        if (g_USBCDCDObjects[index].semRxSerial == NULL) {
             Display_printf(g_SMCDisplay, 0, 0, "Can't create RX semaphore.\n");
             while(1);
         }
 
-        g_USBCDCDObjects[0].semUSBConnected = SemaphoreP_createBinary(0);
-        if (g_USBCDCDObjects[0].semUSBConnected == NULL) {
+        g_USBCDCDObjects[index].semUSBConnected = SemaphoreP_createBinary(0);
+        if (g_USBCDCDObjects[index].semUSBConnected == NULL) {
             Display_printf(g_SMCDisplay, 0, 0, "Can't create USB semaphore.\n");
             while(1);
         }
 
-        g_USBCDCDObjects[0].mutexTxSerial = MutexP_create(NULL);
-        if (g_USBCDCDObjects[0].mutexTxSerial == NULL) {
+        g_USBCDCDObjects[index].mutexTxSerial = MutexP_create(NULL);
+        if (g_USBCDCDObjects[index].mutexTxSerial == NULL) {
             Display_printf(g_SMCDisplay, 0, 0, "Can't create TX mutex.\n");
             while(1);
         }
 
-        g_USBCDCDObjects[0].mutexRxSerial = MutexP_create(NULL);
-        if (g_USBCDCDObjects[0].mutexRxSerial == NULL) {
+        g_USBCDCDObjects[index].mutexRxSerial = MutexP_create(NULL);
+        if (g_USBCDCDObjects[index].mutexRxSerial == NULL) {
             Display_printf(g_SMCDisplay, 0, 0, "Can't create RX mutex.\n");
             while(1);
         }
 
-        g_USBCDCDObjects[0].mutexUSBWait = MutexP_create(NULL);
-        if (g_USBCDCDObjects[0].mutexUSBWait == NULL) {
+        g_USBCDCDObjects[index].mutexUSBWait = MutexP_create(NULL);
+        if (g_USBCDCDObjects[index].mutexUSBWait == NULL) {
             Display_printf(g_SMCDisplay, 0, 0, "Could not create USB Wait mutex.\n");
             while(1);
         }
         /* State specific variables */
-        g_USBCDCDObjects[0].state = USBCDCD_STATE_UNCONFIGURED;
+        g_USBCDCDObjects[index].state = USBCDCD_STATE_UNCONFIGURED;
     }
 
     /* State specific variables */
@@ -906,8 +897,6 @@ void USBComposite_init(bool usbInternal)
         Display_printf(g_SMCDisplay, 0, 0, "Error initializing the composite device.\n");
         while(1);
     }
-
-//    Display_close(display);
 
     /* Initialize the USB stack with the composite device */
     USBDCompositeInit(0, (tUSBDCompositeDevice *) &compositeDevice,
