@@ -210,7 +210,7 @@ void *SMC_initThread(void *arg0)
     Error_init(&eb);
     Device_Params deviceParams;
 
-    vUSBRCBinaryDevice_Params_init(&deviceParams, 6);
+    vUSBRCBinaryDevice_Params_init(&deviceParams, USBRCBINDEVICE_ID);
     xDevice_add(&deviceParams, &eb);
 
     vForteManagerDevice_Params_init(&deviceParams, 301, IF_SERIAL_0);

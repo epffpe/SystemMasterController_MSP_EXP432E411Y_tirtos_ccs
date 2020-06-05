@@ -18,7 +18,7 @@ void vUSBBinaryCMD_enterProgrammingMode(char *payload, int32_t size)
 //    USBBIN_CMD_t *pTCPBinCmd = (USBBIN_CMD_t *) payload;
     int n;
     char response[sizeof(tUSBBinaryCMD_enterProgrammingModeResponse)];
-    if (xUSBRCBinaryCMD_checksum((int *)payload, 8) == 0) {
+    if (xUSBRCBinaryCMD_checksum((int *)payload, 2) == 0) {
         n = xUSBRCBinaryCMD_frameCreate(response, USBBIN_CMD_firmwareUpgradeResponse, NULL, 0);
         USBCDCD_sendData(USBCDCD_RemoteControl, response, n, WAIT_FOREVER);
 
