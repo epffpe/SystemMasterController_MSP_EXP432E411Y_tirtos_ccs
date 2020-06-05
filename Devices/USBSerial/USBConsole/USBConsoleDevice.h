@@ -1,0 +1,47 @@
+/*
+ * USBConsoleDevice.h
+ *
+ *  Created on: Jun 5, 2020
+ *      Author: epffpe
+ */
+
+#ifndef DEVICES_USBSERIAL_USBCONSOLE_USBCONSOLEDEVICE_H_
+#define DEVICES_USBSERIAL_USBCONSOLE_USBCONSOLEDEVICE_H_
+
+
+
+#define USBCONSOLEDEVICE_ID                      7
+
+#define USBCONSOLEDEVICE_TASK_STACK_SIZE        2048
+#define USBCONSOLEDEVICE_TASK_PRIORITY          3
+
+#define USBCONSOLEDEVICE_CLOCK_TIMEOUT       10
+#define USBCONSOLEDEVICE_CLOCK_PERIOD        1000
+
+#define USBCONSOLEWORKER_TASK_STACK_SIZE        4096
+#define USBCONSOLEWORKER_TASK_PRIORITY          3
+
+
+#ifdef __cplusplus
+extern "C"  {
+#endif
+
+
+#ifdef  __DEVICES_USBSERIAL_USBCONSOLE_USBCONSOLEDEVICE_GLOBAL
+    #define __DEVICES_USBSERIAL_USBCONSOLE_USBCONSOLEDEVICE_EXT
+#else
+    #define __DEVICES_USBSERIAL_USBCONSOLE_USBCONSOLEDEVICE_EXT  extern
+#endif
+
+
+__DEVICES_USBSERIAL_USBCONSOLE_USBCONSOLEDEVICE_EXT
+void vUSBConsoleDevice_Params_init(Device_Params *params, uint32_t address);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+
+
+#endif /* DEVICES_USBSERIAL_USBCONSOLE_USBCONSOLEDEVICE_H_ */

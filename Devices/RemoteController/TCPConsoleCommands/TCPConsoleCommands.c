@@ -26,38 +26,38 @@ extern void fdOpenSession();
 extern void fdCloseSession();
 extern void *TaskSelf();
 
-
-const char g_cCMDContatInformation[] = {
-                                        "\r\n"
-                                        ANSI_COLOR_YELLOW " Eugenio Penate\r\n" ANSI_COLOR_RESET
-                                        " Electrical Engineer\r\n"
-                                        " 978.466.5992\r\n"
-                                        " epenate@altoaviation.com\r\n"
-                                        "\n"
-                                        " Located at ALTO Jupiter, FL\r\n"
-                                        " ALTO Aviation / 880 Jupiter Park Drive suite 3 / Jupiter, FL 33458\r\n"
-                                        "\n"
-                                        " Corporate office\r\n"
-                                        " ALTO Aviation / 86 Leominster Road / PO Box 399 / Sterling, MA 01564\r\n"
-                                        " 800.814.0123 Toll Free / 978.466.5992 P / 978.466.5996 F\r\n"
-                                        "\r\n"
-
-
-};
-
-
-const char g_cCMDAboutInformation[] = {
-                                        "\r\n"
-                                        ANSI_COLOR_YELLOW " System\r\n" ANSI_COLOR_RESET
-                                        " Model number: %s\r\n"
-                                        " Serial number: %s\r\n"
-                                        " # of channels: %d\r\n"
-                                        "\r\n"
-                                        ANSI_COLOR_YELLOW " Firmware\r\n" ANSI_COLOR_RESET
-                                        " System version: %d.%d.%d.%d\r\n"
-                                        "\r\n"
-};
-
+//
+//const char g_cCMDContatInformation[] = {
+//                                        "\r\n"
+//                                        ANSI_COLOR_YELLOW " Eugenio Penate\r\n" ANSI_COLOR_RESET
+//                                        " Electrical Engineer\r\n"
+//                                        " 978.466.5992\r\n"
+//                                        " epenate@altoaviation.com\r\n"
+//                                        "\n"
+//                                        " Located at ALTO Jupiter, FL\r\n"
+//                                        " ALTO Aviation / 880 Jupiter Park Drive suite 3 / Jupiter, FL 33458\r\n"
+//                                        "\n"
+//                                        " Corporate office\r\n"
+//                                        " ALTO Aviation / 86 Leominster Road / PO Box 399 / Sterling, MA 01564\r\n"
+//                                        " 800.814.0123 Toll Free / 978.466.5992 P / 978.466.5996 F\r\n"
+//                                        "\r\n"
+//
+//
+//};
+//
+//
+//const char g_cCMDAboutInformation[] = {
+//                                        "\r\n"
+//                                        ANSI_COLOR_YELLOW " System\r\n" ANSI_COLOR_RESET
+//                                        " Model number: %s\r\n"
+//                                        " Serial number: %s\r\n"
+//                                        " # of channels: %d\r\n"
+//                                        "\r\n"
+//                                        ANSI_COLOR_YELLOW " Firmware\r\n" ANSI_COLOR_RESET
+//                                        " System version: %d.%d.%d.%d\r\n"
+//                                        "\r\n"
+//};
+//
 
 
 const char g_cCMDreprogramInformation[] = {

@@ -1,31 +1,29 @@
 /*
- * USBRemoteControllerBinaryDevice.c
+ * USBConsoleDevice.c
  *
- *  Created on: May 29, 2020
+ *  Created on: Jun 5, 2020
  *      Author: epffpe
  */
 
-
-
-#define __DEVICES_USBSERIAL_USBREMOTECONTROLLER_USBREMOTECONTROLLERBINARYDEVICE_GLOBAL
+#define __DEVICES_USBSERIAL_USBCONSOLE_USBCONSOLEDEVICE_GLOBAL
 #include "includes.h"
 
-//Void vUSBRCBinaryWorkerFxn(UArg arg0, UArg arg1);
-void vUSBRCBinaryDevice_close(DeviceList_Handler handle);
-DeviceList_Handler hUSBRCBinaryDevice_open(DeviceList_Handler handle, void *params);
-static void vUSBRCBinaryDevice_processApplicationMessage(device_msg_t *pMsg, uint32_t myDeviceID);
 
-static void vUSBRCBinaryDevice_ALTOAmplifierClassService_ValueChangeHandler(char_data_t *pCharData, uint32_t myDeviceID);
+void vUSBConsoleDevice_close(DeviceList_Handler handle);
+DeviceList_Handler hUSBConsoleDevice_open(DeviceList_Handler handle, void *params);
+static void vUSBConsoleDevice_processApplicationMessage(device_msg_t *pMsg, uint32_t myDeviceID);
+
+static void vUSBConsoleDevice_ALTOAmplifierClassService_ValueChangeHandler(char_data_t *pCharData, uint32_t myDeviceID);
 
 
-const Device_FxnTable g_USBRCBinaryDevice_fxnTable =
+const Device_FxnTable g_USBConsoleDevice_fxnTable =
 {
- .closeFxn = vUSBRCBinaryDevice_close,
- .openFxn = hUSBRCBinaryDevice_open,
+ .closeFxn = vUSBConsoleDevice_close,
+ .openFxn = hUSBConsoleDevice_open,
  .sendMsgFxn = vDevice_enqueueCharDataMsg,
 };
 
-Void vUSBRCBinaryDeviceFxn(UArg arg0, UArg arg1)
+Void vUSBConsoleDeviceFxn(UArg arg0, UArg arg1)
 {
     uint32_t events;
     uint32_t myDeviceID;
@@ -35,7 +33,7 @@ Void vUSBRCBinaryDeviceFxn(UArg arg0, UArg arg1)
     Clock_Handle clockHandle;
     device_msg_t *pMsg;
 
-    Task_Handle taskUSBRCBinaryDeviceWorkerHandle;
+    Task_Handle taskUSBConsoleDeviceWorkerHandle;
     Task_Params taskParams;
     Error_Block eb;
 
@@ -60,11 +58,11 @@ Void vUSBRCBinaryDeviceFxn(UArg arg0, UArg arg1)
      *  arg0 will be the port that this task listens to.
      */
     Task_Params_init(&taskParams);
-    taskParams.stackSize = USBREMOTECONTROLLERBINARYWORKER_TASK_STACK_SIZE;
-    taskParams.priority = USBREMOTECONTROLLERBINARYWORKER_TASK_PRIORITY;
-    taskUSBRCBinaryDeviceWorkerHandle = Task_create((Task_FuncPtr)vUSBRCBinaryWorkerFxn, &taskParams, &eb);
-    if (taskUSBRCBinaryDeviceWorkerHandle == NULL) {
-        System_printf("Failed to create vUSBRCBinaryDeviceWorkerFxn Task\n");
+    taskParams.stackSize = USBCONSOLEWORKER_TASK_STACK_SIZE;
+    taskParams.priority = USBCONSOLEWORKER_TASK_PRIORITY;
+    taskUSBConsoleDeviceWorkerHandle = Task_create((Task_FuncPtr)vUSBConsoleWorkerFxn, &taskParams, &eb);
+    if (taskUSBConsoleDeviceWorkerHandle == NULL) {
+        System_printf("Failed to create vUSBConsoleDeviceWorkerFxn Task\n");
     }
 
     while(1) {
@@ -73,11 +71,11 @@ Void vUSBRCBinaryDeviceFxn(UArg arg0, UArg arg1)
         if (events & DEVICE_PERIODIC_EVT) {
             events &= ~DEVICE_PERIODIC_EVT;
 
-            char *text = "SMC controls the serial port.\r\n";
-            /* Block while the device is NOT connected to the USB */
-            USBCDCD_waitForConnect(USBCDCD_RemoteControl, WAIT_FOREVER);
-
-            USBCDCD_sendData(USBCDCD_RemoteControl, text, strlen(text)+1, WAIT_FOREVER);
+//            char *text = "SMC controls USB Console.\r\n";
+//            /* Block while the device is NOT connected to the USB */
+//            USBCDCD_waitForConnect(USBCDCD_Console, WAIT_FOREVER);
+//
+//            USBCDCD_sendData(USBCDCD_Console, text, strlen(text)+1, WAIT_FOREVER);
         }
 
         if (events & DEVICE_APP_KILL_EVT) {
@@ -105,7 +103,7 @@ Void vUSBRCBinaryDeviceFxn(UArg arg0, UArg arg1)
             pMsg = Queue_dequeue(msgQHandle);
 
             // Process application-layer message probably sent from ourselves.
-            vUSBRCBinaryDevice_processApplicationMessage(pMsg, myDeviceID);
+            vUSBConsoleDevice_processApplicationMessage(pMsg, myDeviceID);
 
             // Free the received message.
             Memory_free(pMsg->heap, pMsg, pMsg->pduLen);
@@ -129,7 +127,7 @@ Void vUSBRCBinaryDeviceFxn(UArg arg0, UArg arg1)
  *
  * @return  None.
  */
-static void vUSBRCBinaryDevice_processApplicationMessage(device_msg_t *pMsg, uint32_t myDeviceID)
+static void vUSBConsoleDevice_processApplicationMessage(device_msg_t *pMsg, uint32_t myDeviceID)
 {
   char_data_t *pCharData = (char_data_t *)pMsg->pdu;
 
@@ -139,7 +137,7 @@ static void vUSBRCBinaryDevice_processApplicationMessage(device_msg_t *pMsg, uin
       /* Call different handler per service */
       switch(pCharData->svcUUID) {
       case SERVICE_ALTO_AMP_INPUTSELECT_UUID:
-          vUSBRCBinaryDevice_ALTOAmplifierClassService_ValueChangeHandler(pCharData, myDeviceID);
+          vUSBConsoleDevice_ALTOAmplifierClassService_ValueChangeHandler(pCharData, myDeviceID);
           break;
       default:
           break;
@@ -162,7 +160,7 @@ static void vUSBRCBinaryDevice_processApplicationMessage(device_msg_t *pMsg, uin
 }
 
 
-static void vUSBRCBinaryDevice_ALTOAmplifierClassService_ValueChangeHandler(char_data_t *pCharData, uint32_t myDeviceID)
+static void vUSBConsoleDevice_ALTOAmplifierClassService_ValueChangeHandler(char_data_t *pCharData, uint32_t myDeviceID)
 {
     switch (pCharData->paramID) {
     case CHARACTERISTIC_ALTO_AMP_GET_ID:
@@ -186,14 +184,14 @@ static void vUSBRCBinaryDevice_ALTOAmplifierClassService_ValueChangeHandler(char
 //                                         pCharData->connHandle,
 //                                         pCharData->retSvcUUID, pCharData->retParamID,
 //                                         myDeviceID,
-//                                         g_USBRCBinaryDevice_getVolumeRetrunUUIDMapTable[functionID], CHARACTERISTIC_ALTO_AMP_GET_ID,
+//                                         g_USBConsoleDevice_getVolumeRetrunUUIDMapTable[functionID], CHARACTERISTIC_ALTO_AMP_GET_ID,
 //                                         (uint8_t *)pVolumeData, sizeof(ALTOAmp_volumeData_t));
 //            }else{
 //                xDevice_sendErrorMsg (pCharData->retDeviceID,
 //                                      pCharData->connHandle,
 //                                      pCharData->retSvcUUID, pCharData->retParamID,
 //                                      myDeviceID,
-//                                      g_USBRCBinaryDevice_getVolumeRetrunUUIDMapTable[functionID], CHARACTERISTIC_ALTO_AMP_GET_ID,
+//                                      g_USBConsoleDevice_getVolumeRetrunUUIDMapTable[functionID], CHARACTERISTIC_ALTO_AMP_GET_ID,
 //                                      APP_MSG_ERROR_CRC);
 //            }
 //        }else {
@@ -201,7 +199,7 @@ static void vUSBRCBinaryDevice_ALTOAmplifierClassService_ValueChangeHandler(char
 //                                  pCharData->connHandle,
 //                                  pCharData->retSvcUUID, pCharData->retParamID,
 //                                  myDeviceID,
-//                                  g_USBRCBinaryDevice_getVolumeRetrunUUIDMapTable[functionID], CHARACTERISTIC_ALTO_AMP_GET_ID,
+//                                  g_USBConsoleDevice_getVolumeRetrunUUIDMapTable[functionID], CHARACTERISTIC_ALTO_AMP_GET_ID,
 //                                  APP_MSG_ERROR_TRANSFER_FAILED);
 //        }
         break;
@@ -214,7 +212,7 @@ static void vUSBRCBinaryDevice_ALTOAmplifierClassService_ValueChangeHandler(char
 
 /*************************************/
 
-void vUSBRCBinaryDevice_clockHandler(UArg arg)
+void vUSBConsoleDevice_clockHandler(UArg arg)
 {
     Event_Handle eventHandle;
 
@@ -230,17 +228,17 @@ void vUSBRCBinaryDevice_clockHandler(UArg arg)
 
 
 
-void vUSBRCBinaryDevice_Params_init(Device_Params *params, uint32_t address)
+void vUSBConsoleDevice_Params_init(Device_Params *params, uint32_t address)
 {
     params->deviceID = address;
-    params->deviceType = DEVICE_TYPE_USB_REMOTE_CONTROL_BINARY;
+    params->deviceType = DEVICE_TYPE_USB_REMOTE_CONTROL_CONSOLE;
     params->arg0 = NULL;
     params->arg1 = NULL;
-    params->fxnTablePtr = (Device_FxnTable *)&g_USBRCBinaryDevice_fxnTable;
+    params->fxnTablePtr = (Device_FxnTable *)&g_USBConsoleDevice_fxnTable;
 }
 
 
-void vUSBRCBinaryDevice_close(DeviceList_Handler handle)
+void vUSBConsoleDevice_close(DeviceList_Handler handle)
 {
     unsigned int key;
 
@@ -262,7 +260,7 @@ void vUSBRCBinaryDevice_close(DeviceList_Handler handle)
     Hwi_restore(key);
 }
 
-DeviceList_Handler hUSBRCBinaryDevice_open(DeviceList_Handler handle, void *params)
+DeviceList_Handler hUSBConsoleDevice_open(DeviceList_Handler handle, void *params)
 {
     unsigned int key;
     Error_Block eb;
@@ -296,7 +294,7 @@ DeviceList_Handler hUSBRCBinaryDevice_open(DeviceList_Handler handle, void *para
 
     deviceParams = (Device_Params *)params;
     handle->deviceID = deviceParams->deviceID;
-    handle->deviceType = DEVICE_TYPE_USB_REMOTE_CONTROL_BINARY;
+    handle->deviceType = DEVICE_TYPE_USB_REMOTE_CONTROL_CONSOLE;
 
 //    Event_Params_init(&paramsUnion.eventParams);
     handle->eventHandle = Event_create(NULL, &eb);
@@ -305,10 +303,10 @@ DeviceList_Handler hUSBRCBinaryDevice_open(DeviceList_Handler handle, void *para
 
 
     Clock_Params_init(&paramsUnion.clockParams);
-    paramsUnion.clockParams.period = USBREMOTECONTROLLERBINARYDEVICE_CLOCK_PERIOD;
+    paramsUnion.clockParams.period = USBCONSOLEDEVICE_CLOCK_PERIOD;
     paramsUnion.clockParams.startFlag = TRUE;
     paramsUnion.clockParams.arg = (UArg)handle->eventHandle;
-    handle->clockHandle = Clock_create(vUSBRCBinaryDevice_clockHandler, USBREMOTECONTROLLERBINARYDEVICE_CLOCK_TIMEOUT, &paramsUnion.clockParams, &eb);
+    handle->clockHandle = Clock_create(vUSBConsoleDevice_clockHandler, USBCONSOLEDEVICE_CLOCK_TIMEOUT, &paramsUnion.clockParams, &eb);
     if (handle->clockHandle == NULL) {
         System_abort("Clock create failed");
     }
@@ -316,62 +314,13 @@ DeviceList_Handler hUSBRCBinaryDevice_open(DeviceList_Handler handle, void *para
     Display_printf(g_SMCDisplay, 0, 0, "Opening ALTO Amplifier Device (%d) \n", handle->deviceID);
 
     Task_Params_init(&paramsUnion.taskParams);
-    paramsUnion.taskParams.stackSize = USBREMOTECONTROLLERBINARYDEVICE_TASK_STACK_SIZE;
-    paramsUnion.taskParams.priority = USBREMOTECONTROLLERBINARYDEVICE_TASK_PRIORITY;
+    paramsUnion.taskParams.stackSize = USBCONSOLEDEVICE_TASK_STACK_SIZE;
+    paramsUnion.taskParams.priority = USBCONSOLEDEVICE_TASK_PRIORITY;
     paramsUnion.taskParams.arg0 = (UArg)deviceParams->arg0;
     paramsUnion.taskParams.arg1 = (UArg)handle;
-    handle->taskHandle = Task_create((Task_FuncPtr)vUSBRCBinaryDeviceFxn, &paramsUnion.taskParams, &eb);
+    handle->taskHandle = Task_create((Task_FuncPtr)vUSBConsoleDeviceFxn, &paramsUnion.taskParams, &eb);
 
     return handle;
-}
-
-
-/****************************************************************/
-int xUSBRCBinaryCMD_checksum(int *datos, unsigned int N)
-{
-    unsigned int i;
-    int  sum = 0;
-
-    for (i = N/4; i!=0; i--){
-        sum += *(datos++);
-        sum += *(datos++);
-        sum += *(datos++);
-        sum += *(datos++);
-    }
-    for (i = N&3; i!=0; i--) {
-        sum += *(datos++);
-    }
-    return sum;
-}
-/****************************************************************/
-int xUSBRCBinaryCMD_frameCreate(char * buffer, int kind, char *data, int len)
-{
-    unsigned int i;
-    int longitud = 8;
-    int *bufferptr = (int *)&buffer[4];
-    int *datoptr = (int *)data;
-    int  sum = 0, temp;
-    /* Header */
-    buffer[0] = 'A';
-    buffer[1] = 'L';
-    buffer[2] = 'T';
-    buffer[3] = 'O';
-    /* tipo */
-    sum = kind | 0x80000000;
-    *bufferptr++ = sum;
-    for (i = len/4; i != 0; i--){
-        temp = *datoptr++;
-        *bufferptr++ = temp;
-        sum += temp;
-        longitud += 4;
-    }
-    *bufferptr++ = - sum;
-    longitud += 4;
-    buffer[longitud++] = '\r';
-    buffer[longitud++] = '\n';
-    buffer[longitud++] = '\r';
-    buffer[longitud++] = '\n';
-    return longitud;
 }
 
 

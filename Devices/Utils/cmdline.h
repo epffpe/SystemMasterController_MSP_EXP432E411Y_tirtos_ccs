@@ -133,7 +133,7 @@ tTCPCmdLineEntry;
 //
 //*****************************************************************************
 //extern tCmdLineEntry g_psCmdTable[];
-//extern tUSBCmdLineEntry g_psUSBCmdTable[];
+extern tUSBCmdLineEntry g_psUSBCmdTable[];
 extern tTCPCmdLineEntry g_psTCPCmdTable[];
 //*****************************************************************************
 //
@@ -148,7 +148,7 @@ extern tTCPCmdLineEntry g_psTCPCmdTable[];
 //
 //*****************************************************************************
 //extern int CmdLineProcess(UART_Handle uart, char *pcCmdLine);
-//extern int CmdLineProcessUSB(char *pcCmdLine);
+extern int CmdLineProcessUSB(char *pcCmdLine);
 extern int CmdLineProcessTCP(int sockfd, char *pcCmdLine);
 //*****************************************************************************
 //

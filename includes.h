@@ -277,6 +277,10 @@
 #include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/USBBinaryCommands.h"
 #include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/FirmwareUpgrade/USBBinaryCMD_FirmwareUpgrade.h"
 
+#include "Devices/USBSerial/USBConsole/USBConsoleDevice.h"
+#include "Devices/USBSerial/USBConsole/USBConsoleCommands/USBConsoleCommands.h"
+#include "Devices/USBSerial/USBConsole/USBConsoleCommands/SystemInformation/USBConsoleCMD_SystemInformation.h"
+
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"
 

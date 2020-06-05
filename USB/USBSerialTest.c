@@ -143,21 +143,21 @@ void USBSerialTest_init()
     * USB Console test
     */
 
-    retc = pthread_create(&thread, &attrs, vSUBSerialTest_transmitFxn, (void *)text);
-    if (retc != 0) {
-        /* pthread_create() failed */
-        while (1);
-    }
-
-    priParam.sched_priority = 2;
-
-    pthread_attr_setschedparam(&attrs, &priParam);
-
-    retc = pthread_create(&thread, &attrs, vSUBSerialTest_receiveFxn, NULL);
-    if (retc != 0) {
-        /* pthread_create() failed */
-        while (1);
-    }
+//    retc = pthread_create(&thread, &attrs, vSUBSerialTest_transmitFxn, (void *)text);
+//    if (retc != 0) {
+//        /* pthread_create() failed */
+//        while (1);
+//    }
+//
+//    priParam.sched_priority = 2;
+//
+//    pthread_attr_setschedparam(&attrs, &priParam);
+//
+//    retc = pthread_create(&thread, &attrs, vSUBSerialTest_receiveFxn, NULL);
+//    if (retc != 0) {
+//        /* pthread_create() failed */
+//        while (1);
+//    }
 
     /*
      * Forte Verifier test
