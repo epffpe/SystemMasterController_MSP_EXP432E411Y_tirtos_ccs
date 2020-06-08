@@ -150,6 +150,9 @@ void vTCPRCBin_SystemControl_setManufacturerInformationData(int clientfd, char *
 __DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_EXT
 void vTCPRCBin_SystemControl_getConfigurationFile(int clientfd, char *payload, int32_t size);
 
+__DEVICES_REMOTECONTROLLER_TCPBINARYCOMMANDS_SYSTEMCONTROL_TCPBINARYCMD_SYSTEMCONTROL_EXT
+void vTCPRCBin_SystemControl_getHeartBeat(int clientfd, char *payload, int32_t size);
+
 
 #ifdef __cplusplus
 }
