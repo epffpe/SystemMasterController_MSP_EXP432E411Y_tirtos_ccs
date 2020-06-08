@@ -207,17 +207,17 @@ const char g_cCMDrebootInformation[] = {
                                            ANSI_COLOR_RESET
 };
 
-
-const char g_cCMDrebootUSBInformation[] = {
-                                           "\r\n"
-                                           ANSI_COLOR_MAGENTA
-                                           " Rebooting the system\r\n\r\n"
-                                           ANSI_COLOR_RESET
-                                           ANSI_COLOR_CYAN
-                                           " Close this terminal and open a new one!"
-                                           ANSI_COLOR_RESET
-};
-
+//
+//const char g_cCMDrebootUSBInformation[] = {
+//                                           "\r\n"
+//                                           ANSI_COLOR_MAGENTA
+//                                           " Rebooting the system\r\n\r\n"
+//                                           ANSI_COLOR_RESET
+//                                           ANSI_COLOR_CYAN
+//                                           " Close this terminal and open a new one!"
+//                                           ANSI_COLOR_RESET
+//};
+//
 
 
 //*****************************************************************************

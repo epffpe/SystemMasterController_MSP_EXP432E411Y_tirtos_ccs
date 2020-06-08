@@ -10,11 +10,22 @@
 
 int CMD_USBhelp(int argc, char **argv);
 int CMD_USBcls(int argc, char **argv);
+int CMD_USBreboot(int argc, char **argv);
 
 const unsigned char g_pucUSBCONSOLEWelcome[] = "\r\n>>>>>>> Welcome to the System Master Controller <<<<<<<\r\n";
 
 const unsigned char g_pcUSBCONSOLEprompt[] = "\r" ANSI_COLOR_GREEN "epenate@ALTOAviation: > " ANSI_COLOR_RESET;
 
+
+const char g_cCMDrebootUSBInformation[] = {
+                                           "\r\n"
+                                           ANSI_COLOR_MAGENTA
+                                           " Rebooting the system\r\n\r\n"
+                                           ANSI_COLOR_RESET
+                                           ANSI_COLOR_CYAN
+                                           " Close this terminal and open a new one!"
+                                           ANSI_COLOR_RESET
+};
 
 
 
@@ -26,11 +37,11 @@ tUSBCmdLineEntry g_psUSBCmdTable[] =
     {"cls",    CMD_USBcls,    " : Clear the terminal screen"},
     {"contact",CMD_USBcontact," : Display contact information"},
     {"about"  ,CMD_USBabout,  " : Display information about this unit"},
+    {"reboot",   CMD_USBreboot,   " : Reset the system"},
 //    {"reprogram", CMD_USBreprogram," : Enter in programming mode"},
 //    {"status",   CMD_USBstatus,   " : Display the internal state"},
 //    {"voltage",   CMD_USBvoltages,   " : Display input voltages"},
 //    {"temp",   CMD_USBtemp,   " : Display uController temperature"},
-//    {"reboot",   CMD_USBreboot,   " : Reset the system"},
     { 0, 0, 0 }
 };
 
@@ -50,7 +61,7 @@ void USBCONSOLE_getline (char *line, int n)
 
     do {
 //        nbytes = UART_read(uart, &c, 1);
-        nbytes = USBCDCD_receiveData(USBCDCD_Console, (char *)&c, 1, BIOS_WAIT_FOREVER);
+        nbytes = USBCDCD_receiveData(USBCDCD_Console, (unsigned char *)&c, 1, BIOS_WAIT_FOREVER);
         if (c == CR) c = LF;                    /* read character                 */
         if (c == BACKSPACE  ||  c == DEL) {     /* process backspace              */
             if (cnt != 0)  {
@@ -232,6 +243,33 @@ int CMD_USBcls(int argc, char **argv)
     return (0);
 }
 
+
+//*****************************************************************************
+//
+// Command: reboot
+//
+// Reset the system.
+//
+//*****************************************************************************
+
+int CMD_USBreboot(int argc, char **argv)
+{
+    USBCDCD_sendData(USBCDCD_Console, (char *)g_cCMDrebootUSBInformation, sizeof(g_cCMDrebootUSBInformation), BIOS_WAIT_FOREVER);
+    Task_sleep(50);
+
+//      wait for flash memory mutex
+
+//        WatchdogUnlock(WATCHDOG0_BASE);
+//        WatchdogResetDisable(WATCHDOG0_BASE);
+    //    USBDCDTerm(0);
+    USBDevDisconnect(USB0_BASE);
+
+    Task_sleep(50);
+
+    SysCtlReset();
+
+    return (0);
+}
 
 
 

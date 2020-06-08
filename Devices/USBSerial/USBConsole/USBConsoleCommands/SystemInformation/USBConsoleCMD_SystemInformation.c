@@ -31,8 +31,8 @@ const char g_cCMDContatInformation[] = {
 const char g_cCMDAboutInformation[] = {
                                         "\r\n"
                                         ANSI_COLOR_YELLOW " System\r\n" ANSI_COLOR_RESET
-                                        " Model number: %s\r\n"
-                                        " Serial number: %s\r\n"
+                                        " Model number: %d\r\n"
+                                        " Serial number: %06d\r\n"
                                         "\r\n"
                                         ANSI_COLOR_YELLOW " Firmware\r\n" ANSI_COLOR_RESET
                                         " System version: %d.%d.%d.%d\r\n"
