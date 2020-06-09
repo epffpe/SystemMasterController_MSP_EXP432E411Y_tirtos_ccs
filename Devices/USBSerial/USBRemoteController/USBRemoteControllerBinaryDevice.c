@@ -72,12 +72,12 @@ Void vUSBRCBinaryDeviceFxn(UArg arg0, UArg arg1)
 
         if (events & DEVICE_PERIODIC_EVT) {
             events &= ~DEVICE_PERIODIC_EVT;
-
-            char *text = "SMC controls the serial port.\r\n";
-            /* Block while the device is NOT connected to the USB */
-            USBCDCD_waitForConnect(USBCDCD_RemoteControl, WAIT_FOREVER);
-
-            USBCDCD_sendData(USBCDCD_RemoteControl, text, strlen(text)+1, WAIT_FOREVER);
+//
+//            char *text = "SMC controls the serial port.\r\n";
+//            /* Block while the device is NOT connected to the USB */
+//            USBCDCD_waitForConnect(USBCDCD_RemoteControl, WAIT_FOREVER);
+//
+//            USBCDCD_sendData(USBCDCD_RemoteControl, text, strlen(text)+1, WAIT_FOREVER);
         }
 
         if (events & DEVICE_APP_KILL_EVT) {

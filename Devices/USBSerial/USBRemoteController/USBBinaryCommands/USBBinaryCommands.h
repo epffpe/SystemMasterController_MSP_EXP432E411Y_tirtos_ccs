@@ -16,6 +16,15 @@ typedef enum {
     USBBIN_CMD_firmwareUpgrade = 16,
     USBBIN_CMD_firmwareUpgradeResponse,
 
+    USBBIN_CMD_setMACAddress = 20,
+    USBBIN_CMD_setMACAddressResponse,
+    USBBIN_CMD_getMACAddress,
+    USBBIN_CMD_getMACAddressResponse,
+    USBBIN_CMD_setIfConfig,
+    USBBIN_CMD_setIfConfigResponse,
+    USBBIN_CMD_getIfConfig,
+    USBBIN_CMD_getIfConfigResponse,
+
     USBBIN_CMD_COUNT
 } USBBIN_CMD_types_te;
 
@@ -51,6 +60,45 @@ typedef struct {
     uint16_t retParamID; // characteristic ID
     char payload[];
 }USBBIN_CMD_retFrame_t;
+
+typedef struct {
+    uint32_t header;
+    uint32_t kind;
+    uint32_t crc;
+    uint32_t eof;
+}tUSBBinaryCMD_noPayload;
+
+typedef struct {
+    uint32_t header;
+    uint32_t kind;
+    uint32_t var;
+    uint32_t crc;
+    uint32_t eof;
+}tUSBBinaryCMD_1Var;
+
+typedef struct {
+    uint32_t header;
+    uint32_t kind;
+    uint32_t var[2];
+    uint32_t crc;
+    uint32_t eof;
+}tUSBBinaryCMD_2Var;
+
+typedef struct {
+    uint32_t header;
+    uint32_t kind;
+    uint32_t var[3];
+    uint32_t crc;
+    uint32_t eof;
+}tUSBBinaryCMD_3Var;
+
+typedef struct {
+    uint32_t header;
+    uint32_t kind;
+    uint32_t var[3];
+    uint32_t crc;
+    uint32_t eof;
+}tUSBBinaryCMD_4Var;
 
 
 typedef void (*USBBIN_cmdTypeDef)(char *payload, int32_t size);
