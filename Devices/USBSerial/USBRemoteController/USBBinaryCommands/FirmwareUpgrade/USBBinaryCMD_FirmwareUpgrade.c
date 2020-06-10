@@ -36,3 +36,24 @@ void vUSBBinaryCMD_enterProgrammingMode(char *payload, int32_t size)
     }
 
 }
+
+
+
+
+void vUSBBinaryCMD_getFirmwareVersion(char *payload, int32_t size)
+{
+    uint32_t n;
+    char response[sizeof(tUSBBinaryCMD_getFirmwareVersionResponseFrame)];
+    tUSBBinaryCMD_getFirmwareVersion_payload sFirmwareVersion;
+
+    if (xUSBRCBinaryCMD_checksum((int *)payload, 2) == 0) {
+        sFirmwareVersion.build = FIRMWARE_VERSION_BUILD;
+        sFirmwareVersion.month = FIRMWARE_VERSION_MONTH;
+        sFirmwareVersion.minor = FIRMWARE_VERSION_MINOR;
+        sFirmwareVersion.major = FIRMWARE_VERSION_MAJOR;
+
+        n = xUSBRCBinaryCMD_frameCreate(response, USBBIN_CMD_getFirmwareVersionResponse, (char *)&sFirmwareVersion, sizeof(tUSBBinaryCMD_getFirmwareVersion_payload));
+        USBCDCD_sendData(USBCDCD_RemoteControl, response, n, WAIT_FOREVER);
+    }
+}
+

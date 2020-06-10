@@ -13,6 +13,9 @@
 typedef enum {
     USBBIN_CMD_doNothing = 0,
 
+
+    USBBIN_CMD_getFirmwareVersion = 14,
+    USBBIN_CMD_getFirmwareVersionResponse,
     USBBIN_CMD_firmwareUpgrade = 16,
     USBBIN_CMD_firmwareUpgradeResponse,
 

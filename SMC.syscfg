@@ -21,6 +21,7 @@ Settings1.stringDescriptor.manufacturerName            = "ALTO Aviation";
 Settings1.stringDescriptor.productName                 = "System Master Controller";
 Settings1.stringDescriptor.configurationDescription    = "Self Powered Configuration";
 Settings1.stringDescriptor.interfaceDescription        = "ACM Control Interface";
+Settings1.stringDescriptor.serialNumber                = "12345670";
 Settings1.configuration.$name                          = "usb_configuration0";
 Settings1.configuration.deviceClass                    = "Composite";
 Settings1.configuration.composite.$name                = "compositeDevice";

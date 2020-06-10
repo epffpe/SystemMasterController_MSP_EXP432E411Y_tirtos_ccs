@@ -24,6 +24,7 @@ static const USBBIN_cmdTypeDef g_apfUSBBinCmdTable[] =
 {
  [USBBIN_CMD_doNothing]        = vUSBBIN_doNothing,
 
+ [USBBIN_CMD_getFirmwareVersion] = vUSBBinaryCMD_getFirmwareVersion,
  [USBBIN_CMD_firmwareUpgrade] = vUSBBinaryCMD_enterProgrammingMode,
 
 };

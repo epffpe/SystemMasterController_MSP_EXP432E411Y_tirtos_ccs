@@ -359,7 +359,7 @@ int xUSBRCBinaryCMD_frameCreate(char * buffer, int kind, char *data, int len)
     /* tipo */
     sum = kind | 0x80000000;
     *bufferptr++ = sum;
-    for (i = len/4; i != 0; i--){
+    for (i = (len+3)/4; i != 0; i--){
         temp = *datoptr++;
         *bufferptr++ = temp;
         sum += temp;
