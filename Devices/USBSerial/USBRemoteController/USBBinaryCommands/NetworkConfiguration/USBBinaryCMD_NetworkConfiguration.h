@@ -23,7 +23,11 @@ extern "C"
 
 
 /* Max IPNet Domain name Length - Change requires NETTOOLS rebuild */
+#ifndef EEPROM_CFG_DOMAIN_MAX
 #define USBBINCMD_CFG_DOMAIN_MAX  64
+#else
+#define USBBINCMD_CFG_DOMAIN_MAX  EEPROM_CFG_DOMAIN_MAX
+#endif
 
 typedef struct {
     uint32_t    isIPAuto;               /* staticIP = 0, DHCP=1 */
@@ -89,7 +93,14 @@ typedef struct {
 // when the corresponding command is typed into the command line.
 //
 //*****************************************************************************
-
+__DEVICES_USBSERIAL_USBREMOTECONTROLLER_USBBINARYCOMMANDS_NETWORKCONFIGURATION_USBBINARYCMD_NETWORKCONFIGURATION_EXT
+void vUSBBinaryCMD_setMACAddress(char *payload, int32_t size);
+__DEVICES_USBSERIAL_USBREMOTECONTROLLER_USBBINARYCOMMANDS_NETWORKCONFIGURATION_USBBINARYCMD_NETWORKCONFIGURATION_EXT
+void vUSBBinaryCMD_getMACAddress(char *payload, int32_t size);
+__DEVICES_USBSERIAL_USBREMOTECONTROLLER_USBBINARYCOMMANDS_NETWORKCONFIGURATION_USBBINARYCMD_NETWORKCONFIGURATION_EXT
+void vUSBBinaryCMD_setIfConfig(char *payload, int32_t size);
+__DEVICES_USBSERIAL_USBREMOTECONTROLLER_USBBINARYCOMMANDS_NETWORKCONFIGURATION_USBBINARYCMD_NETWORKCONFIGURATION_EXT
+void vUSBBinaryCMD_getIfConfig(char *payload, int32_t size);
 
 //*****************************************************************************
 //

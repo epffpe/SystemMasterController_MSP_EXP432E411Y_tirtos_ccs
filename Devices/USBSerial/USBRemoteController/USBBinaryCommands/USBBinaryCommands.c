@@ -27,6 +27,12 @@ static const USBBIN_cmdTypeDef g_apfUSBBinCmdTable[] =
  [USBBIN_CMD_getFirmwareVersion] = vUSBBinaryCMD_getFirmwareVersion,
  [USBBIN_CMD_firmwareUpgrade] = vUSBBinaryCMD_enterProgrammingMode,
 
+
+ [USBBIN_CMD_setMACAddress] = vUSBBinaryCMD_setMACAddress,
+ [USBBIN_CMD_getMACAddress] = vUSBBinaryCMD_getMACAddress,
+ [USBBIN_CMD_setIfConfig] = vUSBBinaryCMD_setIfConfig,
+ [USBBIN_CMD_getIfConfig] = vUSBBinaryCMD_getIfConfig,
+
 };
 #define USBBIN_CMD_COUNT   (sizeof (g_apfUSBBinCmdTable) / sizeof (g_apfUSBBinCmdTable[0]))
 

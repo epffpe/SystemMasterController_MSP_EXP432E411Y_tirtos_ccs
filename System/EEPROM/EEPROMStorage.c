@@ -268,6 +268,25 @@ const tEEPROM_DIOCfgData g_sDefaultEEPROMDIOCfgData =
          },
 };
 
+//typedef struct {
+//    uint32_t    isIPAuto;               /* staticIP = 0, DHCP=1 */
+//    uint32_t    IPAddr;                 /* IP Address */
+//    uint32_t    IPMask;                 /* Subnet Mask */
+//    uint32_t    IPGateAddr;             /* Gateway IP Address */
+//    char        Domain[EEPROM_CFG_DOMAIN_MAX]; /* IPNet Domain Name */
+//}tEEPROM_ipConfigData;
+
+
+const tEEPROM_ipConfigData g_sDefaultEEPROMIPConfigData =
+{
+ .isIPAuto = 1,
+ .IPAddr = 0x0201A8C0,
+ .IPMask = 0x00FFFFFF,
+ .IPGateAddr = 0x0101A8C0,
+ .Domain = {"ALTO.net"},
+};
+
+
 
 volatile tEEPROM_Data *INFO_get()
 {
@@ -293,6 +312,18 @@ void vEEPDIOConfg_set(tEEPROM_DIOCfgData *info)
 //    EEPROMProgram((uint32_t *)&info, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
     g_sEEPROMDIOCfgData = *info;
     EEPROMProgram((uint32_t *)&g_sEEPROMDIOCfgData, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
+}
+
+
+volatile tEEPROM_ipConfigData *psEEPIpConfg_get()
+{
+    return &g_sEEPROMIpCfgData;
+}
+
+void vEEPIpConfg_set(tEEPROM_ipConfigData *info)
+{
+    g_sEEPROMIpCfgData = *info;
+    EEPROMProgram((uint32_t *)&g_sEEPROMIpCfgData, DEFAULT_EEPROM_IP_CONFG, sizeof(tEEPROM_ipConfigData));
 }
 
 
@@ -329,6 +360,7 @@ void INFO_init()
 
     EEPROMRead((uint32_t *)&g_sEEPROMData, DEFAULT_EEPROM_ADDRESS, sizeof(tEEPROM_Data));
     EEPROMRead((uint32_t *)&g_sEEPROMDIOCfgData, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
+    EEPROMRead((uint32_t *)&g_sEEPROMIpCfgData, DEFAULT_EEPROM_IP_CONFG, sizeof(tEEPROM_ipConfigData));
 
     if (g_sEEPROMData.eepromCheck != DEFAULT_EEPROM_CHECK) {
         g_sEEPROMData = g_sDefaultEEPROMData;
@@ -336,6 +368,9 @@ void INFO_init()
 
         g_sEEPROMDIOCfgData = g_sDefaultEEPROMDIOCfgData;
         EEPROMProgram((uint32_t *)&g_sEEPROMDIOCfgData, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
+
+        g_sEEPROMIpCfgData = g_sDefaultEEPROMIPConfigData;
+        EEPROMProgram((uint32_t *)&g_sEEPROMIpCfgData, DEFAULT_EEPROM_IP_CONFG, sizeof(tEEPROM_ipConfigData));
     }
 }
 

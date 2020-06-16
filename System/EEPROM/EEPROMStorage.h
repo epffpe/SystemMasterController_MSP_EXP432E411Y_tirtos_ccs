@@ -43,6 +43,7 @@
 #define DEFAULT_EEPROM_ADDRESS              0x000
 #define DEFAULT_EEPROM_DIO_CONFG            0x080
 #define DEFAULT_EEPROM_MEM_TEST             0x200
+#define DEFAULT_EEPROM_IP_CONFG             0x300
 
 
 
@@ -98,11 +99,28 @@ typedef struct {
 
 }tEEPROM_DIOCfgData;
 
+
+
+
 typedef struct {
     uint32_t                test;
 }tEEPROM_memoryTestData;
 
 #define EEPROM_DATA_PAYLOAD_SIZE      (sizeof(tEEPROM_Data) + 2 )
+
+
+
+
+/* Max IPNet Domain name Length - Change requires NETTOOLS rebuild */
+#define EEPROM_CFG_DOMAIN_MAX  64
+
+typedef struct {
+    uint32_t    isIPAuto;               /* staticIP = 0, DHCP=1 */
+    uint32_t    IPAddr;                 /* IP Address */
+    uint32_t    IPMask;                 /* Subnet Mask */
+    uint32_t    IPGateAddr;             /* Gateway IP Address */
+    char        Domain[EEPROM_CFG_DOMAIN_MAX]; /* IPNet Domain Name */
+}tEEPROM_ipConfigData;
 
 
 #ifdef __cplusplus
@@ -115,16 +133,30 @@ extern "C"  {
     #define EEPROMSTORAGE_EXT    extern
 #endif
 
-EEPROMSTORAGE_EXT volatile tEEPROM_Data *INFO_get();
-EEPROMSTORAGE_EXT void INFO_set(tEEPROM_Data *info);
-EEPROMSTORAGE_EXT void INFO_init();
-EEPROMSTORAGE_EXT volatile tEEPROM_DIOCfgData *psEEPDIOConfg_get();
-EEPROMSTORAGE_EXT void vEEPDIOConfg_set(tEEPROM_DIOCfgData *info);
+EEPROMSTORAGE_EXT
+volatile tEEPROM_Data *INFO_get();
+EEPROMSTORAGE_EXT
+void INFO_set(tEEPROM_Data *info);
+EEPROMSTORAGE_EXT
+void INFO_init();
+EEPROMSTORAGE_EXT
+volatile tEEPROM_DIOCfgData *psEEPDIOConfg_get();
+EEPROMSTORAGE_EXT
+void vEEPDIOConfg_set(tEEPROM_DIOCfgData *info);
+EEPROMSTORAGE_EXT
+volatile tEEPROM_ipConfigData *psEEPIpConfg_get();
+EEPROMSTORAGE_EXT
+void vEEPIpConfg_set(tEEPROM_ipConfigData *info);
 
 
-EEPROMSTORAGE_EXT volatile tEEPROM_Data g_sEEPROMData;
-EEPROMSTORAGE_EXT volatile tEEPROM_DIOCfgData g_sEEPROMDIOCfgData;
-EEPROMSTORAGE_EXT volatile uint32_t g_ui32EEPROMInit;
+EEPROMSTORAGE_EXT
+volatile tEEPROM_Data g_sEEPROMData;
+EEPROMSTORAGE_EXT
+volatile tEEPROM_DIOCfgData g_sEEPROMDIOCfgData;
+EEPROMSTORAGE_EXT
+volatile tEEPROM_ipConfigData g_sEEPROMIpCfgData;
+EEPROMSTORAGE_EXT
+volatile uint32_t g_ui32EEPROMInit;
 
 #ifdef __cplusplus
 }

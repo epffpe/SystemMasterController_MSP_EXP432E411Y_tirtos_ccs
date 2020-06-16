@@ -31,7 +31,6 @@ void vUSBBinaryCMD_enterProgrammingMode(char *payload, int32_t size)
         //    USBDCDTerm(0);
         USBDevDisconnect(USB0_BASE);
 
-
         JumpToBootLoader();
     }
 

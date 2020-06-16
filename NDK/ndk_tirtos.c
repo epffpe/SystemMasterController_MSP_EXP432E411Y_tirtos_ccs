@@ -222,7 +222,7 @@ static void serviceReport(uint32_t item, uint32_t status, uint32_t report,
 //    System_printf("Service Status: %-9s: %-9s: %-9s: %03d\n",
 //                  taskName[item - 1], statusStr[status], reportStr[report / 256],
 //                  report & 0xFF);
-//    System_flush();
+    System_flush();
 }
 
 /*
