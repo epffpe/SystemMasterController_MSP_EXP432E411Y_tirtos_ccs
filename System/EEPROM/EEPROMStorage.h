@@ -43,6 +43,7 @@
 #define DEFAULT_EEPROM_ADDRESS              0x000
 #define DEFAULT_EEPROM_DIO_CONFG            0x080
 #define DEFAULT_EEPROM_MEM_TEST             0x200
+#define DEFAULT_EEPROM_MAC_CONFG            0x290
 #define DEFAULT_EEPROM_IP_CONFG             0x300
 
 
@@ -122,6 +123,11 @@ typedef struct {
     char        Domain[EEPROM_CFG_DOMAIN_MAX]; /* IPNet Domain Name */
 }tEEPROM_ipConfigData;
 
+typedef struct {
+    uint32_t    macReg0;
+    uint32_t    macReg1;
+}tEEPROM_macConfigData;
+
 
 #ifdef __cplusplus
 extern "C"  {
@@ -148,6 +154,11 @@ volatile tEEPROM_ipConfigData *psEEPIpConfg_get();
 EEPROMSTORAGE_EXT
 void vEEPIpConfg_set(tEEPROM_ipConfigData *info);
 
+EEPROMSTORAGE_EXT
+volatile tEEPROM_macConfigData *psEEPMACConfg_get();
+EEPROMSTORAGE_EXT
+void vEEPMACConfg_set(tEEPROM_macConfigData *info);
+
 
 EEPROMSTORAGE_EXT
 volatile tEEPROM_Data g_sEEPROMData;
@@ -155,6 +166,8 @@ EEPROMSTORAGE_EXT
 volatile tEEPROM_DIOCfgData g_sEEPROMDIOCfgData;
 EEPROMSTORAGE_EXT
 volatile tEEPROM_ipConfigData g_sEEPROMIpCfgData;
+EEPROMSTORAGE_EXT
+volatile tEEPROM_macConfigData g_sEEPROMMACCfgData;
 EEPROMSTORAGE_EXT
 volatile uint32_t g_ui32EEPROMInit;
 

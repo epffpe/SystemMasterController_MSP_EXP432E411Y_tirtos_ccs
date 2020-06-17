@@ -45,6 +45,7 @@
 #include <time.h>
 
 #include <ti/display/Display.h>
+#include "System/EEPROM/EEPROMStorage.h"
 
 /* Socket file descriptor table */
 #define MAXSOCKETS 15
@@ -194,10 +195,10 @@ static void networkIPAddr(uint32_t IPAddr, uint32_t IfIdx, uint32_t fAdd)
     Display_printf(g_SMCDisplay, 0, 0, "If-%d:%d.%d.%d.%d\n", IfIdx,
             (uint8_t)(IPTmp>>24)&0xFF, (uint8_t)(IPTmp>>16)&0xFF,
             (uint8_t)(IPTmp>>8)&0xFF, (uint8_t)IPTmp&0xFF);
-//    System_printf("If-%d:%d.%d.%d.%d\n", IfIdx,
-//                  (uint8_t)(IPTmp>>24)&0xFF, (uint8_t)(IPTmp>>16)&0xFF,
-//                  (uint8_t)(IPTmp>>8)&0xFF, (uint8_t)IPTmp&0xFF);
-//    System_flush();
+    System_printf("If-%d:%d.%d.%d.%d\n", IfIdx,
+                  (uint8_t)(IPTmp>>24)&0xFF, (uint8_t)(IPTmp>>16)&0xFF,
+                  (uint8_t)(IPTmp>>8)&0xFF, (uint8_t)IPTmp&0xFF);
+    System_flush();
     extern void netIPAddrHook();
 
 
@@ -267,7 +268,7 @@ static void initIp(void *hCfg)
             sizeof(dhcpc), (unsigned char *)&dhcpc, NULL);
 }
 
-//static void initIp(void *hCfg)
+//static void initFixIp(void *hCfg)
 //{
 ////    const char *localIPAddr = "192.168.1.3";
 //    const char *localIPAddr = "10.0.0.3";
@@ -300,6 +301,88 @@ static void initIp(void *hCfg)
 //    CfgAddEntry(hCfg, CFGTAG_ROUTE, 0, 0, sizeof(route), (unsigned char *)&route, NULL);
 //}
 
+///* static IP address settings */
+//char *LocalIPAddr = "0.0.0.0";
+//char *LocalIPMask = "255.255.255.0";
+//char *GatewayIP   = "0.0.0.0";
+//char *DomainName  = "demo.net";
+///*
+// *  ======== configIp ========
+// *  Configure the IP settings
+// */
+//static void configIp(void *hCfg)
+//{
+//    CI_IPNET NA;
+//    CI_ROUTE RT;
+//
+//    /* add global hostname to hCfg (to be claimed in all connected domains) */
+//    CfgAddEntry(hCfg, CFGTAG_SYSINFO, CFGITEM_DHCP_HOSTNAME, 0,
+//            strlen(hostname), (unsigned char *)hostname, NULL);
+//
+//    /* configure IP address manually on interface 1 */
+//
+//    /* setup manual IP address */
+//    memset(&NA, 0, sizeof(NA));
+//    NA.IPAddr = inet_addr(LocalIPAddr);
+//    NA.IPMask = inet_addr(LocalIPMask);
+//    strcpy(NA.Domain, DomainName);
+//    NA.NetType = 0;
+//
+//    CfgAddEntry(hCfg, CFGTAG_IPNET, 1, 0,
+//            sizeof(CI_IPNET), (unsigned char *)&NA, 0);
+//
+//    /*  Add the default gateway. Since it is the default, the
+//     *  destination address and mask are both zero (we go ahead
+//     *  and show the assignment for clarity).
+//     */
+//    memset(&RT, 0, sizeof(RT));
+//    RT.IPDestAddr = 0;
+//    RT.IPDestMask = 0;
+//    RT.IPGateAddr = inet_addr(GatewayIP);
+//
+//    CfgAddEntry(hCfg, CFGTAG_ROUTE, 0, 0,
+//            sizeof(CI_ROUTE), (unsigned char *)&RT, 0);
+//}
+
+static void configFixIp(void *hCfg)
+{
+    tEEPROM_ipConfigData *psEEPIpConfig;
+    CI_IPNET NA;
+    CI_ROUTE RT;
+
+    psEEPIpConfig = (tEEPROM_ipConfigData *)psEEPIpConfg_get();
+
+    /* add global hostname to hCfg (to be claimed in all connected domains) */
+    CfgAddEntry(hCfg, CFGTAG_SYSINFO, CFGITEM_DHCP_HOSTNAME, 0,
+            strlen(hostName), (unsigned char *)hostName, NULL);
+
+
+    /* configure IP address manually on interface 1 */
+
+    /* setup manual IP address */
+    memset(&NA, 0, sizeof(NA));
+    NA.IPAddr = psEEPIpConfig->IPAddr;
+    NA.IPMask = psEEPIpConfig->IPMask;
+    strcpy(NA.Domain, psEEPIpConfig->Domain);
+    NA.NetType = 0;
+
+    CfgAddEntry(hCfg, CFGTAG_IPNET, 1, 0,
+            sizeof(CI_IPNET), (unsigned char *)&NA, 0);
+
+    /*  Add the default gateway. Since it is the default, the
+     *  destination address and mask are both zero (we go ahead
+     *  and show the assignment for clarity).
+     */
+    memset(&RT, 0, sizeof(RT));
+    RT.IPDestAddr = 0;
+    RT.IPDestMask = 0;
+    RT.IPGateAddr = psEEPIpConfig->IPGateAddr;
+
+    CfgAddEntry(hCfg, CFGTAG_ROUTE, 0, 0,
+            sizeof(CI_ROUTE), (unsigned char *)&RT, 0);
+}
+
+
 
 /*
  *  ======== initUdp ========
@@ -326,6 +409,7 @@ static void ndkStackThread(uintptr_t arg0, uintptr_t arg1)
     struct itimerspec its;
     struct itimerspec oldIts;
     int ndkHeartBeatCount = 0;
+    tEEPROM_ipConfigData *psEEPIpConfig;
 
     /* create the NDK timer tick */
     sev.sigev_notify = SIGEV_SIGNAL;
@@ -366,7 +450,12 @@ static void ndkStackThread(uintptr_t arg0, uintptr_t arg1)
     }
 
     /* IP, TCP, and UDP config */
-    initIp(hCfg);
+    psEEPIpConfig = (tEEPROM_ipConfigData *)psEEPIpConfg_get();
+    if (psEEPIpConfig->isIPAuto) {
+        initIp(hCfg);
+    }else{
+        configFixIp(hCfg);
+    }
     initTcp(hCfg);
     initUdp(hCfg);
 

@@ -11,8 +11,6 @@
 
 
 
-
-
 void vUSBBinaryCMD_enterProgrammingMode(char *payload, int32_t size)
 {
 //    USBBIN_CMD_t *pTCPBinCmd = (USBBIN_CMD_t *) payload;

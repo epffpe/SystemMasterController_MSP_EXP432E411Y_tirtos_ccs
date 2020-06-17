@@ -48,6 +48,7 @@
 
 extern void *mainThread(void *arg0);
 extern void *SMC_initThread(void *arg0);
+extern unsigned char g_macAddress[6];
 
 /* Stack size in bytes */
 #define THREADSTACKSIZE    2048
@@ -86,24 +87,22 @@ void readUserFlashReg()
     FlashAllUserRegisterGet(&ulUser0, &ulUser1, &ulUser2, &ulUser3);
 }
 
-//Void inittask(UArg arg0, UArg arg1)
-//{
-//    SMC_initThread(NULL);
-//}
-//
-//void loadInitialization()
-//{
-//    Task_Params taskParams;
-//    Error_Block eb;
-//    /* Make sure Error_Block is initialized */
-//    Error_init(&eb);
-//
-//    Task_Params_init(&taskParams);
-//    taskParams.stackSize = THREADSTACKSIZE;
-//    taskParams.priority = 9;
-//    Task_create((Task_FuncPtr)inittask, &taskParams, &eb);
-//
-//}
+void initMACAddress()
+{
+    tEEPROM_macConfigData *psEEPMACConfg;
+    uint8_t *ptrByte;
+
+    psEEPMACConfg = (tEEPROM_macConfigData *)psEEPMACConfg_get();
+    ptrByte = (uint8_t *)&psEEPMACConfg->macReg0;
+    g_macAddress[0] = ptrByte[0];
+    g_macAddress[1] = ptrByte[1];
+    g_macAddress[2] = ptrByte[2];
+    ptrByte = (uint8_t *)&psEEPMACConfg->macReg1;
+    g_macAddress[3] = ptrByte[0];
+    g_macAddress[4] = ptrByte[1];
+    g_macAddress[5] = ptrByte[2];
+}
+
 
 /*
  *  ======== main ========
@@ -118,10 +117,11 @@ int main(void)
     /* Call driver init functions */
     Board_initGeneral();
 
-    readUserFlashReg();
+//    readUserFlashReg();
 //    programEMACAddress();
 
     INFO_init();
+    initMACAddress();
 
 
     /* Initialize the attributes structure with default values */

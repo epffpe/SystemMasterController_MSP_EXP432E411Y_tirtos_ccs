@@ -287,6 +287,13 @@ const tEEPROM_ipConfigData g_sDefaultEEPROMIPConfigData =
 };
 
 
+const tEEPROM_macConfigData g_sDefaultEEPROMMACConfigData =
+{
+ .macReg0 = 0x00B61A00,
+ .macReg1 = 0x0055BF03,
+};
+
+
 
 volatile tEEPROM_Data *INFO_get()
 {
@@ -323,8 +330,24 @@ volatile tEEPROM_ipConfigData *psEEPIpConfg_get()
 void vEEPIpConfg_set(tEEPROM_ipConfigData *info)
 {
     g_sEEPROMIpCfgData = *info;
+    g_sEEPROMIpCfgData.Domain[EEPROM_CFG_DOMAIN_MAX - 1] = 0;
     EEPROMProgram((uint32_t *)&g_sEEPROMIpCfgData, DEFAULT_EEPROM_IP_CONFG, sizeof(tEEPROM_ipConfigData));
 }
+
+
+volatile tEEPROM_macConfigData *psEEPMACConfg_get()
+{
+    return &g_sEEPROMMACCfgData;
+}
+
+void vEEPMACConfg_set(tEEPROM_macConfigData *info)
+{
+    g_sEEPROMMACCfgData = *info;
+    EEPROMProgram((uint32_t *)&g_sEEPROMMACCfgData, DEFAULT_EEPROM_MAC_CONFG, sizeof(tEEPROM_macConfigData));
+}
+
+
+
 
 
 void INFO_init()
@@ -360,6 +383,7 @@ void INFO_init()
 
     EEPROMRead((uint32_t *)&g_sEEPROMData, DEFAULT_EEPROM_ADDRESS, sizeof(tEEPROM_Data));
     EEPROMRead((uint32_t *)&g_sEEPROMDIOCfgData, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
+    EEPROMRead((uint32_t *)&g_sEEPROMMACCfgData, DEFAULT_EEPROM_MAC_CONFG, sizeof(tEEPROM_macConfigData));
     EEPROMRead((uint32_t *)&g_sEEPROMIpCfgData, DEFAULT_EEPROM_IP_CONFG, sizeof(tEEPROM_ipConfigData));
 
     if (g_sEEPROMData.eepromCheck != DEFAULT_EEPROM_CHECK) {
@@ -369,8 +393,13 @@ void INFO_init()
         g_sEEPROMDIOCfgData = g_sDefaultEEPROMDIOCfgData;
         EEPROMProgram((uint32_t *)&g_sEEPROMDIOCfgData, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
 
+        g_sEEPROMMACCfgData = g_sDefaultEEPROMMACConfigData;
+        EEPROMProgram((uint32_t *)&g_sEEPROMMACCfgData, DEFAULT_EEPROM_MAC_CONFG, sizeof(tEEPROM_macConfigData));
+
         g_sEEPROMIpCfgData = g_sDefaultEEPROMIPConfigData;
         EEPROMProgram((uint32_t *)&g_sEEPROMIpCfgData, DEFAULT_EEPROM_IP_CONFG, sizeof(tEEPROM_ipConfigData));
     }
+
+    g_sEEPROMIpCfgData.Domain[EEPROM_CFG_DOMAIN_MAX - 1] = 0;
 }
 
