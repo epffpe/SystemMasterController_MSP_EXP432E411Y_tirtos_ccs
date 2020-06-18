@@ -216,7 +216,7 @@ void *SMC_initThread(void *arg0)
     vUSBConsoleDevice_Params_init(&deviceParams, USBCONSOLEDEVICE_ID);
     xDevice_add(&deviceParams, &eb);
 
-    vForteManagerDevice_Params_init(&deviceParams, 301, IF_SERIAL_0);
+    vForteManagerDevice_Params_init(&deviceParams, 301, IF_SERIAL_3);
     xDevice_add(&deviceParams, &eb);
 
     vAVDSDevice_Params_init(&deviceParams, 302);
