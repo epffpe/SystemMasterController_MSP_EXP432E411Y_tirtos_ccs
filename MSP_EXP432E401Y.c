@@ -596,8 +596,8 @@ NIMU_DEVICE_TABLE_ENTRY NIMUDeviceTable[2] = {
  *        address that's stored in flash. To override this behavior, manually
  *        set the octets of the MAC address you wish to use into the array here:
  */
-unsigned char macAddress[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-//unsigned char macAddress[6] = {0x55, 0xbf, 0x03, 0xB6, 0x1A, 00};
+unsigned char g_macAddress[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+//unsigned char g_macAddress[6] = {0x00, 0x1A, 0xB6, 0x03, 0xbf, 0x74};
 
 /* EMAC configuration structure */
 const EMACMSP432E4_HWAttrs EMACMSP432E4_hwAttrs = {
@@ -606,7 +606,7 @@ const EMACMSP432E4_HWAttrs EMACMSP432E4_hwAttrs = {
     .intPriority = (~0),
     .led0Pin = EMACMSP432E4_PK4_EN0LED0, //EMACMSP432E4_PF0_EN0LED0,
     .led1Pin = EMACMSP432E4_PK6_EN0LED1, //EMACMSP432E4_PF4_EN0LED1,
-    .macAddress = macAddress
+    .macAddress = g_macAddress
 };
 
 /*

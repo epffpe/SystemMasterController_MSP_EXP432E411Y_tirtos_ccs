@@ -426,16 +426,30 @@ static void vALTOMultinet_LocalRemoteService_ValueChangeHandler(char_data_t *pCh
                                                    pPayload->tORTInput.value,
                                                    ifHandle, txbuff, rxbuff);
         response.acknak = ack;
-        if (!(gate & (1 << pPayload->tORTInput.inputAddress))) {
+//        if (!(gate & (1 << pPayload->tORTInput.inputAddress))) {
+//            xALTOMultinet_setGateAt(pPayload->ui8MultinetAddress,
+//                                    pPayload->tORTInput.inputAddress,
+//                                    SERVICE_ALTO_MULTINET_CLUPINVINGATE_SELECT_VIRTUAL,
+//                                    ifHandle, txbuff, rxbuff);
+//            xALTOMultinet_setGateAt(pPayload->ui8MultinetAddress,
+//                                    pPayload->tORTInput.inputAddress,
+//                                    SERVICE_ALTO_MULTINET_CLUPINVINGATE_SELECT_PHYSICAL,
+//                                    ifHandle, txbuff, rxbuff);
+//        }
+
+        if (pPayload->tORTInput.value) {
             xALTOMultinet_setGateAt(pPayload->ui8MultinetAddress,
                                     pPayload->tORTInput.inputAddress,
                                     SERVICE_ALTO_MULTINET_CLUPINVINGATE_SELECT_VIRTUAL,
                                     ifHandle, txbuff, rxbuff);
+        }else {
             xALTOMultinet_setGateAt(pPayload->ui8MultinetAddress,
                                     pPayload->tORTInput.inputAddress,
                                     SERVICE_ALTO_MULTINET_CLUPINVINGATE_SELECT_PHYSICAL,
                                     ifHandle, txbuff, rxbuff);
         }
+
+
         vDevice_sendCharDataMsg (pCharData->retDeviceID,
                                  APP_MSG_SERVICE_WRITE,
                                  pCharData->connHandle,

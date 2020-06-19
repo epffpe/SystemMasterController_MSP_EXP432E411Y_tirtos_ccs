@@ -268,6 +268,32 @@ const tEEPROM_DIOCfgData g_sDefaultEEPROMDIOCfgData =
          },
 };
 
+//typedef struct {
+//    uint32_t    isIPAuto;               /* staticIP = 0, DHCP=1 */
+//    uint32_t    IPAddr;                 /* IP Address */
+//    uint32_t    IPMask;                 /* Subnet Mask */
+//    uint32_t    IPGateAddr;             /* Gateway IP Address */
+//    char        Domain[EEPROM_CFG_DOMAIN_MAX]; /* IPNet Domain Name */
+//}tEEPROM_ipConfigData;
+
+
+const tEEPROM_ipConfigData g_sDefaultEEPROMIPConfigData =
+{
+ .isIPAuto = 1,
+ .IPAddr = 0x0201A8C0,
+ .IPMask = 0x00FFFFFF,
+ .IPGateAddr = 0x0101A8C0,
+ .Domain = {"ALTO.net"},
+};
+
+
+const tEEPROM_macConfigData g_sDefaultEEPROMMACConfigData =
+{
+ .macReg0 = 0x00B61A00,
+ .macReg1 = 0x0055BF03,
+};
+
+
 
 volatile tEEPROM_Data *INFO_get()
 {
@@ -294,6 +320,34 @@ void vEEPDIOConfg_set(tEEPROM_DIOCfgData *info)
     g_sEEPROMDIOCfgData = *info;
     EEPROMProgram((uint32_t *)&g_sEEPROMDIOCfgData, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
 }
+
+
+volatile tEEPROM_ipConfigData *psEEPIpConfg_get()
+{
+    return &g_sEEPROMIpCfgData;
+}
+
+void vEEPIpConfg_set(tEEPROM_ipConfigData *info)
+{
+    g_sEEPROMIpCfgData = *info;
+    g_sEEPROMIpCfgData.Domain[EEPROM_CFG_DOMAIN_MAX - 1] = 0;
+    EEPROMProgram((uint32_t *)&g_sEEPROMIpCfgData, DEFAULT_EEPROM_IP_CONFG, sizeof(tEEPROM_ipConfigData));
+}
+
+
+volatile tEEPROM_macConfigData *psEEPMACConfg_get()
+{
+    return &g_sEEPROMMACCfgData;
+}
+
+void vEEPMACConfg_set(tEEPROM_macConfigData *info)
+{
+    g_sEEPROMMACCfgData = *info;
+    EEPROMProgram((uint32_t *)&g_sEEPROMMACCfgData, DEFAULT_EEPROM_MAC_CONFG, sizeof(tEEPROM_macConfigData));
+}
+
+
+
 
 
 void INFO_init()
@@ -329,6 +383,8 @@ void INFO_init()
 
     EEPROMRead((uint32_t *)&g_sEEPROMData, DEFAULT_EEPROM_ADDRESS, sizeof(tEEPROM_Data));
     EEPROMRead((uint32_t *)&g_sEEPROMDIOCfgData, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
+    EEPROMRead((uint32_t *)&g_sEEPROMMACCfgData, DEFAULT_EEPROM_MAC_CONFG, sizeof(tEEPROM_macConfigData));
+    EEPROMRead((uint32_t *)&g_sEEPROMIpCfgData, DEFAULT_EEPROM_IP_CONFG, sizeof(tEEPROM_ipConfigData));
 
     if (g_sEEPROMData.eepromCheck != DEFAULT_EEPROM_CHECK) {
         g_sEEPROMData = g_sDefaultEEPROMData;
@@ -336,6 +392,14 @@ void INFO_init()
 
         g_sEEPROMDIOCfgData = g_sDefaultEEPROMDIOCfgData;
         EEPROMProgram((uint32_t *)&g_sEEPROMDIOCfgData, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
+
+        g_sEEPROMMACCfgData = g_sDefaultEEPROMMACConfigData;
+        EEPROMProgram((uint32_t *)&g_sEEPROMMACCfgData, DEFAULT_EEPROM_MAC_CONFG, sizeof(tEEPROM_macConfigData));
+
+        g_sEEPROMIpCfgData = g_sDefaultEEPROMIPConfigData;
+        EEPROMProgram((uint32_t *)&g_sEEPROMIpCfgData, DEFAULT_EEPROM_IP_CONFG, sizeof(tEEPROM_ipConfigData));
     }
+
+    g_sEEPROMIpCfgData.Domain[EEPROM_CFG_DOMAIN_MAX - 1] = 0;
 }
 

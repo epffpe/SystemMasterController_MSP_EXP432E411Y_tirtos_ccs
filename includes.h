@@ -122,6 +122,8 @@
 #include <ti/drivers/PWM.h>
 //#include <ti/drivers/pwm/PWMTiva.h>
 
+/* For usleep() */
+#include <ti/drivers/dpl/ClockP.h>
 
 //#include <inc/hw_ints.h>
 //#include "inc/hw_nvic.h"
@@ -172,6 +174,9 @@
 
 /* Board Header file */
 #include "BoardRev10.h"
+/* Example/Board Header files */
+//#include "ti_drivers_config.h"
+#include "ti_usblib_config.h"
 
 //#define __LOG_TTY
 //#include "cmdline.h"
@@ -189,6 +194,9 @@
 //#include "EEPROMStorage.h"
 //#include "CANTest.h"
 #include "DISPLAY/SMCDisplay.h"
+#include "USB/USBComposite.h"
+
+
 
 
 #include "DiscreteIO/DIO.h"
@@ -264,6 +272,17 @@
 #include "Devices/AVDS/AVDSRS485Device.h"
 #include "Devices/Rosen/RosenDevice.h"
 #include "Devices/Rosen/RosenRS485Device.h"
+
+#include "Devices/USBSerial/USBRemoteController/USBRemoteControllerBinaryDevice.h"
+#include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/USBBinaryCommands.h"
+#include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/FirmwareUpgrade/USBBinaryCMD_FirmwareUpgrade.h"
+#include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/NetworkConfiguration/USBBinaryCMD_NetworkConfiguration.h"
+
+
+
+#include "Devices/USBSerial/USBConsole/USBConsoleDevice.h"
+#include "Devices/USBSerial/USBConsole/USBConsoleCommands/USBConsoleCommands.h"
+#include "Devices/USBSerial/USBConsole/USBConsoleCommands/SystemInformation/USBConsoleCMD_SystemInformation.h"
 
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"

@@ -42,6 +42,7 @@ void vDiscreteIO_init();
 void vHeartBeat_init();
 void test();
 void vTest_CRC() ;
+void USBSerialTest_init();
 
 extern void pvPPPCU_inputLineIntHandler(uint_least8_t index);
 //extern void test2();
@@ -143,6 +144,10 @@ void *SMC_initThread(void *arg0)
     // Watchdog_init();
     CRC_init();
 
+    MSP_EXP432E401Y_initUSB(MSP_EXP432E401Y_USBDEVICE);
+
+    USBSerialTest_init();
+
 #if !(defined(TEST_FIXTURE) || defined(DUT))
 //    SMCDisplay_init();
 #endif
@@ -151,6 +156,8 @@ void *SMC_initThread(void *arg0)
                    "-- Compiled: "__DATE__" "__TIME__" --\n");
 
 
+
+    USBComposite_init(MSP_EXP432E401Y_USBDEVICE);
 
     vDiscreteIO_init();
     vHeartBeat_init();
@@ -203,7 +210,13 @@ void *SMC_initThread(void *arg0)
     Error_init(&eb);
     Device_Params deviceParams;
 
-    vForteManagerDevice_Params_init(&deviceParams, 301, IF_SERIAL_0);
+    vUSBRCBinaryDevice_Params_init(&deviceParams, USBRCBINDEVICE_ID);
+    xDevice_add(&deviceParams, &eb);
+
+    vUSBConsoleDevice_Params_init(&deviceParams, USBCONSOLEDEVICE_ID);
+    xDevice_add(&deviceParams, &eb);
+
+    vForteManagerDevice_Params_init(&deviceParams, 301, IF_SERIAL_3);
     xDevice_add(&deviceParams, &eb);
 
     vAVDSDevice_Params_init(&deviceParams, 302);
@@ -600,7 +613,6 @@ void vTest_CRC()
     /* Close the driver to allow other users to access this driver instance */
     CRC_close(handle);
 }
-
 
 
 

@@ -13,6 +13,7 @@
 
 
 static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle);
+static void vAVDS485Device_periodicPing( IF_Handle ifHandle);
 static void vAVDS485Device_processApplicationMessage(device_msg_t *pMsg, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff);
 //static void vAVDS485Device_ALTOEmulatorClassService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff);
 static void vAVDS485Device_SteveCommandsService_ValueChangeHandler(char_data_t *pCharData, UArg arg0, UArg arg1, IF_Handle ifHandle, char *txbuff, char *rxbuff);
@@ -29,6 +30,7 @@ int xAVDS485Device_createMsgFrameWithCRC(char *pCmdBuffer, char *pCmdData, uint3
 int16_t xAVDS485Device_CRC_calculateFull(const void *pSource, size_t sourceBytes, uint16_t *pui16Result);
 void vAVDS485Device_InitWrapper(AVDS485Device_Command_Wrapper *pWrapper, uint16_t length);
 void vAVDS485Device_cmdFrameInitialezeComunications(AVDS485Device_Command_Initialize_Communication *pCmd);
+void vAVDS485Device_cmdFramePing(AVDS485Device_Command_Ping *pCmd);
 int xAVDS485Device_cmdFrameSetChannel(AVDS485Device_Command_set_channel *pCmd,
                                       uint16_t outputChannel,
                                       uint16_t audioInputChannel,
@@ -151,7 +153,7 @@ Void vAVDS485Device_taskFxn(UArg arg0, UArg arg1)
 
         if (events & DEVICE_PERIODIC_EVT) {
             events &= ~DEVICE_PERIODIC_EVT;
-
+            vAVDS485Device_periodicPing(ifHandle);
 //            // set channel
 //            char tempBuff[sizeof(char_data_t) + sizeof(AVDS485Device_serviceSteveCommand_charSetChannel_data)];
 //            char_data_t *pCharData = (char_data_t *)tempBuff;
@@ -418,6 +420,104 @@ static void vAVDS485Device_InitializeCommunication( IF_Handle ifHandle)
 //            status = status;
 //        }
 
+    }
+
+}
+
+
+static void vAVDS485Device_periodicPing( IF_Handle ifHandle)
+{
+    IF_Transaction ifTransaction;
+    bool transferOk;
+
+    AVDS485Device_Command_Ping cmdTx;
+    AVDS485Device_Command_Ping_Response cmdRx;
+
+    ASSERT(ifHandle != NULL);
+
+    if(ifHandle == NULL) {
+        return;
+    }
+
+
+    /*
+     * Prepare the transfer
+     */
+    memset(&ifTransaction, 0, sizeof(IF_Transaction));
+    ifTransaction.readCount = sizeof(AVDS485Device_Command_Ping_Response);
+    ifTransaction.readBuf = &cmdRx;
+    ifTransaction.readTimeout = 30;
+    ifTransaction.transactionRxProtocol = IF_TRANSACTION_RX_PROTOCOL_AVDS485;
+    ifTransaction.writeBuf = &cmdTx;
+    ifTransaction.writeCount = sizeof(AVDS485Device_Command_Ping);
+    ifTransaction.writeTimeout = BIOS_WAIT_FOREVER;
+    ifTransaction.transferType = IF_TRANSFER_TYPE_NONE;
+
+
+//    vAVDS485Device_cmdFrameInitialezeComunications(&cmdTx);
+    vAVDS485Device_cmdFramePing(&cmdTx);
+
+    transferOk = bIF_transfer(ifHandle, &ifTransaction);
+    if (transferOk) {
+        //        uint16_t *pui16PacketLength;
+        CRC_Handle handle;
+        CRC_Params params;
+        int_fast16_t status;
+        uint32_t result;
+
+
+        /* Set data processing options, including endianness control */
+        CRC_Params_init(&params);
+        params.polynomial = CRC_POLYNOMIAL_CRC_16_CCITT;
+        params.dataSize = CRC_DATA_SIZE_8BIT;
+        params.seed = 0xFFFF;
+        params.byteSwapInput = CRC_BYTESWAP_UNCHANGED;
+        //    params.byteSwapInput = CRC_BYTESWAP_BYTES_AND_HALF_WORDS;
+
+        /* Open the driver using the settings above */
+        handle = CRC_open(MSP_EXP432E401Y_CRC0, &params);
+        if (handle == NULL)
+        {
+            /* If the handle is already open, execution will stop here */
+            return;
+        }
+
+        result = 0;
+        //        /* Calculate the CRC of all 32 bytes in the source array */
+        //        status = CRC_calculateFull(handle, &cmdRx.command, 5, &result);
+        //        if (status != CRC_STATUS_SUCCESS)
+        //        {
+        //            CRC_close(handle);
+        //            /* If the CRC engine is busy or if an error occurs execution will stop here */
+        //            return;
+        //        }
+
+        status = CRC_addData(handle, &cmdRx.command, 1);
+        //        if (status != CRC_STATUS_SUCCESS)
+        //        {
+        //            /* If the CRC engine is busy or if an error occurs execution will stop here */
+        //            while(1);
+        //        }
+
+        cmdRx.result = ntohl(cmdRx.result);
+        status = CRC_addData(handle, &cmdRx.result, 4);
+
+        status = CRC_addData(handle, &cmdRx.crc, 2);
+
+        /* Extract the result from the internal state */
+        CRC_finalize(handle, &result);
+
+        /* Close the driver to allow other users to access this driver instance */
+        CRC_close(handle);
+
+        uint16_t crc;
+        crc = ntohs(cmdRx.crc);
+        if (crc == (result & 0x0000FFFF)) {
+            status = status;
+        }
+
+    }else {
+        vAVDS485Device_InitializeCommunication(ifHandle);
     }
 
 }
@@ -1028,6 +1128,16 @@ void vAVDS485Device_cmdFrameInitialezeComunications(AVDS485Device_Command_Initia
     pCmd->command = AVDS485DEVICE_COMMAND_INITIALIZE_COMMUNICATIONS;
 
     xAVDS485Device_CRC_calculateFull(&pCmd->command, AVDS485DEVICE_COMMAND_INITIALIZE_COMMUNICATIONS_SIZE, &crc);
+    pCmd->crc = htons(crc);
+}
+
+void vAVDS485Device_cmdFramePing(AVDS485Device_Command_Ping *pCmd)
+{
+    uint16_t crc;
+    vAVDS485Device_InitWrapper(&pCmd->wrapper, AVDS485DEVICE_COMMAND_PING_SIZE);
+    pCmd->command = AVDS485DEVICE_COMMAND_PING;
+
+    xAVDS485Device_CRC_calculateFull(&pCmd->command, AVDS485DEVICE_COMMAND_PING_SIZE, &crc);
     pCmd->crc = htons(crc);
 }
 

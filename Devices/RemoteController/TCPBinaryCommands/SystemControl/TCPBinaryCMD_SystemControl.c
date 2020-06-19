@@ -125,7 +125,7 @@ void vTCPRCBin_SystemControl_getRAMDeviceList(int clientfd, char *payload, int32
         pFrame->type = TCP_CMD_System_getRAMDeviceListResponse | 0x80000000;
         pFrame->retDeviceID = TCPRCBINDEVICE_ID;
         pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
-        pFrame->retParamID = 4;
+        pFrame->retParamID = 3;
 
         TCPBin_CMD_SystemControl_RAM_deviceList_payload_t *pFramePayload = (TCPBin_CMD_SystemControl_RAM_deviceList_payload_t *)pFrame->payload;
         pFramePayload->numbOfDevices = counter;
@@ -170,6 +170,25 @@ void vTCPRCBin_SystemControl_getCompiledTime(int clientfd, char *payload, int32_
     bytesSent = bytesSent;
 
 
+}
+
+void vTCPRCBin_SystemControl_getHeartBeat(int clientfd, char *payload, int32_t size)
+{
+    int bytesSent;
+    uint32_t bufferSize;
+    char buffer[sizeof(TCPBin_CMD_retFrame_t)];
+
+    bufferSize = sizeof(TCPBin_CMD_retFrame_t);
+
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+    pFrame->type = TCP_CMD_getHeartbeatResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
+    pFrame->retParamID = 5;
+
+    bytesSent = send(clientfd, buffer, bufferSize, 0);
+    bytesSent = bytesSent;
 }
 
 void vTCPRCBin_SystemControl_getFlashDeviceList(int clientfd, char *payload, int32_t size)
@@ -253,5 +272,6 @@ void vTCPRCBin_SystemControl_getConfigurationFile(int clientfd, char *payload, i
 {
     vIFS_getFlashConfigurationFileEthernet(clientfd);
 }
+
 
 

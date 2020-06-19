@@ -161,6 +161,20 @@ typedef struct __attribute__ ((__packed__)) {
 typedef struct __attribute__ ((__packed__)) {
     AVDS485Device_Command_Wrapper   wrapper;
     uint8_t                         command;
+    uint16_t                        crc;
+}AVDS485Device_Command_Ping;
+
+typedef struct __attribute__ ((__packed__)) {
+    AVDS485Device_Command_Wrapper   wrapper;
+    uint8_t                         command;
+    uint32_t                        result;
+    uint16_t                        crc;
+}AVDS485Device_Command_Ping_Response;
+
+
+typedef struct __attribute__ ((__packed__)) {
+    AVDS485Device_Command_Wrapper   wrapper;
+    uint8_t                         command;
     uint16_t                        outputChannel;
     uint16_t                        audioInputChannel;
     uint16_t                        videoInputChannel;

@@ -39,6 +39,7 @@ void TCPBin_doNothing(int clientfd, char *payload, int32_t size)
 static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
 {
 // [TCP_CMD_doNothing]        = TCPBin_doNothing,
+ [TCP_CMD_getHeartbeat]        = vTCPRCBin_SystemControl_getHeartBeat,
 
 // ALTO Amplifier
 
