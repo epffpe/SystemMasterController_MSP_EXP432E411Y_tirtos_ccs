@@ -1,4 +1,0 @@
-MODE 543x_family /dev/tty.usbmodem1421
-MASS_ERASE
-RX_PASSWORD
-RX_DATA_BLOCK JTAG_LOCK.txt

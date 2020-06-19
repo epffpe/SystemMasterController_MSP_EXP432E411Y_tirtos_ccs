@@ -66,6 +66,18 @@ void __attribute__((weak)) NDK_hookInit(int32_t id) {}
 void NDK_hookInit(int32_t id) {}
 #endif
 
+#pragma DATA_SECTION(g_infoHeader, ".crcheader")
+uint32_t const g_infoHeader[] =
+{
+    0xFF01FF02,
+    0xFF03FF04,
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFFFFFF
+};
 
 extern void ti_ndk_config_Global_startupFxn();
 
