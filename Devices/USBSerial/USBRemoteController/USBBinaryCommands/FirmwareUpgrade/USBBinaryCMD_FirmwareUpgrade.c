@@ -20,6 +20,15 @@ void vUSBBinaryCMD_enterProgrammingMode(char *payload, int32_t size)
         n = xUSBRCBinaryCMD_frameCreate(response, USBBIN_CMD_firmwareUpgradeResponse, NULL, 0);
         USBCDCD_sendData(USBCDCD_RemoteControl, response, n, WAIT_FOREVER);
 
+        SFFS_Handle hSFFS;
+        hSFFS = hSFFS_open(SFFS_Internal);
+        xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+
+        hSFFS = hSFFS_open(SFFS_External);
+        xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+
         Task_sleep((unsigned int)50);
 
 //      wait for flash memory mutex

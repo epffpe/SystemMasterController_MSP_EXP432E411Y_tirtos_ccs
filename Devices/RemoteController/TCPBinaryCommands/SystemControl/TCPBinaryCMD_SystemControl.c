@@ -193,7 +193,11 @@ void vTCPRCBin_SystemControl_getHeartBeat(int clientfd, char *payload, int32_t s
 
 void vTCPRCBin_SystemControl_getFlashDeviceList(int clientfd, char *payload, int32_t size)
 {
-    vIFS_getFlashDeviceListEthernet(clientfd);
+//    vIFS_getFlashDeviceListEthernet(clientfd);
+    SFFS_Handle hSFFS;
+    hSFFS = hSFFS_open(SFFS_Internal);
+    vSFFS_getFlashDeviceListEthernet(hSFFS, clientfd, BIOS_WAIT_FOREVER);
+    vSFFS_close(hSFFS);
 }
 
 
@@ -206,19 +210,32 @@ void vTCPRCBin_SystemControl_getFlashDataForFileName(int clientfd, char *payload
 //        pFlashFile->fileName[IFS_FILE_NAME_LENGTH - 1] = 0;
 //    }
 //    vIFS_getFlashReadFileNameEthernet(clientfd, pFlashFile->fileName);
+    SFFS_Handle hSFFS;
     payload[IFS_FILE_NAME_LENGTH - 1] = 0;
-    vIFS_getFlashReadFileNameEthernet(clientfd, payload);
+//    vIFS_getFlashReadFileNameEthernet(clientfd, payload);
+    hSFFS = hSFFS_open(SFFS_Internal);
+    vSFFS_getFlashReadFileNameEthernet(hSFFS, clientfd, payload, BIOS_WAIT_FOREVER);
+    vSFFS_close(hSFFS);
 }
 
 
 void vTCPRCBin_SystemControl_setFlashDataForFileName(int clientfd, char *payload, int32_t size)
 {
-    vIFS_setFlashDataFileNameEthernet(clientfd, payload);
+//    vIFS_setFlashDataFileNameEthernet(clientfd, payload);
+    SFFS_Handle hSFFS;
+    hSFFS = hSFFS_open(SFFS_Internal);
+    vSFFS_setFlashDataFileNameEthernet(hSFFS, clientfd, payload, BIOS_WAIT_FOREVER);
+    vSFFS_close(hSFFS);
+
 }
 
 void vTCPRCBin_SystemControl_deleteFlashDataForFileName(int clientfd, char *payload, int32_t size)
 {
-    vIFS_removeFileNameEthernet(clientfd, payload);
+//    vIFS_removeFileNameEthernet(clientfd, payload);
+    SFFS_Handle hSFFS;
+    hSFFS = hSFFS_open(SFFS_Internal);
+    vSFFS_removeFileNameEthernet(hSFFS, clientfd, payload, BIOS_WAIT_FOREVER);
+    vSFFS_close(hSFFS);
 }
 
 
@@ -270,7 +287,53 @@ void vTCPRCBin_SystemControl_setManufacturerInformationData(int clientfd, char *
 
 void vTCPRCBin_SystemControl_getConfigurationFile(int clientfd, char *payload, int32_t size)
 {
-    vIFS_getFlashConfigurationFileEthernet(clientfd);
+//    vIFS_getFlashConfigurationFileEthernet(clientfd);
+    SFFS_Handle hSFFS;
+    hSFFS = hSFFS_open(SFFS_Internal);
+    vSFFS_getFlashConfigurationFileEthernet(hSFFS, clientfd, BIOS_WAIT_FOREVER);
+    vSFFS_close(hSFFS);
+}
+
+void vTCPRCBin_SystemControl_Reboot(int clientfd, char *payload, int32_t size)
+{
+    SFFS_Handle hSFFS;
+    int bytesSent;
+    uint32_t bufferSize;
+    char buffer[sizeof(TCPBin_CMD_retFrame_t)];
+
+    bufferSize = sizeof(TCPBin_CMD_retFrame_t);
+
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+    pFrame->type = TCP_CMD_System_RebootResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
+    pFrame->retParamID = 7;
+
+    bytesSent = send(clientfd, buffer, bufferSize, 0);
+    bytesSent = bytesSent;
+
+
+    hSFFS = hSFFS_open(SFFS_Internal);
+    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+
+    hSFFS = hSFFS_open(SFFS_External);
+    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+
+    Task_sleep(50);
+
+//      wait for flash memory mutex
+
+//        WatchdogUnlock(WATCHDOG0_BASE);
+//        WatchdogResetDisable(WATCHDOG0_BASE);
+    //    USBDCDTerm(0);
+    USBDevDisconnect(USB0_BASE);
+
+    Task_sleep(50);
+
+    SysCtlReset();
 }
 
 

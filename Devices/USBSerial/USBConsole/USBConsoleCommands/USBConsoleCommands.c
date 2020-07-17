@@ -255,6 +255,16 @@ int CMD_USBcls(int argc, char **argv)
 int CMD_USBreboot(int argc, char **argv)
 {
     USBCDCD_sendData(USBCDCD_Console, (char *)g_cCMDrebootUSBInformation, sizeof(g_cCMDrebootUSBInformation), BIOS_WAIT_FOREVER);
+
+    SFFS_Handle hSFFS;
+    hSFFS = hSFFS_open(SFFS_Internal);
+    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+
+    hSFFS = hSFFS_open(SFFS_External);
+    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+
     Task_sleep(50);
 
 //      wait for flash memory mutex
