@@ -949,6 +949,7 @@ const uint_least8_t I2C_count = MSP_EXP432E401Y_I2CCOUNT;
 
 #define SECTORSIZE       (0x4000)
 #define NVS_REGIONS_BASE (0xE0000)
+// size (SECTORSIZE * 8) = 0x20000 = 131072
 #define REGIONSIZE       (SECTORSIZE * 8)
 
 /*

@@ -45,8 +45,12 @@ const char g_ccURL_dummyText[];
 
 tURLHandlerEntry g_psURLTable[] =
 {
- {"/",              URL_index, "Test"},
- {"/index.html",    URL_index, "Test"},
+// {"/",              URL_index, "Test"},
+// {"/index.html",    URL_index, "Test"},
+ {"/api/version",       URL_apiVersion, "Test"},
+ {"/api/configuration", URL_apiConfiguration, "Test"},
+ {"/api/memzip_data.zip", URL_apiZipWebSite, "Test"},
+
  {"/home.html",     URL_home, "Test"},
  {"/longFile.html", URL_home, "Test"},
  {"/test.html",     URL_testFilePost, "Test"},
@@ -54,6 +58,198 @@ tURLHandlerEntry g_psURLTable[] =
  {"/send/data",     URL_fileUploadPost, "Test"},
  {0,0,0}
 };
+
+
+/*
+ *  ======== recvall ========
+ *
+ *  Flush the socket buffer.
+ */
+static ssize_t recvall(int ssock, void * buf, size_t len, int flags)
+{
+    ssize_t nbytes = 0;
+
+    while (len > 0)
+    {
+        nbytes = recv(ssock, buf, len, flags);
+        if (nbytes > 0)
+        {
+            len -= nbytes;
+            buf = (uint8_t *)buf + nbytes;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return (nbytes);
+}
+
+
+int URL_apiVersion(URLHandler_Handle urlHandler, int method,
+                   const char * url, const char * urlArgs,
+                   int contentLength, int ssock)
+{
+    int status          = URLHandler_ENOTHANDLED;
+    char *body          = NULL;         /* Body of HTTP response in process */
+    char *contentType   = "text/plain"; /* default (text/plain), but can be overridden: text/html; charset=utf-8*/
+//    char *retString     = NULL;         /* String retrieved from server */
+//    char *inputKey      = NULL;         /* Name of value to store in server */
+//    char *inputValue    = NULL;         /* Value to store in server */
+//    char argsToParse[MAX_DB_ENTRY_LEN];
+    int returnCode;                     /* HTTP response status code */
+//    int retc;                           /* Error checking for internal funcs */
+
+    body = "PATCH is not handled by any handlers on this server.";
+    returnCode = HTTP_SC_METHOD_NOT_ALLOWED;
+    status = URLHandler_ENOTHANDLED;
+
+    if (method == URLHandler_GET)
+    {
+        body = "/get 'api/version': This is the resource requested.";
+        returnCode = HTTP_SC_OK;
+        status = URLHandler_EHANDLED;
+    }
+
+    if (status != URLHandler_ENOTHANDLED)
+    {
+        if (contentLength > 0)
+        {
+            char *buf;
+
+            buf = malloc(contentLength);
+            if (buf == NULL)
+            {
+                /* Signals to the server that it should terminate this one session */
+                status = URLHandler_EERRORHANDLED;
+            }
+            else
+            {
+                /* This is done to flush the socket */
+                (void) recvall(ssock, buf, contentLength, 0);
+                free(buf);
+            }
+        }
+
+        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                body ? strlen(body) : 0, body ? body : NULL);
+    }
+
+    return (status);
+}
+
+
+int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
+                         const char * url, const char * urlArgs,
+                         int contentLength, int ssock)
+{
+    int status          = URLHandler_ENOTHANDLED;
+    char *body          = NULL;         /* Body of HTTP response in process */
+    char *contentType   = "text/plain"; /* default (text/plain), but can be overridden: text/html; charset=utf-8*/
+//    char *retString     = NULL;         /* String retrieved from server */
+//    char *inputKey      = NULL;         /* Name of value to store in server */
+//    char *inputValue    = NULL;         /* Value to store in server */
+//    char argsToParse[MAX_DB_ENTRY_LEN];
+    int returnCode;                     /* HTTP response status code */
+//    int retc;                           /* Error checking for internal funcs */
+
+    body = "PATCH is not handled by any handlers on this server.";
+    returnCode = HTTP_SC_METHOD_NOT_ALLOWED;
+    status = URLHandler_ENOTHANDLED;
+
+    if (method == URLHandler_GET)
+    {
+        body = "/get 'api/configuration': This is the resource requested.";
+        returnCode = HTTP_SC_OK;
+        status = URLHandler_EHANDLED;
+    }
+
+    if (status != URLHandler_ENOTHANDLED)
+    {
+        if (contentLength > 0)
+        {
+            char *buf;
+
+            buf = malloc(contentLength);
+            if (buf == NULL)
+            {
+                /* Signals to the server that it should terminate this one session */
+                status = URLHandler_EERRORHANDLED;
+            }
+            else
+            {
+                /* This is done to flush the socket */
+                (void) recvall(ssock, buf, contentLength, 0);
+                free(buf);
+            }
+        }
+
+        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                body ? strlen(body) : 0, body ? body : NULL);
+    }
+
+    return (status);
+}
+
+
+int URL_apiZipWebSite(URLHandler_Handle urlHandler, int method,
+                      const char * url, const char * urlArgs,
+                      int contentLength, int ssock)
+{
+    int status          = URLHandler_ENOTHANDLED;
+    char *body          = NULL;         /* Body of HTTP response in process */
+    char *contentType   = "text/plain"; /* default (text/plain), but can be overridden: text/html; charset=utf-8*/
+//    char *retString     = NULL;         /* String retrieved from server */
+//    char *inputKey      = NULL;         /* Name of value to store in server */
+//    char *inputValue    = NULL;         /* Value to store in server */
+//    char argsToParse[MAX_DB_ENTRY_LEN];
+    int returnCode;                     /* HTTP response status code */
+//    int retc;                           /* Error checking for internal funcs */
+
+    body = "PATCH is not handled by any handlers on this server.";
+    returnCode = HTTP_SC_METHOD_NOT_ALLOWED;
+    status = URLHandler_ENOTHANDLED;
+
+    if (method == URLHandler_GET)
+    {
+        body = "/get 'api/configuration': This is the resource requested.";
+        returnCode = HTTP_SC_OK;
+        status = URLHandler_EHANDLED;
+    }
+
+    if (status != URLHandler_ENOTHANDLED)
+    {
+        if (contentLength > 0)
+        {
+            char *buf;
+
+            buf = malloc(contentLength);
+            if (buf == NULL)
+            {
+                /* Signals to the server that it should terminate this one session */
+                status = URLHandler_EERRORHANDLED;
+            }
+            else
+            {
+                /* This is done to flush the socket */
+                (void) recvall(ssock, buf, contentLength, 0);
+                free(buf);
+            }
+        }
+
+//        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+//                body ? strlen(body) : 0, body ? body : NULL);
+        extern const uint8_t memzip_data[];
+        extern const uint32_t g_ui32mmemzip_dataCount;
+        body = (char *)memzip_data;
+        contentType = "application/zip ";
+        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                                      g_ui32mmemzip_dataCount, body);
+    }
+
+    return (status);
+}
 
 
 

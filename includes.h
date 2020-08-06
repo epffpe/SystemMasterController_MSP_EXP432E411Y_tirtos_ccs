@@ -287,6 +287,8 @@
 
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"
+#include "HTTPServer/memzip/memzip.h"
+#include "HTTPServer/memzip/urlmemzip.h"
 
 
 #define ARRSIZE(arr) (sizeof(arr) / sizeof(arr[0]))

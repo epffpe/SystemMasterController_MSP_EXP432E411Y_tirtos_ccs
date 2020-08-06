@@ -51,6 +51,22 @@ __HTTPSERVER_URLHANDLER_URLHANDLER_EXT tURLHandlerEntry g_psURLTable[];
 
 
 __HTTPSERVER_URLHANDLER_URLHANDLER_EXT
+int URL_apiVersion(URLHandler_Handle urlHandler, int method,
+                   const char * url, const char * urlArgs,
+                   int contentLength, int ssock);
+
+__HTTPSERVER_URLHANDLER_URLHANDLER_EXT
+int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
+                         const char * url, const char * urlArgs,
+                         int contentLength, int ssock);
+
+__HTTPSERVER_URLHANDLER_URLHANDLER_EXT
+int URL_apiZipWebSite(URLHandler_Handle urlHandler, int method,
+                      const char * url, const char * urlArgs,
+                      int contentLength, int ssock);
+
+
+__HTTPSERVER_URLHANDLER_URLHANDLER_EXT
 int URL_home(URLHandler_Handle urlHandler, int method,
                             const char * url, const char * urlArgs,
                             int contentLength, int ssock);

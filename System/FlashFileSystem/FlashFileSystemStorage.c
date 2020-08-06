@@ -1347,7 +1347,7 @@ void vSFFS_getFlashConfigurationFileEthernet(SFFS_Handle handle, int clientfd, u
                                     /*********************************************************************/
 
 
-                                    fd = SPIFFS_open_by_dirent(&object->fs, pe2, SPIFFS_RDWR, 0);
+                                    fd = SPIFFS_open_by_dirent(&object->fs, pe2, SPIFFS_RDONLY, 0);
                                     if (fd >= 0) {
                                         if (SPIFFS_read(&object->fs, fd, (void *)&devInfo, sizeof(IFS_deviceInfoFile_t)) >= 0) {
                                             res = SPIFFS_close(&object->fs, fd);

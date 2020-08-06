@@ -99,6 +99,48 @@ static ssize_t Ssock_recvall(int ssock, void * buf, size_t len, int flags)
 }
 
 /*
+ *  ======== URLSimple_create ========
+ *
+ *  Typically, this function is used to allocate any structures needed by a
+ *  URLHandler while it is processing requests. Here, we are simply using it to
+ *  ensure that URLSimple_delete is called, which will free any memory allocated
+ *  during this URLHandler's processing of requests. The HTTPServer does not
+ *  call a URLHandler's URLHandler_DeleteFxn unless the URLHandler has a
+ *  corresponding URLHandler_CreateFxn that returns a non-null entity.
+ */
+URLHandler_Handle URLSimple_create(void * params, URLHandler_Session session)
+{
+    return ((URLHandler_Handle)1);
+}
+
+/*
+ *  ======== URLSimple_delete ========
+ *
+ *  Free any memory allocated with this URLHandler's creation, as well as
+ *  perform any necessary clean up at the end of this URLHandler's processing
+ *  session.
+ */
+void URLSimple_delete(URLHandler_Handle * u)
+{
+    int index = 0;
+    for (; index < DB_SIZE; index++)
+    {
+        if (database[index].key != NULL)
+        {
+            free(database[index].key);
+            database[index].key = NULL;
+        }
+
+        if (database[index].value != NULL)
+        {
+            free(database[index].value);
+            database[index].value = NULL;
+        }
+    }
+}
+
+
+/*
  *  ======== URLSimple_process ========
  *
  *  Processes a request.
