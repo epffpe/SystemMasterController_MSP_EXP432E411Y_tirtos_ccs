@@ -207,6 +207,9 @@ __SYSTEM_FLASHFILESYSTEM_FLASHFILESYSTEMSTORAGE_EXT
 void vSFFS_getFlashConfigurationFileEthernet(SFFS_Handle handle, int clientfd, unsigned int timeout);
 
 __SYSTEM_FLASHFILESYSTEM_FLASHFILESYSTEMSTORAGE_EXT
+int xSFFS_getFlashDataFileNameHTTP(SFFS_Handle handle, int clientfd, char *fileName, unsigned int timeout);
+
+__SYSTEM_FLASHFILESYSTEM_FLASHFILESYSTEMSTORAGE_EXT
 int xSFFS_lockMemoryForReboot(SFFS_Handle handle, unsigned int timeout);
 
 

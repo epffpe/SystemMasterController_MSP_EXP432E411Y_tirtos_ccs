@@ -60,7 +60,8 @@ const char *CONTENT_TYPE_PLAIN   = "text/plain ";
  * Fills in the supplied string with a content type string that
  * matches the supplied filename.
  */
-static const char * getContentType(const char * fileName)
+//static const char * getContentType(const char * fileName)
+const char * getContentType(const char * fileName)
 {
    const char * ext = fileName;
 

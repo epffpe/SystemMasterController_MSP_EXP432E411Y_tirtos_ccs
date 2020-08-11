@@ -153,6 +153,10 @@ int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
 //    char argsToParse[MAX_DB_ENTRY_LEN];
     int returnCode;                     /* HTTP response status code */
 //    int retc;                           /* Error checking for internal funcs */
+    Error_Block eb;
+    SFFS_Handle hSFFS;
+
+    Error_init(&eb);
 
     body = "PATCH is not handled by any handlers on this server.";
     returnCode = HTTP_SC_METHOD_NOT_ALLOWED;
@@ -160,9 +164,23 @@ int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
 
     if (method == URLHandler_GET)
     {
-        body = "/get 'api/configuration': This is the resource requested.";
-        returnCode = HTTP_SC_OK;
+        hSFFS = hSFFS_open(SFFS_Internal);
+        xSFFS_getFlashDataFileNameHTTP(hSFFS, ssock, "configuration.zip", BIOS_WAIT_FOREVER);
+        vSFFS_close(hSFFS);
+
+//        vEFS_getFlashDataFileNameHTTP(ssock, "index.html");
         status = URLHandler_EHANDLED;
+        return status;
+    }
+
+    if (method == URLHandler_POST)
+    {
+        body = "/post 'URL_testFilePost': This is the resource requested.";
+        returnCode = HTTP_SC_OK;
+
+        vEFS_setFlashDataFileNameHTTP(ssock, contentLength, "index.html");
+        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                        body ? strlen(body) : 0, body);
     }
 
     if (status != URLHandler_ENOTHANDLED)
@@ -171,7 +189,8 @@ int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
         {
             char *buf;
 
-            buf = malloc(contentLength);
+//            buf = malloc(contentLength);
+            buf = Memory_alloc(NULL, contentLength, 0, &eb);
             if (buf == NULL)
             {
                 /* Signals to the server that it should terminate this one session */
@@ -181,12 +200,13 @@ int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
             {
                 /* This is done to flush the socket */
                 (void) recvall(ssock, buf, contentLength, 0);
-                free(buf);
+//                free(buf);
+                Memory_free(NULL, buf, contentLength);
             }
         }
 
-        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
-                body ? strlen(body) : 0, body ? body : NULL);
+//        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+//                body ? strlen(body) : 0, body ? body : NULL);
     }
 
     return (status);
@@ -250,6 +270,7 @@ int URL_apiZipWebSite(URLHandler_Handle urlHandler, int method,
 
     return (status);
 }
+
 
 
 
@@ -450,8 +471,8 @@ int URL_testFilePost(URLHandler_Handle urlHandler, int method,
 
 
 int URL_fileUploadPost(URLHandler_Handle urlHandler, int method,
-            const char * url, const char * urlArgs,
-            int contentLength, int ssock)
+                       const char * url, const char * urlArgs,
+                       int contentLength, int ssock)
 {
     int status          = URLHandler_ENOTHANDLED;
     char *body          = NULL;         /* Body of HTTP response in process */

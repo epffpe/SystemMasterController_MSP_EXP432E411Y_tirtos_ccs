@@ -23,6 +23,12 @@
 
 #include <ti/net/slnetutils.h>
 
+#include <ti/net/http/httpserver.h>
+#include <ti/net/http/http.h>
+//#include <ti/net/http/logging.h>
+#include "HTTPServer/urlsimple.h"
+#include "HTTPServer/URLHandler/URLHandler.h"
+
 extern void fdOpenSession();
 extern void fdCloseSession();
 extern void *TaskSelf();
@@ -1392,6 +1398,102 @@ void vSFFS_getFlashConfigurationFileEthernet(SFFS_Handle handle, int clientfd, u
     }
 
 }
+
+
+
+int xSFFS_getFlashDataFileNameHTTP(SFFS_Handle handle, int clientfd, char *fileName, unsigned int timeout)
+{
+    spiffs_file     fd;
+    spiffs_stat     s;
+    int             fileSize;
+    int             retVal = 0;
+    int contentRead;
+    const char *contentType   = "text/plain"; /* default, but can be overridden */
+    Error_Block eb;
+
+    unsigned int key;
+    SFFS_Object *object;
+
+
+    ASSERT(handle != NULL);
+
+    if (handle == NULL) {
+        return -1;
+    }
+    object = (SFFS_Object *)handle->object;
+
+    Error_init(&eb);
+
+
+    if (object->state.initialized) {
+        if (Semaphore_pend(object->hSFFS_semInitialized, timeout)) {
+
+            key = GateMutexPri_enter(object->hSFFS_gateMount);
+            {
+                if (bStorageFFS_mount(handle, timeout))
+                {
+
+                    fd = SPIFFS_open(&object->fs, fileName, SPIFFS_RDONLY, 0);
+                    if (fd >= 0) {
+
+                        SPIFFS_stat(&object->fs, fileName, &s);
+                        Display_printf(g_SMCDisplay, 0, 0, "Sending -> %s [%04x] size:%i\n", s.name, s.obj_id, s.size);
+
+
+                        fileSize = s.size;
+                        contentType = getContentType(fileName);
+
+                        if (fileSize > 0) {
+                            HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType, fileSize, NULL);
+                            char *buffRead = Memory_alloc(NULL, EFS_MAXIMUM_MEMORY_ALLOCATED, 0, &eb);
+                            if (buffRead != NULL) {
+                                Display_printf(g_SMCDisplay, 0, 0, "<--------------------------------->\n->");
+                                while (fileSize > 0) {
+                                    if (fileSize < EFS_MAXIMUM_MEMORY_ALLOCATED) {
+                                        contentRead = SPIFFS_read(&object->fs, fd, buffRead, fileSize);
+                                    }else {
+                                        contentRead = SPIFFS_read(&object->fs, fd, buffRead, EFS_MAXIMUM_MEMORY_ALLOCATED);
+                                    }
+                                    if (contentRead < 0) {
+                                        Display_printf(g_SMCDisplay, 0, 0, "Error reading %s.\n", fileName);
+                                        break;
+                                    }
+                                    send(clientfd, buffRead, contentRead, 0);
+                                    buffRead[contentRead] = NULL;
+                                    Display_printf(g_SMCDisplay, 0, 0, "%s", buffRead);
+                                    fileSize -= contentRead;
+
+                                }
+                                Display_printf(g_SMCDisplay, 0, 0, "<--------------------------------->\n");
+
+                            }
+                            Memory_free(NULL, buffRead, EFS_MAXIMUM_MEMORY_ALLOCATED);
+                        }else {
+
+                        }
+
+
+                        SPIFFS_close(&object->fs, fd);
+
+                        //                send(clientfd, pBuffer, bufferSize, 0);
+
+                    }
+
+
+                    bStorageFFS_unmount(handle, timeout);
+                }
+            }
+            GateMutexPri_leave(object->hSFFS_gateMount, key);
+
+            Semaphore_post(object->hSFFS_semInitialized);
+        }
+    }else {
+        bSFFS_waitForInit(handle, timeout);
+    }
+
+    return retVal;
+}
+
 
 
 

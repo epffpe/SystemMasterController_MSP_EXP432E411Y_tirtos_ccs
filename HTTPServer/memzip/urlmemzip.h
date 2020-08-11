@@ -34,6 +34,7 @@
 
 #include <ti/net/http/urlhandler.h>
 
+extern const char * getContentType(const char * fileName);
 extern int URLMemzip_process(URLHandler_Handle u, int method, const char * url,
         const char * urlArgs, int contentLength, int s);
 
