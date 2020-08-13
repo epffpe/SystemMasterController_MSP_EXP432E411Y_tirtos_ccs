@@ -221,21 +221,53 @@ void vTCPRCBin_SystemControl_getFlashDataForFileName(int clientfd, char *payload
 
 void vTCPRCBin_SystemControl_setFlashDataForFileName(int clientfd, char *payload, int32_t size)
 {
-//    vIFS_setFlashDataFileNameEthernet(clientfd, payload);
+    int bytesSent;
+    uint32_t bufferSize;
+    char buffer[sizeof(TCPBin_CMD_retFrame_t)];
+
+    bufferSize = sizeof(TCPBin_CMD_retFrame_t);
+
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+    pFrame->type = TCP_CMD_getHeartbeatResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
+    pFrame->retParamID = 5;
+
     SFFS_Handle hSFFS;
     hSFFS = hSFFS_open(SFFS_Internal);
     vSFFS_setFlashDataFileNameEthernet(hSFFS, clientfd, payload, BIOS_WAIT_FOREVER);
     vSFFS_close(hSFFS);
 
+    // TODO: Implement response for all cases of error
+    bytesSent = send(clientfd, buffer, bufferSize, 0);
+    bytesSent = bytesSent;
+
 }
 
 void vTCPRCBin_SystemControl_deleteFlashDataForFileName(int clientfd, char *payload, int32_t size)
 {
-//    vIFS_removeFileNameEthernet(clientfd, payload);
+    int bytesSent;
+    uint32_t bufferSize;
     SFFS_Handle hSFFS;
+    char buffer[sizeof(TCPBin_CMD_retFrame_t)];
+
+    bufferSize = sizeof(TCPBin_CMD_retFrame_t);
+
+
+    TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
+    pFrame->type = TCP_CMD_System_deleteFlashFileDataResponse | 0x80000000;
+    pFrame->retDeviceID = TCPRCBINDEVICE_ID;
+    pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
+    pFrame->retParamID = 5;
+
     hSFFS = hSFFS_open(SFFS_Internal);
     vSFFS_removeFileNameEthernet(hSFFS, clientfd, payload, BIOS_WAIT_FOREVER);
     vSFFS_close(hSFFS);
+
+    // TODO: Implement response for all cases of error
+    bytesSent = send(clientfd, buffer, bufferSize, 0);
+    bytesSent = bytesSent;
 }
 
 

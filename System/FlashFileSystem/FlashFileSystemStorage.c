@@ -1177,6 +1177,7 @@ void vSFFS_removeFileNameEthernet(SFFS_Handle handle, int clientfd, char *payloa
                             if (res < 0) {
                                 Display_printf(g_SMCDisplay, 0, 0, "errno %i\n", SPIFFS_errno(&object->fs));
                             }else {
+                                // TODO: add response
                                 //                send(clientfd, pBuffer, bufferSize, 0);
                             }
 
@@ -1409,6 +1410,7 @@ int xSFFS_getFlashDataFileNameHTTP(SFFS_Handle handle, int clientfd, char *fileN
     int             retVal = 0;
     int contentRead;
     const char *contentType   = "text/plain"; /* default, but can be overridden */
+    char *body          = NULL;         /* Body of HTTP response in process */
     Error_Block eb;
 
     unsigned int key;
@@ -1444,9 +1446,9 @@ int xSFFS_getFlashDataFileNameHTTP(SFFS_Handle handle, int clientfd, char *fileN
                         contentType = getContentType(fileName);
 
                         if (fileSize > 0) {
-                            HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType, fileSize, NULL);
                             char *buffRead = Memory_alloc(NULL, EFS_MAXIMUM_MEMORY_ALLOCATED, 0, &eb);
                             if (buffRead != NULL) {
+                                HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType, fileSize, NULL);
                                 Display_printf(g_SMCDisplay, 0, 0, "<--------------------------------->\n->");
                                 while (fileSize > 0) {
                                     if (fileSize < EFS_MAXIMUM_MEMORY_ALLOCATED) {
@@ -1467,9 +1469,16 @@ int xSFFS_getFlashDataFileNameHTTP(SFFS_Handle handle, int clientfd, char *fileN
                                 Display_printf(g_SMCDisplay, 0, 0, "<--------------------------------->\n");
 
                             }
+                            else {
+                                body = "Couldn't allocate memory to transfer the file";
+                                HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType,
+                                                        body ? strlen(body) : 0, body);
+                            }
                             Memory_free(NULL, buffRead, EFS_MAXIMUM_MEMORY_ALLOCATED);
                         }else {
-
+                            body = "File is empty";
+                            HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType,
+                                                    body ? strlen(body) : 0, body);
                         }
 
 
@@ -1477,9 +1486,11 @@ int xSFFS_getFlashDataFileNameHTTP(SFFS_Handle handle, int clientfd, char *fileN
 
                         //                send(clientfd, pBuffer, bufferSize, 0);
 
+                    }else {
+                        body = "File not found on the file system";
+                        HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType,
+                                                      body ? strlen(body) : 0, body);
                     }
-
-
                     bStorageFFS_unmount(handle, timeout);
                 }
             }
@@ -1494,6 +1505,99 @@ int xSFFS_getFlashDataFileNameHTTP(SFFS_Handle handle, int clientfd, char *fileN
     return retVal;
 }
 
+
+
+int xSFFS_setFlashDataFileNameHTTP(SFFS_Handle handle, int clientfd, char *fileName, int contentLength, unsigned int timeout)
+{
+    spiffs_file     fd;
+    spiffs_stat     s;
+    int             fileSize;
+    int             retVal = 0;
+    int contentRead;
+    const char *contentType   = "text/plain"; /* default, but can be overridden */
+    char *body          = NULL;         /* Body of HTTP response in process */
+    char *buf;
+    ssize_t nbytes = 0;
+    Error_Block eb;
+
+    unsigned int key;
+    SFFS_Object *object;
+
+
+    ASSERT(handle != NULL);
+
+    if (handle == NULL) {
+        return -1;
+    }
+    object = (SFFS_Object *)handle->object;
+
+    Error_init(&eb);
+
+
+    if (object->state.initialized) {
+        if (Semaphore_pend(object->hSFFS_semInitialized, timeout)) {
+
+            key = GateMutexPri_enter(object->hSFFS_gateMount);
+            {
+                if (bStorageFFS_mount(handle, timeout))
+                {
+
+                    if (contentLength > 0) {
+
+                        fd = SPIFFS_open(&object->fs, fileName, SPIFFS_CREAT | SPIFFS_RDWR | SPIFFS_TRUNC, 0); //SPIFFS_APPEND | SPIFFS_TRUNC
+                        if (fd >= 0) {
+
+                            buf = Memory_alloc(NULL, EFS_MAXIMUM_MEMORY_ALLOCATED, 0, &eb);
+                            if (buf != NULL) {
+                                while(contentLength > 0) {
+                                    if (contentLength < EFS_MAXIMUM_MEMORY_ALLOCATED) {
+                                        nbytes = recv(clientfd, buf, contentLength, 0);
+                                    }else {
+                                        nbytes = recv(clientfd, buf, EFS_MAXIMUM_MEMORY_ALLOCATED, 0);
+                                    }
+                                    contentLength -= nbytes;
+                                    if (nbytes > 0) {
+                                        if (SPIFFS_write(&object->fs, fd, (void *) buf, nbytes) < 0) {
+                                            Display_printf(g_SMCDisplay, 0, 0, "Error writing %s.\n", fileName);
+                                            break;
+                                        }
+                                    }
+                                }
+                                Memory_free(NULL, buf, EFS_MAXIMUM_MEMORY_ALLOCATED);
+                            }else{
+                                body = "Couldn't allocate memory";
+                                HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType,
+                                                              body ? strlen(body) : 0, body);
+                            }
+                            SPIFFS_close(&object->fs, fd);
+
+                            //                send(clientfd, pBuffer, bufferSize, 0);
+
+                        }else {
+                            body = "Could not the file to write";
+                            HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType,
+                                                          body ? strlen(body) : 0, body);
+                        }
+
+
+                    }else {
+                        body = "File Size equal to zero";
+                        HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType,
+                                                      body ? strlen(body) : 0, body);
+                    }
+                    bStorageFFS_unmount(handle, timeout);
+                }
+            }
+            GateMutexPri_leave(object->hSFFS_gateMount, key);
+
+            Semaphore_post(object->hSFFS_semInitialized);
+        }
+    }else {
+        bSFFS_waitForInit(handle, timeout);
+    }
+
+    return retVal;
+}
 
 
 

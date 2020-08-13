@@ -164,8 +164,9 @@ int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
 
     if (method == URLHandler_GET)
     {
-        hSFFS = hSFFS_open(SFFS_Internal);
-        xSFFS_getFlashDataFileNameHTTP(hSFFS, ssock, "configuration.zip", BIOS_WAIT_FOREVER);
+        hSFFS = hSFFS_open(SFFS_External);
+//        xSFFS_getFlashDataFileNameHTTP(hSFFS, ssock, "PhoneAppConfiguration.zip", 1000);
+        xSFFS_getFlashDataFileNameHTTP(hSFFS, ssock, "index.html", 1000);
         vSFFS_close(hSFFS);
 
 //        vEFS_getFlashDataFileNameHTTP(ssock, "index.html");
