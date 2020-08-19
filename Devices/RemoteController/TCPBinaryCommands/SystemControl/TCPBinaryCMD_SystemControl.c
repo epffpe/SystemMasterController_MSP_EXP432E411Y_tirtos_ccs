@@ -229,7 +229,7 @@ void vTCPRCBin_SystemControl_setFlashDataForFileName(int clientfd, char *payload
 
 
     TCPBin_CMD_retFrame_t *pFrame = (TCPBin_CMD_retFrame_t *)buffer;
-    pFrame->type = TCP_CMD_getHeartbeatResponse | 0x80000000;
+    pFrame->type = TCP_CMD_System_setFlashFileDataResponse | 0x80000000;
     pFrame->retDeviceID = TCPRCBINDEVICE_ID;
     pFrame->retSvcUUID = SERVICE_TCPBIN_REMOTECONTROL_SYSTEMCONTROL_CLASS_RETURN_UUID;
     pFrame->retParamID = 5;

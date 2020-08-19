@@ -165,8 +165,8 @@ int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
     if (method == URLHandler_GET)
     {
         hSFFS = hSFFS_open(SFFS_External);
-//        xSFFS_getFlashDataFileNameHTTP(hSFFS, ssock, "PhoneAppConfiguration.zip", 1000);
-        xSFFS_getFlashDataFileNameHTTP(hSFFS, ssock, "index.html", 1000);
+        xSFFS_getFlashDataFileNameHTTP(hSFFS, ssock, "PhoneAppConfiguration.zip", 1000);
+//        xSFFS_getFlashDataFileNameHTTP(hSFFS, ssock, "index.html", 1000);
         vSFFS_close(hSFFS);
 
 //        vEFS_getFlashDataFileNameHTTP(ssock, "index.html");
@@ -179,9 +179,16 @@ int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
         body = "/post 'URL_testFilePost': This is the resource requested.";
         returnCode = HTTP_SC_OK;
 
-        vEFS_setFlashDataFileNameHTTP(ssock, contentLength, "index.html");
-        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
-                        body ? strlen(body) : 0, body);
+//        vEFS_setFlashDataFileNameHTTP(ssock, contentLength, "index.html");
+//        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+//                        body ? strlen(body) : 0, body);
+
+        hSFFS = hSFFS_open(SFFS_External);
+        xSFFS_setFlashDataFileNameHTTP(hSFFS, ssock, "PhoneAppConfiguration.zip", contentLength, 3000);
+        vSFFS_close(hSFFS);
+
+        status = URLHandler_EHANDLED;
+        return status;
     }
 
     if (status != URLHandler_ENOTHANDLED)

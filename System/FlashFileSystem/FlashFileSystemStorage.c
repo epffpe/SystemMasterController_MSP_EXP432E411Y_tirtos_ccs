@@ -1449,7 +1449,7 @@ int xSFFS_getFlashDataFileNameHTTP(SFFS_Handle handle, int clientfd, char *fileN
                             char *buffRead = Memory_alloc(NULL, EFS_MAXIMUM_MEMORY_ALLOCATED, 0, &eb);
                             if (buffRead != NULL) {
                                 HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType, fileSize, NULL);
-                                Display_printf(g_SMCDisplay, 0, 0, "<--------------------------------->\n->");
+//                                Display_printf(g_SMCDisplay, 0, 0, "<--------------------------------->\n->");
                                 while (fileSize > 0) {
                                     if (fileSize < EFS_MAXIMUM_MEMORY_ALLOCATED) {
                                         contentRead = SPIFFS_read(&object->fs, fd, buffRead, fileSize);
@@ -1461,12 +1461,12 @@ int xSFFS_getFlashDataFileNameHTTP(SFFS_Handle handle, int clientfd, char *fileN
                                         break;
                                     }
                                     send(clientfd, buffRead, contentRead, 0);
-                                    buffRead[contentRead] = NULL;
-                                    Display_printf(g_SMCDisplay, 0, 0, "%s", buffRead);
+//                                    buffRead[contentRead] = NULL;
+//                                    Display_printf(g_SMCDisplay, 0, 0, "%s", buffRead);
                                     fileSize -= contentRead;
 
                                 }
-                                Display_printf(g_SMCDisplay, 0, 0, "<--------------------------------->\n");
+//                                Display_printf(g_SMCDisplay, 0, 0, "<--------------------------------->\n");
 
                             }
                             else {
@@ -1564,9 +1564,12 @@ int xSFFS_setFlashDataFileNameHTTP(SFFS_Handle handle, int clientfd, char *fileN
                                     }
                                 }
                                 Memory_free(NULL, buf, EFS_MAXIMUM_MEMORY_ALLOCATED);
+                                body = "File loaded successfully";
+                                HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType,
+                                                              body ? strlen(body) : 0, body);
                             }else{
                                 body = "Couldn't allocate memory";
-                                HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType,
+                                HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_SERVICE_UNAVAILABLE, contentType,
                                                               body ? strlen(body) : 0, body);
                             }
                             SPIFFS_close(&object->fs, fd);
@@ -1574,15 +1577,15 @@ int xSFFS_setFlashDataFileNameHTTP(SFFS_Handle handle, int clientfd, char *fileN
                             //                send(clientfd, pBuffer, bufferSize, 0);
 
                         }else {
-                            body = "Could not the file to write";
-                            HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType,
+                            body = "Could not write to the file";
+                            HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_SERVICE_UNAVAILABLE, contentType,
                                                           body ? strlen(body) : 0, body);
                         }
 
 
                     }else {
                         body = "File Size equal to zero";
-                        HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, contentType,
+                        HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_BAD_REQUEST, contentType,
                                                       body ? strlen(body) : 0, body);
                     }
                     bStorageFFS_unmount(handle, timeout);
