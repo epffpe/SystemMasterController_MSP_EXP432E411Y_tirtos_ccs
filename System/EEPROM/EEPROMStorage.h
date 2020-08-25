@@ -12,6 +12,21 @@
 #define xstr(s) str(s)
 #define str(s) #s
 
+/*
+ *
+ * a.b.c.d
+ * Increments : when
+ * - d: bug fixes
+ * - c: maintenance, e.g. performance improvement
+ * - b: new features
+ * - a: architecture change
+ *
+ */
+
+//#define DEBUG(...) fprintf(stderr, __VA_ARGS__)
+//
+//DEBUG("Something went wrong in iteration: %d", i);
+
 #define PRODUCT_ID                          106623
 
 #define FIRMWARE_VERSION_MAJOR              0

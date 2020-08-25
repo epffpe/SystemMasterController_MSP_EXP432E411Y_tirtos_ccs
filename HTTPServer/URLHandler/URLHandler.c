@@ -24,6 +24,8 @@
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"
 
+#define URL_BUFFER_SIZE     1024
+
 
 
 
@@ -40,6 +42,12 @@
 
 const char g_ccURL_simpleHTML[];
 const char g_ccURL_dummyText[];
+const MEMZIP_FILE_HDR g_URL_defaultHeaderFile =
+{
+ .signature = MEMZIP_FILE_HEADER_SIGNATURE,
+ .compressed_size = 0,
+ .uncompressed_size = 0,
+};
 
 
 
@@ -48,7 +56,7 @@ tURLHandlerEntry g_psURLTable[] =
 // {"/",              URL_index, "Test"},
 // {"/index.html",    URL_index, "Test"},
  {"/api/version",       URL_apiVersion, "Test"},
- {"/api/configuration", URL_apiConfiguration, "Test"},
+ {"/api/configuration", URL_apiConfigurationNVS, "Test"},
  {"/api/memzip_data.zip", URL_apiZipWebSite, "Test"},
 
  {"/home.html",     URL_home, "Test"},
@@ -190,6 +198,254 @@ int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
         status = URLHandler_EHANDLED;
         return status;
     }
+
+    if (status != URLHandler_ENOTHANDLED)
+    {
+        if (contentLength > 0)
+        {
+            char *buf;
+
+//            buf = malloc(contentLength);
+            buf = Memory_alloc(NULL, contentLength, 0, &eb);
+            if (buf == NULL)
+            {
+                /* Signals to the server that it should terminate this one session */
+                status = URLHandler_EERRORHANDLED;
+            }
+            else
+            {
+                /* This is done to flush the socket */
+                (void) recvall(ssock, buf, contentLength, 0);
+//                free(buf);
+                Memory_free(NULL, buf, contentLength);
+            }
+        }
+
+//        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+//                body ? strlen(body) : 0, body ? body : NULL);
+    }
+
+    return (status);
+}
+
+
+int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
+                         const char * url, const char * urlArgs,
+                         int contentLength, int ssock)
+{
+    int status          = URLHandler_ENOTHANDLED;
+    char *body          = NULL;         /* Body of HTTP response in process */
+    char *contentType   = "text/plain "; /* default (text/plain), but can be overridden: text/html; charset=utf-8*/
+//    char *retString     = NULL;         /* String retrieved from server */
+//    char *inputKey      = NULL;         /* Name of value to store in server */
+//    char *inputValue    = NULL;         /* Value to store in server */
+//    char argsToParse[MAX_DB_ENTRY_LEN];
+    int returnCode;                     /* HTTP response status code */
+//    int retc;                           /* Error checking for internal funcs */
+    char *pbuffer;
+    int fileSize, memAddress;
+    Error_Block eb;
+    Task_Handle taskHandle;
+
+    NVS_Handle nvsHandle;
+    NVS_Attrs regionAttrs;
+    NVS_Params nvsParams;
+    ssize_t nbytes = 0;
+    int_fast16_t i16RetVal;
+
+    MEMZIP_FILE_HDR header;
+
+    Error_init(&eb);
+
+    body = "PATCH is not handled by any handlers on this server.";
+    returnCode = HTTP_SC_METHOD_NOT_ALLOWED;
+    status = URLHandler_ENOTHANDLED;
+
+    NVS_Params_init(&nvsParams);
+    nvsHandle = NVS_open(Board_NVSEXTERNAL, &nvsParams);
+
+    if (nvsHandle == NULL) {
+        Display_printf(g_SMCDisplay, 0, 0, "NVS_open() failed.");
+
+        body = "NVS_open() failed.";
+        returnCode = HTTP_SC_OK;
+        HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                                      body ? strlen(body) : 0, body);
+
+        NVS_close(nvsHandle);
+        return 0;
+    }
+
+    NVS_getAttrs(nvsHandle, &regionAttrs);
+
+    if (method == URLHandler_GET)
+    {
+        taskHandle = hSFFS_formatHeartBeat_init();
+
+        NVS_read(nvsHandle, 0, (void *)&header, sizeof(MEMZIP_FILE_HDR));
+
+        if (header.signature == MEMZIP_FILE_HEADER_SIGNATURE) {
+            fileSize = header.uncompressed_size;
+            memAddress = regionAttrs.sectorSize;
+
+            if (fileSize) {
+                contentType = "application/zip ";
+                HTTPServer_sendSimpleResponse(ssock, HTTP_SC_OK, contentType, fileSize, NULL);
+                pbuffer = Memory_alloc(NULL, URL_BUFFER_SIZE, 0, &eb);
+                if (pbuffer != NULL) {
+                    while(fileSize >0) {
+                        if (fileSize < URL_BUFFER_SIZE) {
+                            i16RetVal = NVS_read(nvsHandle, memAddress, (void *) pbuffer, fileSize);
+                            if (i16RetVal == NVS_STATUS_SUCCESS) {
+                                send(ssock, pbuffer, fileSize, 0);
+                            }
+                            fileSize -= fileSize;
+                            memAddress += fileSize;
+                        }else {
+                            i16RetVal = NVS_read(nvsHandle, memAddress, (void *) pbuffer, URL_BUFFER_SIZE);
+                            if (i16RetVal == NVS_STATUS_SUCCESS) {
+                                send(ssock, pbuffer, URL_BUFFER_SIZE, 0);
+                            }
+                            fileSize -= URL_BUFFER_SIZE;
+                            memAddress += URL_BUFFER_SIZE;
+                        }
+                    }
+
+                    Memory_free(NULL, pbuffer, URL_BUFFER_SIZE);
+                }else {
+                    body = "Couldn't allocate memory";
+                    returnCode = HTTP_SC_OK;
+                    HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                                    body ? strlen(body) : 0, body);
+                }
+            }else {
+                body = "File is empty";
+                returnCode = HTTP_SC_OK;
+                HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                                body ? strlen(body) : 0, body);
+            }
+        }else {
+            body = "No configuration file found";
+            returnCode = HTTP_SC_OK;
+            HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                            body ? strlen(body) : 0, body);
+        }
+
+        NVS_close(nvsHandle);
+        status = URLHandler_EHANDLED;
+
+        Task_delete(&taskHandle);
+        DOSet(DIO_LED_D20, DO_OFF);
+        return status;
+    }
+
+    if (method == URLHandler_POST)
+    {
+        body = "/post 'URL_testFilePost': This is the resource requested.";
+        returnCode = HTTP_SC_OK;
+
+        if (contentLength > 0) {
+            taskHandle = hSFFS_formatHeartBeat_init();
+
+            header = g_URL_defaultHeaderFile;
+            header.uncompressed_size = contentLength;
+
+            uint32_t numOfSectors = 1 + contentLength / regionAttrs.sectorSize;
+
+            uint32_t index;
+
+            for (index = 0; index <= numOfSectors; index++) {
+                NVS_erase(nvsHandle, index * regionAttrs.sectorSize, regionAttrs.sectorSize);
+            }
+
+//            NVS_erase(nvsHandle, 0, contentLength + regionAttrs.sectorSize);
+//            NVS_erase(nvsHandle, 4096, regionAttrs.sectorSize);
+//            NVS_erase(nvsHandle, 8192, regionAttrs.sectorSize);
+
+
+            fileSize = contentLength;
+
+#define NVSSPI25X_CMD_MASS_ERASE        (NVS_CMD_RESERVED + 0)
+            NVS_control(nvsHandle, NVSSPI25X_CMD_MASS_ERASE, NULL);
+
+            i16RetVal = NVS_write(nvsHandle, 0, (void *) &header, sizeof(MEMZIP_FILE_HDR),
+                                  NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
+
+//            NVS_erase(nvsHandle, regionAttrs.sectorSize, contentLength + regionAttrs.sectorSize);
+
+            memAddress = regionAttrs.sectorSize;
+
+            pbuffer = Memory_alloc(NULL, URL_BUFFER_SIZE, 0, &eb);
+            if (pbuffer != NULL) {
+                NVS_read(nvsHandle, 4096, (void *) pbuffer, URL_BUFFER_SIZE);
+                NVS_read(nvsHandle, 8192, (void *) pbuffer, URL_BUFFER_SIZE);
+                while(fileSize > 0) {
+                    if (fileSize < URL_BUFFER_SIZE) {
+                        nbytes = recv(ssock, pbuffer, fileSize, 0);
+                    }else {
+                        nbytes = recv(ssock, pbuffer, URL_BUFFER_SIZE, 0);
+                    }
+                    fileSize -= nbytes;
+                    if (nbytes > 0) {
+                        i16RetVal = NVS_write(nvsHandle, memAddress, (void *)pbuffer, nbytes,
+                                              NVS_WRITE_PRE_VERIFY | NVS_WRITE_POST_VERIFY);
+//                                              NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
+                        if (i16RetVal != NVS_STATUS_SUCCESS) {
+                            i16RetVal = i16RetVal;
+                        }
+//                        switch(i16RetVal) {
+//                        case NVS_STATUS_SUCCESS:
+//                            memAddress += nbytes;
+//                            break;
+//                        case NVS_STATUS_ERROR:
+//                        case NVS_STATUS_UNDEFINEDCMD:
+//                        case NVS_STATUS_TIMEOUT:
+//                        case NVS_STATUS_INV_OFFSET:
+//                        case NVS_STATUS_INV_ALIGNMENT:
+//                        case NVS_STATUS_INV_SIZE:
+//                        case NVS_STATUS_INV_WRITE:
+//                        default:
+//                            i16RetVal = NVS_write(nvsHandle, memAddress, (void *)pbuffer, nbytes,
+////                                                  NVS_WRITE_PRE_VERIFY | NVS_WRITE_POST_VERIFY);
+//                                                  NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
+//                            if (i16RetVal == NVS_STATUS_SUCCESS) {
+//                                memAddress += nbytes;
+//                            }
+//                            break;
+//                        }
+                        memAddress += nbytes;
+                    }
+                }
+
+                Memory_free(NULL, pbuffer, URL_BUFFER_SIZE);
+                body = "File loaded correctly";
+                returnCode = HTTP_SC_OK;
+                HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                                body ? strlen(body) : 0, body);
+            }else {
+                body = "Couldn't allocate memory";
+                returnCode = HTTP_SC_OK;
+                HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                                body ? strlen(body) : 0, body);
+            }
+
+            Task_delete(&taskHandle);
+            DOSet(DIO_LED_D20, DO_OFF);
+        }else {
+            body = "contentLength field not valid";
+            returnCode = HTTP_SC_OK;
+            HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                            body ? strlen(body) : 0, body);
+        }
+
+
+        status = URLHandler_EHANDLED;
+        NVS_close(nvsHandle);
+        return status;
+    }
+
+    NVS_close(nvsHandle);
+
 
     if (status != URLHandler_ENOTHANDLED)
     {

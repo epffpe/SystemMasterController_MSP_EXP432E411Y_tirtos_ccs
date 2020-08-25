@@ -61,6 +61,11 @@ int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
                          int contentLength, int ssock);
 
 __HTTPSERVER_URLHANDLER_URLHANDLER_EXT
+int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
+                            const char * url, const char * urlArgs,
+                            int contentLength, int ssock);
+
+__HTTPSERVER_URLHANDLER_URLHANDLER_EXT
 int URL_apiZipWebSite(URLHandler_Handle urlHandler, int method,
                       const char * url, const char * urlArgs,
                       int contentLength, int ssock);

@@ -41,7 +41,8 @@ extern void ti_ndk_config_Global_startupFxn();
 void vDiscreteIO_init();
 void vHeartBeat_init();
 void test();
-void vTest_CRC() ;
+void vTest_CRC();
+void vTest_NVS();
 void USBSerialTest_init();
 
 extern void pvPPPCU_inputLineIntHandler(uint_least8_t index);
@@ -143,6 +144,7 @@ void *SMC_initThread(void *arg0)
     CAN_init();
     // Watchdog_init();
     CRC_init();
+//    NVS_init();
 
     MSP_EXP432E401Y_initUSB(MSP_EXP432E401Y_USBDEVICE);
 
@@ -266,15 +268,33 @@ void *SMC_initThread(void *arg0)
     vSFFS_close(hSFFS);
 
 
+//    hSFFS = hSFFS_open(SFFS_External);
+//
+//
+//    devInfo.params.deviceType = DEVICE_TYPE_ALTO_MULTINET;
+//    devInfo.params.deviceID = 32;
+//    devInfo.params.arg0 = (void *)IF_SERIAL_6;
+//    strcpy (devInfo.description,"ALTO Multinet");
+//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_0_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
+//
+//    IFS_deviceInfoFile_t devInfo2;
+//    retVal = xSFFS_read(hSFFS, IFS_STARTUP_DEVICE_0_FILE_NAME, &devInfo2, sizeof(IFS_deviceInfoFile_t), 10000);
+//
+//    vSFFS_close(hSFFS);
+
 
     vSPIDAC101_init(25e3, 25e3);
     vSPIDAC_setRawValue(0);
     vMAX1301_init();
 
 
+//    Ptr Task_getEnv( Task_Handle handle );
+//    Void Task_setEnv( Task_Handle handle, Ptr env );
+
     //    test4();
 //    test2();
 //    vTest_CRC();
+//    vTest_NVS();
 #if defined(TEST_FIXTURE) || defined(DUT)
     vCANTest_init();
 #endif
@@ -690,4 +710,147 @@ void vTest_CRC()
 }
 
 
+#define FOOTER "=================================================="
+#define NVSSPI25X_CMD_MASS_ERASE        (NVS_CMD_RESERVED + 0)
+
+char g_sectorBuffer[16];
+
+void vTest_NVS()
+{
+    NVS_Handle nvsHandle;
+    NVS_Attrs regionAttrs;
+    NVS_Params nvsParams;
+    uint32_t ui32Address;
+    int_fast16_t i16RetVal;
+    bool bisMemOk = true;
+
+
+    /* Buffer placed in RAM to hold bytes read from non-volatile storage. */
+    char buffer[64];
+
+    /*
+     * Some devices have a minimum FLASH write size of 4-bytes (1 word). Trying
+     * to write a non-multiple of 4 amount of data will fail. This array is
+     * rounded up (to next multiple of 4) to meet this requirement. Refer to NVS
+     * driver documentation for more details.
+     */
+    static const char signature[52] =
+    {"SimpleLink SDK Non-Volatile Storage (NVS) Example."};
+
+
+    NVS_Params_init(&nvsParams);
+    nvsHandle = NVS_open(Board_NVSEXTERNAL, &nvsParams);
+
+    if (nvsHandle == NULL) {
+        Display_printf(g_SMCDisplay, 0, 0, "NVS_open() failed.");
+        NVS_close(nvsHandle);
+        return;
+    }
+
+    Display_printf(g_SMCDisplay, 0, 0, "\n");
+
+    /*
+     * This will populate a NVS_Attrs structure with properties specific
+     * to a NVS_Handle such as region base address, region size,
+     * and sector size.
+     */
+    NVS_getAttrs(nvsHandle, &regionAttrs);
+
+    /* Display the NVS region attributes */
+    Display_printf(g_SMCDisplay, 0, 0, "Region Base Address: 0x%x",
+            regionAttrs.regionBase);
+    Display_printf(g_SMCDisplay, 0, 0, "Sector Size: 0x%x",
+            regionAttrs.sectorSize);
+    Display_printf(g_SMCDisplay, 0, 0, "Region Size: 0x%x\n",
+            regionAttrs.regionSize);
+
+    NVS_read(nvsHandle, 0, (void *) g_sectorBuffer, sizeof(g_sectorBuffer));
+    NVS_read(nvsHandle, 4096, (void *) g_sectorBuffer, sizeof(g_sectorBuffer));
+    /* Erase the entire flash sector. */
+    NVS_erase(nvsHandle, 0, regionAttrs.sectorSize);
+    NVS_erase(nvsHandle, 4096, regionAttrs.sectorSize);
+    NVS_control(nvsHandle, NVSSPI25X_CMD_MASS_ERASE, NULL);
+    NVS_read(nvsHandle, 0, (void *) g_sectorBuffer, sizeof(g_sectorBuffer));
+    NVS_read(nvsHandle, 4096, (void *) g_sectorBuffer, sizeof(g_sectorBuffer));
+
+    ui32Address = 0;
+    i16RetVal = NVS_write(nvsHandle, ui32Address, (void *) signature, sizeof(signature),
+                         NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
+    NVS_read(nvsHandle, ui32Address, (void *) g_sectorBuffer, sizeof(g_sectorBuffer));
+
+    ui32Address += 4096;
+
+    NVS_read(nvsHandle, ui32Address, (void *) g_sectorBuffer, sizeof(g_sectorBuffer));
+    i16RetVal = NVS_write(nvsHandle, ui32Address, (void *) signature, sizeof(signature),
+//                         NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
+                         NVS_WRITE_POST_VERIFY);
+    NVS_read(nvsHandle, 0, (void *) g_sectorBuffer, sizeof(g_sectorBuffer));
+    NVS_read(nvsHandle, ui32Address, (void *) g_sectorBuffer, sizeof(g_sectorBuffer));
+
+    i16RetVal = NVS_write(nvsHandle, ui32Address, (void *) "Hello", sizeof("Hello"),
+                          NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
+    NVS_read(nvsHandle, 0, (void *) g_sectorBuffer, sizeof(g_sectorBuffer));
+    NVS_read(nvsHandle, ui32Address, (void *) g_sectorBuffer, sizeof(g_sectorBuffer));
+
+//
+//    ui32Address = 0;
+//    while(ui32Address < (regionAttrs.regionSize - sizeof(signature))) {
+//        NVS_read(nvsHandle, ui32Address, (void *) buffer, sizeof(signature));
+//        ui32Address += sizeof(signature);
+//        if (strcmp((char *) buffer, (char *) signature) != 0) {
+//            bisMemOk = false;
+//            break;
+//        }
+//    }
+//
+//
+//    /*
+//     * Copy "sizeof(signature)" bytes from the NVS region base address into
+//     * buffer. An offset of 0 specifies the offset from region base address.
+//     * Therefore, the bytes are copied from regionAttrs.regionBase.
+//     */
+////    NVS_read(nvsHandle, 0, (void *) buffer, sizeof(signature));
+//
+//    /*
+//     * Determine if the NVS region contains the signature string.
+//     * Compare the string with the contents copied into buffer.
+//     */
+////    if (strcmp((char *) buffer, (char *) signature) == 0) {
+//    if (bisMemOk) {
+//
+//        /* Write signature directly from the NVS region to the UART console. */
+//        Display_printf(g_SMCDisplay, 0, 0, "%s", regionAttrs.regionBase);
+//        Display_printf(g_SMCDisplay, 0, 0, "Erasing flash sector...");
+//
+//        /* Erase the entire flash sector. */
+//        NVS_erase(nvsHandle, 0, regionAttrs.sectorSize);
+//        NVS_control(nvsHandle, NVSSPI25X_CMD_MASS_ERASE, NULL);
+//    }
+//    else {
+//
+//        /* The signature was not found in the NVS region. */
+//        Display_printf(g_SMCDisplay, 0, 0, "Writing signature to flash...");
+//
+//        /* Write signature to memory. The flash sector is erased prior
+//         * to performing the write operation. This is specified by
+//         * NVS_WRITE_ERASE.
+//         */
+//        NVS_write(nvsHandle, 0, (void *) signature, sizeof(signature),
+//            NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
+//        ui32Address = 0;
+//
+//        while(ui32Address < (regionAttrs.regionSize - sizeof(signature))) {
+//            i16RetVal = NVS_write(nvsHandle, ui32Address, (void *) signature, sizeof(signature),
+//                                 NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
+//            if (i16RetVal != NVS_STATUS_SUCCESS) {
+//                break;
+//            }
+//            ui32Address += sizeof(signature);
+//        }
+//    }
+
+//    Display_printf(g_SMCDisplay, 0, 0, "Reset the device.");
+    Display_printf(g_SMCDisplay, 0, 0, FOOTER);
+    NVS_close(nvsHandle);
+}
 

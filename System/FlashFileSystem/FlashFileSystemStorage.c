@@ -84,11 +84,11 @@ const SFFS_Config SFFS_config[] =
   .hwAttrs = &sffsHWattrs[0],
   .object = &sffsObject[0],
  },
- {
-  .fxnTablePtr = &SFFS_fxnTable,
-  .hwAttrs = &sffsHWattrs[1],
-  .object = &sffsObject[1],
- },
+// {
+//  .fxnTablePtr = &SFFS_fxnTable,
+//  .hwAttrs = &sffsHWattrs[1],
+//  .object = &sffsObject[1],
+// },
  {NULL, NULL, NULL},
 };
 
@@ -111,6 +111,7 @@ int xStorageFFS_init(SFFS_Handle handle)
     object->state.mounted = false;
     object->state.initialized = false;
 
+    DOSet(DIO_LED_D20, DO_ON);
     /* Initialize spiffs, spiffs_config & spiffsnvsdata structures Board_NVSINTERNAL, Board_NVSEXTERNAL*/
     status = SPIFFSNVS_config(&handle->object->spiffsnvsData,
                               handle->hwAttrs->nvsIndex,
@@ -118,6 +119,7 @@ int xStorageFFS_init(SFFS_Handle handle)
                               &handle->object->fsConfig,
                               handle->hwAttrs->logicalBlockSize,
                               handle->hwAttrs->logicalPageSize);
+    DOSet(DIO_LED_D20, DO_OFF);
     switch(status) {
     case SPIFFSNVS_STATUS_SUCCESS:
         object->state.initialized = true;
@@ -228,11 +230,52 @@ bool bSFFS_waitForInit(SFFS_Handle handle, unsigned int timeout)
 }
 
 
+/*
+ *  ======== FormatHeartBeatFxn ========
+ *  Toggle the Board_LED0. The Task_sleep is determined by arg0 which
+ *  is configured for the heartBeat Task instance.
+ */
+Void vSFFS_formatHeartBeatFxn(UArg arg0, UArg arg1)
+{
+    Display_printf(g_SMCDisplay, 0, 0, "Heartbeat task started\n");
+    while (1) {
+        GPIO_write(Board_LED4,0);
+//        DOSet(DIO_LED_D20, DO_ON);
+        Task_sleep((unsigned int)100);
+        GPIO_write(Board_LED4,1);
+//        DOSet(DIO_LED_D20, DO_OFF);
+        Task_sleep((unsigned int)100);
+    }
+}
+
+Task_Handle hSFFS_formatHeartBeat_init()
+{
+    Task_Params taskParams;
+//    Task_Handle taskHandle;
+    Error_Block eb;
+    /* Make sure Error_Block is initialized */
+    Error_init(&eb);
+    Display_printf(g_SMCDisplay, 0, 0, "Initializing vSFFS_formatHeartBeatFxn\n");
+    /* Construct heartBeat Task  thread */
+    Task_Params_init(&taskParams);
+    taskParams.priority = Task_getPri(Task_self()) + 1;
+    taskParams.stackSize = 512;
+    return Task_create((Task_FuncPtr)vSFFS_formatHeartBeatFxn, &taskParams, NULL);
+}
+
+//void vSFFS_formatHeartBeat_close(Task_Handle *handleP)
+//{
+//    Task_delete(handleP);
+//}
+
+
+
 bool bStorageFFS_mount(SFFS_Handle handle, unsigned int timeout)
 {
     int32_t        status;
 //    u32_t total, used;
 //    int res;
+    Task_Handle taskHandle;
     bool bretValue = false;
     SFFS_Object *object = (SFFS_Object *)handle->object;
 //    SFFS_HWAttrs *hwAttrs = (SFFS_HWAttrs *)handle->hwAttrs;
@@ -251,6 +294,7 @@ bool bStorageFFS_mount(SFFS_Handle handle, unsigned int timeout)
 
     Display_printf(g_SMCDisplay, 0, 0, "Mounting Internal Flash file system...");
 
+    DOSet(DIO_LED_D20, DO_ON);
     status = SPIFFS_mount(&object->fs,
                           &object->fsConfig,
                           object->spiffsWorkBuffer,
@@ -272,12 +316,15 @@ bool bStorageFFS_mount(SFFS_Handle handle, unsigned int timeout)
                            "File system not found; creating new SPIFFS fs...");
 
             SPIFFS_unmount(&object->fs);
+            taskHandle = hSFFS_formatHeartBeat_init();
             status = SPIFFS_format(&object->fs);
+            Task_delete(&taskHandle);
             if (status != SPIFFS_OK) {
                 Display_printf(g_SMCDisplay, 0, 0,
                                "Error formatting memory.\n");
                 //                while (1);
             }
+            DOSet(DIO_LED_D20, DO_ON);
             status = SPIFFS_mount(&object->fs,
                                   &object->fsConfig,
                                   object->spiffsWorkBuffer,
@@ -290,6 +337,7 @@ bool bStorageFFS_mount(SFFS_Handle handle, unsigned int timeout)
                 Display_printf(g_SMCDisplay, 0, 0,
                                "Error mounting file system.\n");
                 object->state.mounted = 0;
+                DOSet(DIO_LED_D20, DO_OFF);
                 bretValue = false;
             }
 
@@ -300,6 +348,7 @@ bool bStorageFFS_mount(SFFS_Handle handle, unsigned int timeout)
             //            while (1);
         }
     }
+
     return bretValue;
 }
 
@@ -320,6 +369,7 @@ bool bStorageFFS_unmount(SFFS_Handle handle, unsigned int timeout)
     if(object->state.mounted) {
         SPIFFS_unmount(&object->fs);
         object->state.mounted = 0;
+        DOSet(DIO_LED_D20, DO_OFF);
         bretValue = true;
     }
     return bretValue;
@@ -623,6 +673,7 @@ int32_t xSFFS_format(SFFS_Handle handle, unsigned int timeout)
     unsigned int key;
 //    SFFS_Handle handle;
     SFFS_Object *object;
+    Task_Handle taskHandle;
 
 
 //    if (index >= SFFS_COUNT) {
@@ -649,7 +700,9 @@ int32_t xSFFS_format(SFFS_Handle handle, unsigned int timeout)
             {
 
                 SPIFFS_unmount(&object->fs);
+                taskHandle = hSFFS_formatHeartBeat_init();
                 status = SPIFFS_format(&object->fs);
+                Task_delete(&taskHandle);
                 if (status != SPIFFS_OK) {
                     Display_printf(g_SMCDisplay, 0, 0,
                                    "Error formatting memory.\n");
@@ -670,6 +723,7 @@ int32_t xSFFS_format(SFFS_Handle handle, unsigned int timeout)
 
                 SPIFFS_unmount(&object->fs);
                 object->state.mounted = 0;
+                DOSet(DIO_LED_D20, DO_OFF);
             }
             GateMutexPri_leave(object->hSFFS_gateMount, key);
 
