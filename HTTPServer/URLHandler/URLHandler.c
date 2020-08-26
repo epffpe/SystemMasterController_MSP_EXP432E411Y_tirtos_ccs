@@ -239,7 +239,7 @@ int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
 //    char *retString     = NULL;         /* String retrieved from server */
 //    char *inputKey      = NULL;         /* Name of value to store in server */
 //    char *inputValue    = NULL;         /* Value to store in server */
-//    char argsToParse[MAX_DB_ENTRY_LEN];
+    char argsToParse[MAX_DB_ENTRY_LEN];
     int returnCode;                     /* HTTP response status code */
 //    int retc;                           /* Error checking for internal funcs */
     char *pbuffer;
@@ -391,7 +391,7 @@ int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
                                               NVS_WRITE_PRE_VERIFY | NVS_WRITE_POST_VERIFY);
 //                                              NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
                         if (i16RetVal != NVS_STATUS_SUCCESS) {
-                            i16RetVal = i16RetVal;
+                            break;
                         }
 //                        switch(i16RetVal) {
 //                        case NVS_STATUS_SUCCESS:
@@ -416,12 +416,22 @@ int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
                         memAddress += nbytes;
                     }
                 }
-
                 Memory_free(NULL, pbuffer, URL_BUFFER_SIZE);
-                body = "File loaded correctly";
-                returnCode = HTTP_SC_OK;
-                HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
-                                body ? strlen(body) : 0, body);
+                if (i16RetVal != NVS_STATUS_SUCCESS) {
+//                    Memory_free(NULL, pbuffer, URL_BUFFER_SIZE);
+                    body = "Error loading the File";
+                    returnCode = HTTP_SC_OK;
+                    HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                                    body ? strlen(body) : 0, body);
+                }else {
+                    /* Parse query string */
+                    strncpy(argsToParse, urlArgs, strlen(urlArgs) + 1);
+
+                    body = "File loaded correctly";
+                    returnCode = HTTP_SC_OK;
+                    HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                                                  body ? strlen(body) : 0, body);
+                }
             }else {
                 body = "Couldn't allocate memory";
                 returnCode = HTTP_SC_OK;
