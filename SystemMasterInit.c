@@ -143,7 +143,7 @@ void *SMC_initThread(void *arg0)
     UART_init();
     CAN_init();
     // Watchdog_init();
-    CRC_init();
+//    CRC_init();
 //    NVS_init();
 
     MSP_EXP432E401Y_initUSB(MSP_EXP432E401Y_USBDEVICE);
@@ -235,7 +235,7 @@ void *SMC_initThread(void *arg0)
     devInfo.params.deviceID = 302;
     devInfo.params.arg0 = (void *)0;
     strcpy (devInfo.description,"AVDS");
-    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_4_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
+//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_4_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
 
     devInfo.params.deviceType = DEVICE_TYPE_ROSEN485;
     devInfo.params.deviceID = 303;
@@ -253,7 +253,7 @@ void *SMC_initThread(void *arg0)
     devInfo.params.deviceID = 305;
     devInfo.params.arg0 = (void *)IF_SERIAL_5;
     strcpy (devInfo.description,"AVDS RS485");
-    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_7_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
+//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_7_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
 
 
 

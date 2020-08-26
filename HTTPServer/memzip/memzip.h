@@ -24,6 +24,17 @@
  * SOFTWARE.
  */
 
+
+#ifndef HTTPSERVER_MEMZIP_H_
+#define HTTPSERVER_MEMZIP_H_
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #pragma pack(push, 1)
 
 #define MEMZIP_FILE_HEADER_SIGNATURE 0x04034b50
@@ -107,3 +118,13 @@ typedef struct {
 MEMZIP_RESULT memzip_locate(const char *filename, void **data, size_t *len);
 
 MEMZIP_RESULT memzip_stat(const char *path, MEMZIP_FILE_INFO *info);
+
+#ifdef __cplusplus
+}
+#endif
+
+
+
+
+#endif /* HTTPSERVER_URLHANDLER_URLHANDLER_H_ */
+

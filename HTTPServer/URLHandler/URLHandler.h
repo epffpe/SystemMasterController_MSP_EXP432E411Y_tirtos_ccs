@@ -8,6 +8,7 @@
 #ifndef HTTPSERVER_URLHANDLER_URLHANDLER_H_
 #define HTTPSERVER_URLHANDLER_URLHANDLER_H_
 
+#include "HTTPServer/memzip/memzip.h"
 
 typedef int (*pfnURLHandler)(URLHandler_Handle urlHandler, int method,
                             const char * url, const char * urlArgs,
@@ -32,6 +33,13 @@ typedef struct
     const char *pcHelp;
 }
 tURLHandlerEntry;
+
+typedef struct {
+    uint32_t aircraftID;
+    uint32_t configRev;
+    MEMZIP_FILE_HDR file_hdr;
+
+}tURLHandlerHeader;
 
 
 

@@ -108,6 +108,14 @@ int URL_apiVersion(URLHandler_Handle urlHandler, int method,
 //    char argsToParse[MAX_DB_ENTRY_LEN];
     int returnCode;                     /* HTTP response status code */
 //    int retc;                           /* Error checking for internal funcs */
+//    int n;
+    char response[64];
+
+    NVS_Handle nvsHandle;
+//    NVS_Attrs regionAttrs;
+    NVS_Params nvsParams;
+    tURLHandlerHeader header;
+
 
     body = "PATCH is not handled by any handlers on this server.";
     returnCode = HTTP_SC_METHOD_NOT_ALLOWED;
@@ -115,8 +123,27 @@ int URL_apiVersion(URLHandler_Handle urlHandler, int method,
 
     if (method == URLHandler_GET)
     {
-        body = "/get 'api/version': This is the resource requested.";
+        NVS_Params_init(&nvsParams);
+        nvsHandle = NVS_open(Board_NVSEXTERNAL, &nvsParams);
+
+        if (nvsHandle == NULL) {
+            Display_printf(g_SMCDisplay, 0, 0, "NVS_open() failed.");
+
+            body = "NVS_open() failed.";
+            returnCode = HTTP_SC_OK;
+            HTTPServer_sendSimpleResponse(ssock, returnCode, contentType,
+                                          body ? strlen(body) : 0, body);
+
+            NVS_close(nvsHandle);
+            return 0;
+        }
+        NVS_read(nvsHandle, 0, (void *)&header, sizeof(tURLHandlerHeader));
+
+        NVS_close(nvsHandle);
+
         returnCode = HTTP_SC_OK;
+        sprintf(response, "AircraftID: %d ConfigRev: %d", header.aircraftID, header.configRev);
+        body = response;
         status = URLHandler_EHANDLED;
     }
 
@@ -228,6 +255,22 @@ int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
     return (status);
 }
 
+#define PARAM_AIRCRAFT_ID           1
+#define PARAM_CONFIG_REV            2
+
+int xURL_ExtractParam(char * param)
+{
+    if (!strncmp("AircraftID=", param, 11)) {
+        return (PARAM_AIRCRAFT_ID) ;
+    }
+    if (!strncmp("ConfigRev=", param, 10)) {
+        return (PARAM_CONFIG_REV);
+    }
+
+    return (0);
+}
+
+
 
 int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
                          const char * url, const char * urlArgs,
@@ -253,7 +296,7 @@ int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
     ssize_t nbytes = 0;
     int_fast16_t i16RetVal;
 
-    MEMZIP_FILE_HDR header;
+    tURLHandlerHeader header;
 
     Error_init(&eb);
 
@@ -282,10 +325,10 @@ int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
     {
         taskHandle = hSFFS_formatHeartBeat_init();
 
-        NVS_read(nvsHandle, 0, (void *)&header, sizeof(MEMZIP_FILE_HDR));
+        NVS_read(nvsHandle, 0, (void *)&header, sizeof(tURLHandlerHeader));
 
-        if (header.signature == MEMZIP_FILE_HEADER_SIGNATURE) {
-            fileSize = header.uncompressed_size;
+        if (header.file_hdr.signature == MEMZIP_FILE_HEADER_SIGNATURE) {
+            fileSize = header.file_hdr.uncompressed_size;
             memAddress = regionAttrs.sectorSize;
 
             if (fileSize) {
@@ -347,8 +390,8 @@ int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
         if (contentLength > 0) {
             taskHandle = hSFFS_formatHeartBeat_init();
 
-            header = g_URL_defaultHeaderFile;
-            header.uncompressed_size = contentLength;
+            header.file_hdr = g_URL_defaultHeaderFile;
+            header.file_hdr.uncompressed_size = contentLength;
 
             uint32_t numOfSectors = 1 + contentLength / regionAttrs.sectorSize;
 
@@ -368,8 +411,8 @@ int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
 #define NVSSPI25X_CMD_MASS_ERASE        (NVS_CMD_RESERVED + 0)
             NVS_control(nvsHandle, NVSSPI25X_CMD_MASS_ERASE, NULL);
 
-            i16RetVal = NVS_write(nvsHandle, 0, (void *) &header, sizeof(MEMZIP_FILE_HDR),
-                                  NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
+//            i16RetVal = NVS_write(nvsHandle, 0, (void *) &header, sizeof(MEMZIP_FILE_HDR),
+//                                  NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
 
 //            NVS_erase(nvsHandle, regionAttrs.sectorSize, contentLength + regionAttrs.sectorSize);
 
@@ -426,6 +469,26 @@ int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
                 }else {
                     /* Parse query string */
                     strncpy(argsToParse, urlArgs, strlen(urlArgs) + 1);
+
+                    char * pch;
+                    int param = 0;
+                    pch = strtok (argsToParse,"&");
+                    while (pch != NULL)
+                    {
+                        param = xURL_ExtractParam(pch);
+                        switch(param) {
+                        case PARAM_AIRCRAFT_ID:
+                            header.aircraftID = atoi(pch + 11);
+                            break;
+                        case PARAM_CONFIG_REV:
+                            header.configRev = atoi(pch + 10);
+                            break;
+                        }
+                        pch = strtok (NULL, "&");
+                    }
+
+                    i16RetVal = NVS_write(nvsHandle, 0, (void *) &header, sizeof(tURLHandlerHeader),
+                                          NVS_WRITE_ERASE | NVS_WRITE_POST_VERIFY);
 
                     body = "File loaded correctly";
                     returnCode = HTTP_SC_OK;
