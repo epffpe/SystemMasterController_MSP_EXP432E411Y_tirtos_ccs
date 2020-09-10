@@ -25,8 +25,8 @@ void vUSBBinaryCMD_enterProgrammingMode(char *payload, int32_t size)
         xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
 //        vSFFS_close(hSFFS);
 
-        hSFFS = hSFFS_open(SFFS_External);
-        xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        hSFFS = hSFFS_open(SFFS_External);
+//        xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
 //        vSFFS_close(hSFFS);
 
         Task_sleep((unsigned int)50);

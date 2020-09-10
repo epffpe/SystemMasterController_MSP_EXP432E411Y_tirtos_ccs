@@ -350,8 +350,8 @@ void vTCPRCBin_SystemControl_Reboot(int clientfd, char *payload, int32_t size)
     xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
 //        vSFFS_close(hSFFS);
 
-    hSFFS = hSFFS_open(SFFS_External);
-    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//    hSFFS = hSFFS_open(SFFS_External);
+//    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
 //        vSFFS_close(hSFFS);
 
     Task_sleep(50);
@@ -366,6 +366,20 @@ void vTCPRCBin_SystemControl_Reboot(int clientfd, char *payload, int32_t size)
     Task_sleep(50);
 
     SysCtlReset();
+
+//    //
+//    // Time to go bye-bye...  This will cause the microcontroller
+//    // to reset; no further code will be executed.
+//    //
+//    SCB->AIRCR = NVIC_APINT_VECTKEY | NVIC_APINT_SYSRESETREQ;
+//
+//    //
+//    // The microcontroller should have reset, so this should never be
+//    // reached.  Just in case, loop forever.
+//    //
+//    while(1)
+//    {
+//    }
 }
 
 
