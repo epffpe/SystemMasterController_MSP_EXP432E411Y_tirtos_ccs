@@ -272,9 +272,9 @@ int CMD_USBreboot(int argc, char **argv)
     hSFFS = hSFFS_open(SFFS_Internal);
     xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
 //        vSFFS_close(hSFFS);
-
-    hSFFS = hSFFS_open(SFFS_External);
-    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//
+//    hSFFS = hSFFS_open(SFFS_External);
+//    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
 //        vSFFS_close(hSFFS);
 
     Task_sleep(50);
@@ -309,9 +309,9 @@ int CMD_USBenterProgrammingMode(int argc, char **argv)
     hSFFS = hSFFS_open(SFFS_Internal);
     xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
 //        vSFFS_close(hSFFS);
-
-    hSFFS = hSFFS_open(SFFS_External);
-    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//
+//    hSFFS = hSFFS_open(SFFS_External);
+//    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
 //        vSFFS_close(hSFFS);
 
     Task_sleep(50);
