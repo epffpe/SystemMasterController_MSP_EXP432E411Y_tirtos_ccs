@@ -23,7 +23,7 @@
 #include <ti/net/slnetutils.h>
 
 
-#define TCPRCBIN_COMPILED_TIME_MSG      "-- Compiled: "__DATE__" "__TIME__" --"
+#define TCPRCBIN_COMPILED_TIME_MSG      "Firmware Version: " xstr(FIRMWARE_VERSION_MAJOR) "." xstr(FIRMWARE_VERSION_MINOR) "." xstr(FIRMWARE_VERSION_MONTH) "." xstr(FIRMWARE_VERSION_BUILD) " -- Compiled: "__DATE__" "__TIME__" --"
 
 
 

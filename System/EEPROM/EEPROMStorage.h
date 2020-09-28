@@ -31,8 +31,8 @@
 
 #define FIRMWARE_VERSION_MAJOR              0
 #define FIRMWARE_VERSION_MINOR              2
-#define FIRMWARE_VERSION_MONTH              8
-#define FIRMWARE_VERSION_BUILD              8
+#define FIRMWARE_VERSION_MONTH              10
+#define FIRMWARE_VERSION_BUILD              11
 
 
 #define DEFAULT_MODEL_NUMBER                xstr(PRODUCT_ID)

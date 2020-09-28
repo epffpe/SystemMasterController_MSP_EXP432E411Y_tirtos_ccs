@@ -28,6 +28,9 @@
 #define TCPBIN_WORKER_TASK_PRIORITY        2
 
 
+#define TCPRCBINDEVICE_SOCKET_TIMEOUT       5000
+#define TCPRCBINDEVICE_SOCKET_PERIOD        5000
+
 
 
 typedef enum

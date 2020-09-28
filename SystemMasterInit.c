@@ -213,47 +213,47 @@ void *SMC_initThread(void *arg0)
     hSFFS = hSFFS_open(SFFS_Internal);
 
 
-    devInfo.params.deviceType = DEVICE_TYPE_ALTO_MULTINET;
-    devInfo.params.deviceID = 32;
-    devInfo.params.arg0 = (void *)IF_SERIAL_6;
-    strcpy (devInfo.description,"ALTO Multinet");
-    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_0_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-
-    devInfo.params.deviceType = DEVICE_TYPE_ALTO_AMP;
-    devInfo.params.deviceID = 34;
-    devInfo.params.arg0 = (void *)IF_SERIAL_0;
-    strcpy (devInfo.description,"ALTO Amp 2");
-    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_2_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-
-    devInfo.params.deviceType = DEVICE_TYPE_ALTO_FORTE_MANAGER;
-    devInfo.params.deviceID = 301;
-    devInfo.params.arg0 = (void *)IF_SERIAL_3;
-    strcpy (devInfo.description,"ALTO Forte Manager");
-    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_3_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-
-    devInfo.params.deviceType = DEVICE_TYPE_AVDS;
-    devInfo.params.deviceID = 302;
-    devInfo.params.arg0 = (void *)0;
-    strcpy (devInfo.description,"AVDS");
-//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_4_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-
-    devInfo.params.deviceType = DEVICE_TYPE_ROSEN485;
-    devInfo.params.deviceID = 303;
-    devInfo.params.arg0 = (void *)IF_SERIAL_1;
-    strcpy (devInfo.description,"Rosen RS485");
-    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_5_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-
-    devInfo.params.deviceType = DEVICE_TYPE_ROSEN;
-    devInfo.params.deviceID = 304;
-    devInfo.params.arg0 = (void *)0;
-    strcpy (devInfo.description,"Rosen Ethernet");
-    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_6_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-
-    devInfo.params.deviceType = DEVICE_TYPE_AVDS485;
-    devInfo.params.deviceID = 305;
-    devInfo.params.arg0 = (void *)IF_SERIAL_5;
-    strcpy (devInfo.description,"AVDS RS485");
-//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_7_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
+//    devInfo.params.deviceType = DEVICE_TYPE_ALTO_MULTINET;
+//    devInfo.params.deviceID = 32;
+//    devInfo.params.arg0 = (void *)IF_SERIAL_6;
+//    strcpy (devInfo.description,"ALTO Multinet");
+//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_0_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
+//
+//    devInfo.params.deviceType = DEVICE_TYPE_ALTO_AMP;
+//    devInfo.params.deviceID = 34;
+//    devInfo.params.arg0 = (void *)IF_SERIAL_0;
+//    strcpy (devInfo.description,"ALTO Amp 2");
+//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_2_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
+//
+//    devInfo.params.deviceType = DEVICE_TYPE_ALTO_FORTE_MANAGER;
+//    devInfo.params.deviceID = 301;
+//    devInfo.params.arg0 = (void *)IF_SERIAL_3;
+//    strcpy (devInfo.description,"ALTO Forte Manager");
+//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_3_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
+//
+//    devInfo.params.deviceType = DEVICE_TYPE_AVDS;
+//    devInfo.params.deviceID = 302;
+//    devInfo.params.arg0 = (void *)0;
+//    strcpy (devInfo.description,"AVDS");
+////    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_4_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
+//
+//    devInfo.params.deviceType = DEVICE_TYPE_ROSEN485;
+//    devInfo.params.deviceID = 303;
+//    devInfo.params.arg0 = (void *)IF_SERIAL_1;
+//    strcpy (devInfo.description,"Rosen RS485");
+//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_5_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
+//
+//    devInfo.params.deviceType = DEVICE_TYPE_ROSEN;
+//    devInfo.params.deviceID = 304;
+//    devInfo.params.arg0 = (void *)0;
+//    strcpy (devInfo.description,"Rosen Ethernet");
+//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_6_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
+//
+//    devInfo.params.deviceType = DEVICE_TYPE_AVDS485;
+//    devInfo.params.deviceID = 305;
+//    devInfo.params.arg0 = (void *)IF_SERIAL_5;
+//    strcpy (devInfo.description,"AVDS RS485");
+////    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_7_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
 
 
 

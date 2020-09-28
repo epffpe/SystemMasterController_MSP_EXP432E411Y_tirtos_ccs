@@ -26,6 +26,7 @@ extern void *TaskSelf();
 
 Void vTCPRCBinServerFxn(UArg arg0, UArg arg1);
 Void vTCPRCBinWorker(UArg arg0, UArg arg1);
+Void vTCPRCBinWorkerSocketTimeout(UArg arg0, UArg arg1);
 
 void vTCPRCBinDevice_close(DeviceList_Handler handle);
 DeviceList_Handler hTCPRCBinDevice_open(DeviceList_Handler handle, void *params);
@@ -150,6 +151,8 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
     socklen_t          addrlen = sizeof(clientAddr);
     Task_Handle        taskHandle;
     Task_Params        taskParams;
+    Clock_Params       clockParams;
+    Clock_Handle       clockHandle;
     Error_Block        eb;
 
 
@@ -205,7 +208,9 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
         goto shutdown;
     }
 
-
+    Clock_Params_init(&clockParams);
+    clockParams.period = TCPRCBINDEVICE_SOCKET_PERIOD;
+    clockParams.startFlag = TRUE;
     while ((clientfd =
             accept(server, (struct sockaddr *)&clientAddr, &addrlen)) != -1) {
 
@@ -215,6 +220,8 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
                         "vTCPRCBinServerFxn: Creating thread clientfd = %d\n", clientfd);
         /* Init the Error_Block */
         Error_init(&eb);
+
+
 
         /* Initialize the defaults and set the parameters. */
         Task_Params_init(&taskParams);
@@ -244,6 +251,8 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
 }
 
 
+
+
 /*
  *  ======== tcpWorker ========
  *  Task to handle TCP connection. Can be multiple Tasks running
@@ -254,23 +263,40 @@ Void vTCPRCBinWorker(UArg arg0, UArg arg1)
     int  clientfd = (int)arg0;
     int  bytesRcvd;
     char buffer[TCPBINDEVICE_PACKETSIZE];
+    Task_Params taskParams;
+    Task_Handle taskHandle;
+    Event_Handle eventHandle;
 
+    Error_Block eb;
+    Error_init(&eb);
 
     System_printf("vTCPRCBinWorker: start clientfd = 0x%x\n", clientfd);
     System_flush();
     Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinWorker: start clientfd = 0x%x\n", clientfd);
+
+    eventHandle = Event_create(NULL, &eb);
+    Task_Params_init(&taskParams);
+    taskParams.stackSize = 512;
+    taskParams.priority = TCPBIN_WORKER_TASK_PRIORITY;
+    taskParams.arg0 = arg0;
+    taskParams.arg1 = (UArg)eventHandle;
+    taskHandle = Task_create((Task_FuncPtr)vTCPRCBinWorkerSocketTimeout, &taskParams, &eb);
+
 
     // Open the file session
     fdOpenSession((void *)Task_self());
 
 
     while((bytesRcvd = recv(clientfd, buffer, TCPBINDEVICE_PACKETSIZE, 0)) > 0) {
+        Event_post(eventHandle, DEVICE_PERIODIC_EVT);
         TCPBin_decode(clientfd, buffer, bytesRcvd);
     }
-
+//    Task_delete(&taskHandle);
 
     System_printf("vTCPRCBinWorker stop clientfd = 0x%x\n", clientfd);
     System_flush();
+
+    Event_post(eventHandle, DEVICE_APP_KILL_EVT);
 
     Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinWorker stop clientfd = 0x%x\n", clientfd);
 
@@ -278,6 +304,31 @@ Void vTCPRCBinWorker(UArg arg0, UArg arg1)
 
     // Close the file session
     fdCloseSession((void *)Task_self());
+}
+
+Void vTCPRCBinWorkerSocketTimeout(UArg arg0, UArg arg1)
+{
+    int  clientfd = (int)arg0;
+    uint32_t events;
+    Event_Handle eventHandle = (Event_Handle)arg1;
+
+    while(1) {
+        events = Event_pend(eventHandle, Event_Id_NONE, DEVICE_ALL_EVENTS, TCPRCBINDEVICE_SOCKET_PERIOD); //BIOS_WAIT_FOREVER
+
+        if (events & DEVICE_PERIODIC_EVT) {
+            events &= ~DEVICE_PERIODIC_EVT;
+        }else {
+            break;
+        }
+    }
+    System_printf("vTCPRCBinWorkerSocketTimeout stop clientfd = 0x%x\n", clientfd);
+    System_flush();
+    // Open the file session
+    fdOpenSession((void *)Task_self());
+    close(clientfd);
+    // Close the file session
+    fdCloseSession((void *)Task_self());
+    Event_delete(&eventHandle);
 }
 
 /*
