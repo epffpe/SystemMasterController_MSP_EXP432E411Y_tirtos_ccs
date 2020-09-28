@@ -8,6 +8,10 @@
 #ifndef INCLUDES_H_
 #define INCLUDES_H_
 
+#define xstr(s) str(s)
+#define str(s) #s
+
+
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>

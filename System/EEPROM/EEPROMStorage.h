@@ -9,8 +9,8 @@
 #define EEPROMSTORAGE_H_
 #include <stdint.h>
 
-#define xstr(s) str(s)
-#define str(s) #s
+//#define xstr(s) str(s)
+//#define str(s) #s
 
 /*
  *
