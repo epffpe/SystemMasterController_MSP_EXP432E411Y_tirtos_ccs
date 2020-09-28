@@ -11,6 +11,7 @@
 int CMD_USBhelp(int argc, char **argv);
 int CMD_USBcls(int argc, char **argv);
 int CMD_USBreboot(int argc, char **argv);
+int CMD_USBenterProgrammingMode(int argc, char **argv);
 
 const unsigned char g_pucUSBCONSOLEWelcome[] = "\r\n>>>>>>> Welcome to the System Master Controller <<<<<<<\r\n";
 
@@ -28,6 +29,17 @@ const char g_cCMDrebootUSBInformation[] = {
 };
 
 
+const char g_cCMDdfuUSBInformation[] = {
+                                           "\r\n"
+                                           ANSI_COLOR_MAGENTA
+                                           " Entering in Device Firmware Upgrade (DFU) mode\r\n\r\n"
+                                           ANSI_COLOR_RESET
+                                           ANSI_COLOR_CYAN
+                                           " Close this terminal and open a new one!"
+                                           ANSI_COLOR_RESET
+};
+
+
 
 
 tUSBCmdLineEntry g_psUSBCmdTable[] =
@@ -38,7 +50,7 @@ tUSBCmdLineEntry g_psUSBCmdTable[] =
     {"contact",CMD_USBcontact," : Display contact information"},
     {"about"  ,CMD_USBabout,  " : Display information about this unit"},
     {"reboot",   CMD_USBreboot,   " : Reset the system"},
-//    {"reprogram", CMD_USBreprogram," : Enter in programming mode"},
+    {"dfu", CMD_USBenterProgrammingMode," : Enter in programming mode"},
 //    {"status",   CMD_USBstatus,   " : Display the internal state"},
 //    {"voltage",   CMD_USBvoltages,   " : Display input voltages"},
 //    {"temp",   CMD_USBtemp,   " : Display uController temperature"},
@@ -255,6 +267,16 @@ int CMD_USBcls(int argc, char **argv)
 int CMD_USBreboot(int argc, char **argv)
 {
     USBCDCD_sendData(USBCDCD_Console, (char *)g_cCMDrebootUSBInformation, sizeof(g_cCMDrebootUSBInformation), BIOS_WAIT_FOREVER);
+
+    SFFS_Handle hSFFS;
+    hSFFS = hSFFS_open(SFFS_Internal);
+    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+//
+//    hSFFS = hSFFS_open(SFFS_External);
+//    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+
     Task_sleep(50);
 
 //      wait for flash memory mutex
@@ -271,5 +293,38 @@ int CMD_USBreboot(int argc, char **argv)
     return (0);
 }
 
+//*****************************************************************************
+//
+// Command: reboot
+//
+// Reset the system.
+//
+//*****************************************************************************
 
+int CMD_USBenterProgrammingMode(int argc, char **argv)
+{
+    USBCDCD_sendData(USBCDCD_Console, (char *)g_cCMDdfuUSBInformation, sizeof(g_cCMDdfuUSBInformation), BIOS_WAIT_FOREVER);
+
+    SFFS_Handle hSFFS;
+    hSFFS = hSFFS_open(SFFS_Internal);
+    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+//
+//    hSFFS = hSFFS_open(SFFS_External);
+//    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+
+    Task_sleep(50);
+
+//      wait for flash memory mutex
+
+//        WatchdogUnlock(WATCHDOG0_BASE);
+//        WatchdogResetDisable(WATCHDOG0_BASE);
+    //    USBDCDTerm(0);
+    USBDevDisconnect(USB0_BASE);
+
+    JumpToBootLoader();
+
+    return (0);
+}
 

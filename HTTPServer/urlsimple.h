@@ -34,8 +34,17 @@
 
 #include <ti/net/http/urlhandler.h>
 
+
+/* Set up any structures this URLHandler will need for its operation */
+extern URLHandler_Handle URLSimple_create(void * params,
+        URLHandler_Session session);
+
+/* Clean up memory allocated by this URLHandler */
+extern void URLSimple_delete(URLHandler_Handle * u);
+
 /* Processes a request */
 extern int URLSimple_process(URLHandler_Handle urlHandler, int method, const char * url,
         const char * urlArgs, int contentLength, int s);
+
 
 #endif

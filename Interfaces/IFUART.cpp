@@ -75,7 +75,7 @@ void vIFUART_init(IF_Handle handle)
 
     object->hBSPSerial_gateUARTOpen = GateMutexPri_create(NULL, &eb);
     if (object->hBSPSerial_gateUARTOpen == NULL) {
-        System_abort("Could not create USB Wait gate");
+        System_abort("Could not create Serial Open gate");
     }
 }
 

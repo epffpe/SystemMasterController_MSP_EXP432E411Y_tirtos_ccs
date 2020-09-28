@@ -15,6 +15,7 @@
 const tEEPROM_Data g_sDefaultEEPROMData =
 {
  .unitSerialNumber = DEFAULT_UNIT_SERIAL_NUMBER,
+ .udpUnitNumber = DEFAULT_UDP_UNIT_NUMBER,
  .serialBaudRate[0] = DEFAULT_EEPROM_SERIAL_BAUDRATE,
  .serialBaudRate[1] = DEFAULT_EEPROM_SERIAL_BAUDRATE,
  .serialBaudRate[2] = DEFAULT_EEPROM_SERIAL_BAUDRATE,

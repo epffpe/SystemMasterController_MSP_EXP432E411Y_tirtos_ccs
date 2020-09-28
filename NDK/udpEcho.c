@@ -151,7 +151,9 @@ void *UDPFinder_task(void *arg0)
 #ifdef TEST_FIXTURE
                     n = sprintf(response, "SMC Test Fixture ID: %06d", pManufacturerInformation->unitSerialNumber);
 #else
-                    n = sprintf(response, "System Master Controller ID: %06d", pManufacturerInformation->unitSerialNumber);
+                    n = sprintf(response, "System Master Controller SN: %06d ID: %d",
+                                pManufacturerInformation->unitSerialNumber,
+                                pManufacturerInformation->udpUnitNumber);
 #endif
                     bytesSent = sendto(server, response, n, 0, (struct sockaddr *)&clientAddr, addrlen);
 //                    bytesSent = sendto(server, response, n, 0, (struct sockaddr *)&clientAddr, sizeof(struct sockaddr));

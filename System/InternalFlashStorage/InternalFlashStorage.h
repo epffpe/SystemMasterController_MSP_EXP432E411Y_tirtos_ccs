@@ -13,6 +13,11 @@
 #define IFS_STARTUP_DEVICE_0_FILE_NAME      "devices/dev000"
 #define IFS_STARTUP_DEVICE_1_FILE_NAME      "devices/dev001"
 #define IFS_STARTUP_DEVICE_2_FILE_NAME      "devices/dev002"
+#define IFS_STARTUP_DEVICE_3_FILE_NAME      "devices/dev003"
+#define IFS_STARTUP_DEVICE_4_FILE_NAME      "devices/dev004"
+#define IFS_STARTUP_DEVICE_5_FILE_NAME      "devices/dev005"
+#define IFS_STARTUP_DEVICE_6_FILE_NAME      "devices/dev006"
+#define IFS_STARTUP_DEVICE_7_FILE_NAME      "devices/dev007"
 
 #define IFS_DEVICES_FOLDER_NAME      "devices/"
 

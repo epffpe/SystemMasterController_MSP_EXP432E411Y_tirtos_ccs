@@ -53,6 +53,7 @@
 
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/urlsimpleput.h"
+#include "HTTPServer/memzip/urlmemzip.h"
 #include "certs/certificate.h"
 #include "DISPLAY/SMCDisplay.h"
 
@@ -63,8 +64,8 @@ extern void fdCloseSession();
 extern void *TaskSelf();
 
 #define SECURE_PORT             443
-#define NUM_URLHANDLERS         2
-#define SERVER_BACKLOG_COUNT    2
+#define NUM_URLHANDLERS         3
+#define SERVER_BACKLOG_COUNT    3
 
 /*
  * ADD_ROOT_CA should be set to 1 if you want to verify client certificates with
@@ -121,6 +122,14 @@ URLHandler_Setup handlerTable[] =
         URLSender_send
     },
 #endif
+    {
+        NULL,
+        NULL,
+        NULL,
+        URLMemzip_process,
+        NULL,
+        NULL
+    }
 };
 
 /*

@@ -616,7 +616,7 @@ void vEFS_getFlashDataFileNameHTTP(int clientfd, char *fileName)
             int fileSize = s.size;
 
             if (fileSize > 0) {
-                HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, "text/html", fileSize, NULL);
+                HTTPServer_sendSimpleResponse(clientfd, HTTP_SC_OK, "text/html ", fileSize, NULL);
                 char *buffRead = Memory_alloc(NULL, EFS_MAXIMUM_MEMORY_ALLOCATED, 0, &eb);
                 if (buffRead != NULL) {
                     int contentRead;

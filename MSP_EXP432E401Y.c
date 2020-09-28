@@ -949,6 +949,7 @@ const uint_least8_t I2C_count = MSP_EXP432E401Y_I2CCOUNT;
 
 #define SECTORSIZE       (0x4000)
 #define NVS_REGIONS_BASE (0xE0000)
+// size (SECTORSIZE * 8) = 0x20000 = 131072
 #define REGIONSIZE       (SECTORSIZE * 8)
 
 /*
@@ -1014,14 +1015,16 @@ const NVSSPI25X_HWAttrs nvsSPI25XMSP432E4HWAttrs[1] = {
    {
        .regionBaseOffset = 0,
 //       .regionSize = 4096 * 128,
-//       .regionSize = 4096 * 16383,
-       .regionSize = 4096 * 256,
+       .regionSize = 4096 * 16384,
+//       .regionSize = 4096 * 4096,
+//       .regionSize = 4096 * 256,
        .sectorSize = 4096,
        .verifyBuf = verifyBuf,
        .verifyBufSize = 256,
        .spiHandle = NULL,
        .spiIndex = MSP_EXP432E401Y_SPI3,
-       .spiBitRate = 40000000,
+//       .spiBitRate = 40000000,
+       .spiBitRate = 60000000,
        .spiCsnGpioIndex = SMC_FLASH_CS,
    },
 };
@@ -1198,7 +1201,7 @@ const SPIMSP432E4DMA_HWAttrs spiMSP432E4DMAHWAttrs[MSP_EXP432E401Y_SPICOUNT] = {
         .intPriority = (~0),
         .scratchBufPtr = &spiMSP432E4DMAscratchBuf[MSP_EXP432E401Y_SPI3],
         .defaultTxBufValue = (~0),
-        .minDmaTransferSize = 4096,
+        .minDmaTransferSize = 8096,
         .rxDmaChannel = UDMA_CH14_SSI3RX,
         .txDmaChannel = UDMA_CH15_SSI3TX,
         .clkPinMask = SPIMSP432E4_PQ0_SSI3CLK,

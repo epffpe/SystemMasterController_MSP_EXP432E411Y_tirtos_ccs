@@ -12,18 +12,34 @@
 #define xstr(s) str(s)
 #define str(s) #s
 
+/*
+ *
+ * a.b.c.d
+ * Increments : when
+ * - d: bug fixes
+ * - c: maintenance, e.g. performance improvement
+ * - b: new features
+ * - a: architecture change
+ *
+ */
+
+//#define DEBUG(...) fprintf(stderr, __VA_ARGS__)
+//
+//DEBUG("Something went wrong in iteration: %d", i);
+
 #define PRODUCT_ID                          106623
 
 #define FIRMWARE_VERSION_MAJOR              0
-#define FIRMWARE_VERSION_MINOR              1
-#define FIRMWARE_VERSION_MONTH              6
-#define FIRMWARE_VERSION_BUILD              8
+#define FIRMWARE_VERSION_MINOR              2
+#define FIRMWARE_VERSION_MONTH              10
+#define FIRMWARE_VERSION_BUILD              11
 
 
 #define DEFAULT_MODEL_NUMBER                xstr(PRODUCT_ID)
 #define DEFAULT_SERIAL_NUMBER               "123456"
 #define DEFAULT_NUMBER_OF_CHANNELS          3
 #define DEFAULT_UNIT_SERIAL_NUMBER          123456
+#define DEFAULT_UDP_UNIT_NUMBER             1
 #define DEFAULT_BOARD_HARDWARE_VERSION      1
 #define DEFAULT_UNIT_SUBTYPE_CODE           1
 #define DEFAULT_AIRCRAFT_MFG_CODE           1
@@ -50,6 +66,7 @@
 
 typedef struct {
     uint32_t unitSerialNumber;
+    uint32_t udpUnitNumber;
     uint32_t serialBaudRate[8];
     uint32_t canBaudRate[2];
     uint16_t eepromCheck;

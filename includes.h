@@ -247,6 +247,7 @@
 #include "System/SPIDAC/SPIDAC.h"
 #include "System/MAX1301/MAX1301.h"
 #include "System/Bootloader/BootloaderInterface.h"
+#include "System/FlashFileSystem/FlashFileSystemStorage.h"
 
 
 
@@ -286,6 +287,8 @@
 
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"
+#include "HTTPServer/memzip/memzip.h"
+#include "HTTPServer/memzip/urlmemzip.h"
 
 
 #define ARRSIZE(arr) (sizeof(arr) / sizeof(arr[0]))

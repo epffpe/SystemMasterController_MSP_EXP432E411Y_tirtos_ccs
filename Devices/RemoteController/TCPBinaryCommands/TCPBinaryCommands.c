@@ -118,6 +118,9 @@ static const TCPBin_cmdTypeDef g_apfTCPBinCmdTable[] =
  [TCP_CMD_System_getConfigurationFile] = vTCPRCBin_SystemControl_getConfigurationFile,
 
 
+ [TCP_CMD_System_Reboot] = vTCPRCBin_SystemControl_Reboot,
+
+
  [TCP_CMD_DiscreteIO_get5VOutputPowerStatus] = vTCPRCBin_DiscreteIO_get5VOutputPowerStatus,
  [TCP_CMD_DiscreteIO_turnOn5VOutputPower] = vTCPRCBin_DiscreteIO_turnOn5VOutputPower,
  [TCP_CMD_DiscreteIO_turnOff5VOutputPower] = vTCPRCBin_DiscreteIO_turnOff5VOutputPower,

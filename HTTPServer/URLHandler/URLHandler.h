@@ -8,6 +8,7 @@
 #ifndef HTTPSERVER_URLHANDLER_URLHANDLER_H_
 #define HTTPSERVER_URLHANDLER_URLHANDLER_H_
 
+#include "HTTPServer/memzip/memzip.h"
 
 typedef int (*pfnURLHandler)(URLHandler_Handle urlHandler, int method,
                             const char * url, const char * urlArgs,
@@ -33,6 +34,13 @@ typedef struct
 }
 tURLHandlerEntry;
 
+typedef struct {
+    uint32_t aircraftID;
+    uint32_t configRev;
+    MEMZIP_FILE_HDR file_hdr;
+
+}tURLHandlerHeader;
+
 
 
 
@@ -48,6 +56,27 @@ extern "C" {
 #endif
 
 __HTTPSERVER_URLHANDLER_URLHANDLER_EXT tURLHandlerEntry g_psURLTable[];
+
+
+__HTTPSERVER_URLHANDLER_URLHANDLER_EXT
+int URL_apiVersion(URLHandler_Handle urlHandler, int method,
+                   const char * url, const char * urlArgs,
+                   int contentLength, int ssock);
+
+__HTTPSERVER_URLHANDLER_URLHANDLER_EXT
+int URL_apiConfiguration(URLHandler_Handle urlHandler, int method,
+                         const char * url, const char * urlArgs,
+                         int contentLength, int ssock);
+
+__HTTPSERVER_URLHANDLER_URLHANDLER_EXT
+int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
+                            const char * url, const char * urlArgs,
+                            int contentLength, int ssock);
+
+__HTTPSERVER_URLHANDLER_URLHANDLER_EXT
+int URL_apiZipWebSite(URLHandler_Handle urlHandler, int method,
+                      const char * url, const char * urlArgs,
+                      int contentLength, int ssock);
 
 
 __HTTPSERVER_URLHANDLER_URLHANDLER_EXT
