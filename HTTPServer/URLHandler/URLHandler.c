@@ -21,8 +21,6 @@
 #include <ti/net/http/http.h>
 #include <ti/net/http/logging.h>
 
-#include <sys/socket.h>
-
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"
 
@@ -326,9 +324,6 @@ int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
     if (method == URLHandler_GET)
     {
         taskHandle = hSFFS_formatHeartBeat_init();
-
-        int param = 1;
-        setsockopt(ssock, SLNETSOCK_PROTO_TCP, SLNETSOCK_TCP_NODELAY, &param, sizeof(param));
 
         NVS_read(nvsHandle, 0, (void *)&header, sizeof(tURLHandlerHeader));
 

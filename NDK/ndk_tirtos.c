@@ -232,9 +232,9 @@ static void serviceReport(uint32_t item, uint32_t status, uint32_t report,
  */
 static void initTcp(void *hCfg)
 {
-    int transmitBufSize = 1024;
-    int receiveBufSize = 1024;
-    int receiveBufLimit = 2048;
+    int transmitBufSize = 4096;
+    int receiveBufSize = 2048;
+    int receiveBufLimit = 4096;
 
     CfgAddEntry(hCfg, CFGTAG_IP, CFGITEM_IP_SOCKTCPTXBUF, CFG_ADDMODE_UNIQUE,
             sizeof(uint32_t), (unsigned char *)&transmitBufSize, NULL);
