@@ -252,6 +252,7 @@
 #include "System/MAX1301/MAX1301.h"
 #include "System/Bootloader/BootloaderInterface.h"
 #include "System/FlashFileSystem/FlashFileSystemStorage.h"
+#include "System/Watchdog/Watchdog.h"
 
 
 

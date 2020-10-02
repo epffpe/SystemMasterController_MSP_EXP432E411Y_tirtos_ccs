@@ -1489,7 +1489,7 @@ const WatchdogMSP432E4_HWAttrs watchdogMSP432E4HWAttrs[MSP_EXP432E401Y_WATCHDOGC
         .baseAddr = WATCHDOG0_BASE,
         .intNum = INT_WATCHDOG,
         .intPriority = (~0),
-        .reloadValue = 80000000 /* 1 second period at default CPU clock freq */
+        .reloadValue = 1 * 120000000 /* 1 second period at default CPU clock freq */
     },
 };
 

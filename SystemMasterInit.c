@@ -133,6 +133,10 @@ void *mainThread(void *arg0)
 void *SMC_initThread(void *arg0)
 {
     Error_Block eb;
+    Watchdog_init();
+
+    vWDG_init();
+
     /* Call driver init functions */
     ADCBuf_init();
     GPIO_init();
@@ -142,8 +146,7 @@ void *SMC_initThread(void *arg0)
     SPI_init();
     UART_init();
     CAN_init();
-    // Watchdog_init();
-//    CRC_init();
+    CRC_init();
 //    NVS_init();
 
     MSP_EXP432E401Y_initUSB(MSP_EXP432E401Y_USBDEVICE);
@@ -187,100 +190,26 @@ void *SMC_initThread(void *arg0)
      */
     vDevice_init();
 
-    /*
-    vIFS_init();
-    vIFS_loadStartUpConfiguration(NULL);
-
-//    vEFS_loadStartUpConfiguration(NULL);
-
-    vEFS_init();
-    vEFS_loadStartUpConfigurationTest(NULL);
-    */
-
 
     SFFS_Handle hSFFS;
-    IFS_deviceInfoFile_t devInfo;
+//    IFS_deviceInfoFile_t devInfo;
 
-    int retVal;
+//    int retVal;
 //    char buffer[32] = "Hello World!";
 //    char buffer2[32];
 
 
-    devInfo.params.arg0 = NULL;
-    devInfo.params.arg1 = NULL;
+//    devInfo.params.arg0 = NULL;
+//    devInfo.params.arg1 = NULL;
 
 
     hSFFS = hSFFS_open(SFFS_Internal);
 
-
-//    devInfo.params.deviceType = DEVICE_TYPE_ALTO_MULTINET;
-//    devInfo.params.deviceID = 32;
-//    devInfo.params.arg0 = (void *)IF_SERIAL_6;
-//    strcpy (devInfo.description,"ALTO Multinet");
-//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_0_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-//
-//    devInfo.params.deviceType = DEVICE_TYPE_ALTO_AMP;
-//    devInfo.params.deviceID = 34;
-//    devInfo.params.arg0 = (void *)IF_SERIAL_0;
-//    strcpy (devInfo.description,"ALTO Amp 2");
-//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_2_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-//
-//    devInfo.params.deviceType = DEVICE_TYPE_ALTO_FORTE_MANAGER;
-//    devInfo.params.deviceID = 301;
-//    devInfo.params.arg0 = (void *)IF_SERIAL_3;
-//    strcpy (devInfo.description,"ALTO Forte Manager");
-//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_3_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-//
-//    devInfo.params.deviceType = DEVICE_TYPE_AVDS;
-//    devInfo.params.deviceID = 302;
-//    devInfo.params.arg0 = (void *)0;
-//    strcpy (devInfo.description,"AVDS");
-////    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_4_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-//
-//    devInfo.params.deviceType = DEVICE_TYPE_ROSEN485;
-//    devInfo.params.deviceID = 303;
-//    devInfo.params.arg0 = (void *)IF_SERIAL_1;
-//    strcpy (devInfo.description,"Rosen RS485");
-//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_5_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-//
-//    devInfo.params.deviceType = DEVICE_TYPE_ROSEN;
-//    devInfo.params.deviceID = 304;
-//    devInfo.params.arg0 = (void *)0;
-//    strcpy (devInfo.description,"Rosen Ethernet");
-//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_6_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-//
-//    devInfo.params.deviceType = DEVICE_TYPE_AVDS485;
-//    devInfo.params.deviceID = 305;
-//    devInfo.params.arg0 = (void *)IF_SERIAL_5;
-//    strcpy (devInfo.description,"AVDS RS485");
-////    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_7_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-
-
-
-
-//    retVal = xSFFS_write(hSFFS, "test/newFileTest", buffer, strlen(buffer), 10000);
-//
-//    retVal = xSFFS_read(hSFFS, "test/newFileTest", buffer2, sizeof(buffer2), 10000);
-    retVal = retVal;
+//    retVal = retVal;
 
     xSFFS_readDevicesConfiguration(hSFFS, BIOS_WAIT_FOREVER);
 
     vSFFS_close(hSFFS);
-
-
-//    hSFFS = hSFFS_open(SFFS_External);
-//
-//
-//    devInfo.params.deviceType = DEVICE_TYPE_ALTO_MULTINET;
-//    devInfo.params.deviceID = 32;
-//    devInfo.params.arg0 = (void *)IF_SERIAL_6;
-//    strcpy (devInfo.description,"ALTO Multinet");
-//    retVal = xSFFS_write(hSFFS, IFS_STARTUP_DEVICE_0_FILE_NAME, (void *) &devInfo, sizeof(IFS_deviceInfoFile_t), 10000);
-//
-//    IFS_deviceInfoFile_t devInfo2;
-//    retVal = xSFFS_read(hSFFS, IFS_STARTUP_DEVICE_0_FILE_NAME, &devInfo2, sizeof(IFS_deviceInfoFile_t), 10000);
-//
-//    vSFFS_close(hSFFS);
 
 
     vSPIDAC101_init(25e3, 25e3);
@@ -291,8 +220,7 @@ void *SMC_initThread(void *arg0)
 //    Ptr Task_getEnv( Task_Handle handle );
 //    Void Task_setEnv( Task_Handle handle, Ptr env );
 
-    //    test4();
-//    test2();
+
 //    vTest_CRC();
 //    vTest_NVS();
 #if defined(TEST_FIXTURE) || defined(DUT)
@@ -311,22 +239,6 @@ void *SMC_initThread(void *arg0)
     vUSBConsoleDevice_Params_init(&deviceParams, USBCONSOLEDEVICE_ID);
     xDevice_add(&deviceParams, &eb);
 
-//    vForteManagerDevice_Params_init(&deviceParams, 301, IF_SERIAL_3);
-//    xDevice_add(&deviceParams, &eb);
-//
-//    vAVDSDevice_Params_init(&deviceParams, 302);
-//    xDevice_add(&deviceParams, &eb);
-//
-//    vRosen485Device_Params_init(&deviceParams, 303);
-//    deviceParams.arg0 = (void *)IF_SERIAL_1;
-//    xDevice_add(&deviceParams, &eb);
-//
-//    vRosenDevice_Params_init(&deviceParams, 304);
-//    xDevice_add(&deviceParams, &eb);
-//
-//    vAVDS485Device_Params_init(&deviceParams, 305);
-//    deviceParams.arg0 = (void *)IF_SERIAL_5;
-//    xDevice_add(&deviceParams, &eb);
 
 #ifdef TEST_FIXTURE
     /* Test Fixture */
