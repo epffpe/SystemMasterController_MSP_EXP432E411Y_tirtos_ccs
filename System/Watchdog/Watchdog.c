@@ -41,7 +41,8 @@ Void vWDG_taskFxn(UArg arg0, UArg arg1)
     Watchdog_Params_init(&params);
     params.callbackFxn = (Watchdog_Callback) vWDG_watchdogCallback;
     params.debugStallMode = Watchdog_DEBUG_STALL_ON;
-    params.resetMode = Watchdog_RESET_ON;
+    params.resetMode = Watchdog_RESET_OFF;
+//    params.resetMode = Watchdog_RESET_ON;
 
     watchdogHandle = Watchdog_open(Board_WATCHDOG0, &params);
     if (watchdogHandle == NULL) {
