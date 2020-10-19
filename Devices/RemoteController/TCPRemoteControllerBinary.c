@@ -146,6 +146,7 @@ Void vTCPRCBinDeviceFxn(UArg arg0, UArg arg1)
 Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
 {
     // TCP variables
+    uint32_t           errorCounter;
     int                status;
     int                clientfd;
     int                server;
@@ -230,42 +231,55 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
 
     System_printf("vTCPRCBinServerFxn: Semaphore count = %d\n", Semaphore_getCount(semHandle));
     System_flush();
-    while ((clientfd =
-            accept(server, (struct sockaddr *)&clientAddr, &addrlen)) != -1) {
 
-        System_printf("vTCPRCBinServerFxn: Creating thread clientfd = %d\n", clientfd);
-        System_printf("vTCPRCBinServerFxn: Semaphore count = %d\n", Semaphore_getCount(semHandle));
-        System_flush();
-        Display_printf(g_SMCDisplay, 0, 0,
-                        "vTCPRCBinServerFxn: Creating thread clientfd = %d\n", clientfd);
-        /* Init the Error_Block */
-        Error_init(&eb);
+    errorCounter = 0;
+//    while ((clientfd =
+//            accept(server, (struct sockaddr *)&clientAddr, &addrlen)) != -1) {
+    do {
+        clientfd = accept(server, (struct sockaddr *)&clientAddr, &addrlen);
 
-
-
-        /* Initialize the defaults and set the parameters. */
-        Task_Params_init(&taskParams);
-        taskParams.arg0 = (UArg)clientfd;
-        taskParams.arg1 = (UArg)semHandle;
-        taskParams.stackSize = TCPBIN_WORKER_HANDLER_STACK;
-        taskParams.priority = TCPBIN_WORKER_TASK_PRIORITY;
-        taskHandle = Task_create((Task_FuncPtr)vTCPRCBinWorker, &taskParams, &eb);
-        if (taskHandle == NULL) {
-            System_printf("Error: Failed to create new Task\n");
+        if ( clientfd != -1) {
+            errorCounter = 0;
+            System_printf("vTCPRCBinServerFxn: Creating thread clientfd = %d\n", clientfd);
+            System_printf("vTCPRCBinServerFxn: Semaphore count = %d\n", Semaphore_getCount(semHandle));
             System_flush();
-            close(clientfd);
+            Display_printf(g_SMCDisplay, 0, 0,
+                           "vTCPRCBinServerFxn: Creating thread clientfd = %d\n", clientfd);
+            /* Init the Error_Block */
+            Error_init(&eb);
+
+
+
+            /* Initialize the defaults and set the parameters. */
+            Task_Params_init(&taskParams);
+            taskParams.arg0 = (UArg)clientfd;
+            taskParams.arg1 = (UArg)semHandle;
+            taskParams.stackSize = TCPBIN_WORKER_HANDLER_STACK;
+            taskParams.priority = TCPBIN_WORKER_TASK_PRIORITY;
+            taskHandle = Task_create((Task_FuncPtr)vTCPRCBinWorker, &taskParams, &eb);
+            if (taskHandle == NULL) {
+                System_printf("Error: Failed to create new Task\n");
+                System_flush();
+                close(clientfd);
+            }
+
+            /* addrlen is a value-result param, must reset for next accept call */
+            addrlen = sizeof(clientAddr);
+
+            Semaphore_pend(semHandle, BIOS_WAIT_FOREVER);
+
+            System_printf("vTCPRCBinServerFxn: Semaphore Grabbed. Left = %d\n", Semaphore_getCount(semHandle));
+            System_flush();
+        }else {
+            errorCounter++;
+            System_printf("Error: accept failed.\n");
+            System_flush();
+            Task_sleep((unsigned int)1000);
         }
+//    }
+    }while(errorCounter < 100);
 
-        /* addrlen is a value-result param, must reset for next accept call */
-        addrlen = sizeof(clientAddr);
-
-        Semaphore_pend(semHandle, BIOS_WAIT_FOREVER);
-
-        System_printf("vTCPRCBinServerFxn: Semaphore Grabbed. Left = %d\n", Semaphore_getCount(semHandle));
-        System_flush();
-    }
-
-    System_printf("Error: accept failed.\n");
+    System_printf("Error: accept failed. Closing TCP Server\n");
     System_flush();
     Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: accept failed.\n");
     shutdown:

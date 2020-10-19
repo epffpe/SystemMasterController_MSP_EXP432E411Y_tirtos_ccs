@@ -56,7 +56,7 @@ extern Display_Handle g_SMCDisplay;
 
 /* NDK memory manager page size and number of pages [used by mmAlloc()] */
 #define RAW_PAGE_SIZE 3072
-#define RAW_PAGE_COUNT 6
+#define RAW_PAGE_COUNT 8
 
 const int ti_ndk_config_Global_rawPageSize  = RAW_PAGE_SIZE;
 const int ti_ndk_config_Global_rawPageCount = RAW_PAGE_COUNT;
@@ -232,9 +232,9 @@ static void serviceReport(uint32_t item, uint32_t status, uint32_t report,
  */
 static void initTcp(void *hCfg)
 {
-    int transmitBufSize = 4096;
-    int receiveBufSize = 2048;
-    int receiveBufLimit = 4096;
+    int transmitBufSize = 2048;
+    int receiveBufSize = 1024;
+    int receiveBufLimit = 1024;
 
     CfgAddEntry(hCfg, CFGTAG_IP, CFGITEM_IP_SOCKTCPTXBUF, CFG_ADDMODE_UNIQUE,
             sizeof(uint32_t), (unsigned char *)&transmitBufSize, NULL);

@@ -35,6 +35,7 @@
  */
 
 #include "includes.h"
+#include <ti/devices/msp432e4/driverlib/inc/hw_sysctl.h>
 
 
 extern void ti_ndk_config_Global_startupFxn();
@@ -132,10 +133,23 @@ void *mainThread(void *arg0)
 
 void *SMC_initThread(void *arg0)
 {
+    uint32_t uniqueID0, uniqueID1, uniqueID2, uniqueID3;
     Error_Block eb;
     Watchdog_init();
 
     vWDG_init();
+    /*
+     * SMC_initThread runs with priority 11
+     * Watchdog task runs with priority 10
+     * Need 1 tick sleep so the Watchdog task can run and setup the watchdog before initialize the system.
+     * If the system hangs at any point the watchdog will be triggered
+     */
+    Task_sleep((unsigned int)1);
+
+    uniqueID0 = HWREG(SYSCTL_UNIQUEID0);
+    uniqueID1 = HWREG(SYSCTL_UNIQUEID1);
+    uniqueID2 = HWREG(SYSCTL_UNIQUEID2);
+    uniqueID3 = HWREG(SYSCTL_UNIQUEID3);
 
     /* Call driver init functions */
     ADCBuf_init();
