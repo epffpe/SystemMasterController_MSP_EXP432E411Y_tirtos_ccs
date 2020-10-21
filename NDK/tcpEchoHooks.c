@@ -143,7 +143,7 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
          * UDP server
          */
 
-        Display_printf(g_SMCDisplay, 0, 0, "Adding UDP Server on port (%d)\n", UDPPORT);
+//        Display_printf(g_SMCDisplay, 0, 0, "Adding UDP Server on port (%d)\n", UDPPORT);
 //        Task_Params_init(&taskParams);
 //        taskParams.stackSize = UDPHANDLERSTACK;
 //        taskParams.priority = 2;
@@ -195,7 +195,9 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
 //            System_printf("netIPAddrHook: pthread_attr_setstacksize() failed\n");
             while (1);
         }
+
         arg0 = UDPPORT;
+        Display_printf(g_SMCDisplay, 0, 0, "Adding UDP Server on port (%d)\n", arg0);
         retc = pthread_create(&thread, &attrs, UDPFinder_task, (void *)&arg0);
 //        retc = pthread_create(&thread, &attrs, echoFxn, (void *)&arg0);
         if (retc != 0) {
@@ -204,7 +206,9 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
             while (1);
         }
 
+
         arg1 = AVDSUDPPORT;
+        Display_printf(g_SMCDisplay, 0, 0, "Adding UDP AVDS Finder Server on port (%d)\n", arg1);
         retc = pthread_create(&thread, &attrs, pvUDPAVDSFinder_taskFxn, (void *)&arg1);
 //        retc = pthread_create(&thread, &attrs, UDPFinder_task, (void *)&arg1);
         if (retc != 0) {

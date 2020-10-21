@@ -48,7 +48,7 @@ Void vUSBConsoleDeviceFxn(UArg arg0, UArg arg1)
     clockHandle = devHandle->clockHandle;
     myDeviceID = devHandle->deviceID;
 
-    Display_printf(g_SMCDisplay, 0, 0, "ALTO Amplifier Device (%d) Started\n", myDeviceID);
+    Display_printf(g_SMCDisplay, 0, 0, "USB Console DeviceId: (%d) Started\n", myDeviceID);
 
     /* Make sure Error_Block is initialized */
     Error_init(&eb);
@@ -311,7 +311,7 @@ DeviceList_Handler hUSBConsoleDevice_open(DeviceList_Handler handle, void *param
         System_abort("Clock create failed");
     }
 
-    Display_printf(g_SMCDisplay, 0, 0, "Opening ALTO Amplifier Device (%d) \n", handle->deviceID);
+    Display_printf(g_SMCDisplay, 0, 0, "Opening USB Console DeviceId: (%d) \n", handle->deviceID);
 
     Task_Params_init(&paramsUnion.taskParams);
     paramsUnion.taskParams.stackSize = USBCONSOLEDEVICE_TASK_STACK_SIZE;

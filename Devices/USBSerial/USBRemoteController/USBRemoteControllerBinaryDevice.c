@@ -50,7 +50,7 @@ Void vUSBRCBinaryDeviceFxn(UArg arg0, UArg arg1)
     clockHandle = devHandle->clockHandle;
     myDeviceID = devHandle->deviceID;
 
-    Display_printf(g_SMCDisplay, 0, 0, "ALTO Amplifier Device (%d) Started\n", myDeviceID);
+    Display_printf(g_SMCDisplay, 0, 0, "USB Binary Remote Controller DeviceId: (%d) Started\n", myDeviceID);
 
     /* Make sure Error_Block is initialized */
     Error_init(&eb);
@@ -313,7 +313,7 @@ DeviceList_Handler hUSBRCBinaryDevice_open(DeviceList_Handler handle, void *para
         System_abort("Clock create failed");
     }
 
-    Display_printf(g_SMCDisplay, 0, 0, "Opening ALTO Amplifier Device (%d) \n", handle->deviceID);
+    Display_printf(g_SMCDisplay, 0, 0, "Opening USB Binary Remote Controller DeviceId: (%d) \n", handle->deviceID);
 
     Task_Params_init(&paramsUnion.taskParams);
     paramsUnion.taskParams.stackSize = USBREMOTECONTROLLERBINARYDEVICE_TASK_STACK_SIZE;

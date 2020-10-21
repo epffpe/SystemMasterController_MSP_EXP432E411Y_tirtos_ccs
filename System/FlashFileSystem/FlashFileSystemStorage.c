@@ -172,13 +172,7 @@ SFFS_Handle hStorageFFS_open(SFFS_Handle handle)
 
     Error_init(&eb);
 
-
-    Display_printf(g_SMCDisplay, 0, 0,
-            "==================================================");
-
     Display_printf(g_SMCDisplay, 0, 0, "%s:", __func__);
-    Display_printf(g_SMCDisplay, 0, 0, "Loading Initial Configuration");
-
 
     Semaphore_Params_init(&semParams);
     semParams.mode = Semaphore_Mode_BINARY;
@@ -237,7 +231,7 @@ bool bSFFS_waitForInit(SFFS_Handle handle, unsigned int timeout)
  */
 Void vSFFS_formatHeartBeatFxn(UArg arg0, UArg arg1)
 {
-    Display_printf(g_SMCDisplay, 0, 0, "Heartbeat task started\n");
+    Display_printf(g_SMCDisplay, 0, 0, "vSFFS_formatHeartBeatFxn task started\n");
     while (1) {
         GPIO_write(Board_LED4,0);
 //        DOSet(DIO_LED_D20, DO_ON);
@@ -255,7 +249,7 @@ Task_Handle hSFFS_formatHeartBeat_init()
     Error_Block eb;
     /* Make sure Error_Block is initialized */
     Error_init(&eb);
-    Display_printf(g_SMCDisplay, 0, 0, "Initializing vSFFS_formatHeartBeatFxn\n");
+    Display_printf(g_SMCDisplay, 0, 0, "Initializing vSFFS_formatHeartBeatFxn");
     /* Construct heartBeat Task  thread */
     Task_Params_init(&taskParams);
     taskParams.priority = Task_getPri(Task_self()) + 1;
@@ -545,7 +539,7 @@ void vSFFS_FileParams_initForWrite(SFFS_File_Params *pParams, const char *path, 
 
 void vSFFS_init(void)
 {
-    Display_printf(g_SMCDisplay, 0, 0, "Initializing SFFS Interfaces\n");
+    Display_printf(g_SMCDisplay, 0, 0, "Initializing SPIFFSNVS Interfaces\n");
     if (g_SFFS_count == -1) {
         /* Call each driver's init function */
         for (g_SFFS_count = 0; SFFS_config[g_SFFS_count].fxnTablePtr != NULL; g_SFFS_count++) {
@@ -760,6 +754,9 @@ int xSFFS_readDevicesConfiguration(SFFS_Handle handle, unsigned int timeout)
 
     Error_init(&eb);
 
+    Display_printf(g_SMCDisplay, 0, 0,
+            "==================================================");
+    Display_printf(g_SMCDisplay, 0, 0, "Loading Initial Configuration");
 
     if (object->state.initialized) {
         if (Semaphore_pend(object->hSFFS_semInitialized, timeout)) {
@@ -894,6 +891,8 @@ int xSFFS_readDevicesConfiguration(SFFS_Handle handle, unsigned int timeout)
         bSFFS_waitForInit(handle, timeout);
     }
 
+    Display_printf(g_SMCDisplay, 0, 0,
+            "==================================================");
     return i32retValue;
 }
 

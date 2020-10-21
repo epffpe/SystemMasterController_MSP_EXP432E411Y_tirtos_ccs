@@ -56,7 +56,7 @@ extern Display_Handle g_SMCDisplay;
 
 /* NDK memory manager page size and number of pages [used by mmAlloc()] */
 #define RAW_PAGE_SIZE 3072
-#define RAW_PAGE_COUNT 8
+#define RAW_PAGE_COUNT 10
 
 const int ti_ndk_config_Global_rawPageSize  = RAW_PAGE_SIZE;
 const int ti_ndk_config_Global_rawPageCount = RAW_PAGE_COUNT;
@@ -103,7 +103,7 @@ uint32_t ti_ndk_config_Global_Id2Size[] =
  *  will increase the size of the static packet pool use for both sending
  *  and receiving packets.
  */
-#define PKT_NUM_FRAMEBUF 10
+#define PKT_NUM_FRAMEBUF 16
 
 /* Size of Ethernet frame buffer */
 #define PKT_SIZE_FRAMEBUF   1536
@@ -154,6 +154,7 @@ extern void llTimerTick();
 static void networkOpen()
 {
     extern void netOpenHook();
+    Display_printf(g_SMCDisplay, 0, 0, "networkOpen\n");
 //    System_printf("networkOpen\n");
 //    System_flush();
     /* call user defined network open hook */
@@ -170,6 +171,7 @@ static void networkClose()
     /* call user defined network close hook */
 //        System_printf("networkClose\n");
 //        System_flush();
+    Display_printf(g_SMCDisplay, 0, 0, "networkClose\n");
 }
 
 /*

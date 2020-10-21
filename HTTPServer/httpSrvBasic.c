@@ -49,6 +49,8 @@
 #include <ti/net/slnetif.h>
 #include <ti/net/slnetsock.h>
 
+#include <ti/sysbios/knl/Task.h>
+
 #include <ti/display/Display.h>
 
 #include "HTTPServer/urlsimple.h"
@@ -56,6 +58,10 @@
 #include "HTTPServer/memzip/urlmemzip.h"
 #include "certs/certificate.h"
 #include "DISPLAY/SMCDisplay.h"
+
+#include "includes.h"
+
+
 
 extern Display_Handle display;
 extern void startSNTP(void);
@@ -147,17 +153,20 @@ void *serverFxn(void *arg)
     uint16_t                port = *(uint16_t *)arg;
     SlNetSockSecAttrib_t    *secAttribs;
 
+    int retVal;
+
     fdOpenSession(TaskSelf());
 
     Display_printf(g_SMCDisplay, 0, 0, "*** Initializing HTTP Server ***\n");
     HTTPServer_init();
 
     /* Create the HTTPServer and pass in your array of handlers */
+    Display_printf(g_SMCDisplay, 0, 0, "\nCreating the HTTPServer and pass in the array of handlers");
     if ((srv = HTTPServer_create(handlerTable, NUM_URLHANDLERS, NULL)) == NULL)
     {
         Display_printf(g_SMCDisplay, 0, 0,
                        "Failed to create HTTPServer> 0x%p\n", srv);
-        exit(1);
+//        goto reboot;
     }
 
     /*
@@ -228,13 +237,73 @@ void *serverFxn(void *arg)
         HTTPServer_enableSecurity(srv, secAttribs, true);
     }
 
+
     Display_printf(g_SMCDisplay, 0, 0, "... Starting HTTP Server on port %d ...\n",
                    port);
-    HTTPServer_serveSelect(srv, (struct sockaddr *)&addr, sizeof(addr),
-                           SERVER_BACKLOG_COUNT);
-    HTTPServer_delete(&srv);
+    retVal = HTTPServer_serveSelect(srv, (struct sockaddr *)&addr, sizeof(addr),
+                                    SERVER_BACKLOG_COUNT);
+    Display_printf(g_SMCDisplay, 0, 0, "... HTTP Server Stopped on port %d ...", port);
 
+    switch(retVal) {
+    case 0:
+        Display_printf(g_SMCDisplay, 0, 0, "  -> HTTP Server received stop command");
+        break;
+    case -1:
+        Display_printf(g_SMCDisplay, 0, 0, "  -> HTTP Server shutdown unexpectedly");
+        break;
+    case -2:
+        Display_printf(g_SMCDisplay, 0, 0, "  -> HTTP Server Internal accept() call failed");
+        break;
+    case -3:
+        Display_printf(g_SMCDisplay, 0, 0, "  -> HTTP Server Internal network socket creation failure");
+        break;
+    case -4:
+        Display_printf(g_SMCDisplay, 0, 0, "  -> HTTP Server Internal bind() call failed");
+        break;
+    case -5:
+        Display_printf(g_SMCDisplay, 0, 0, "  -> HTTP Server Internal listen() call failed");
+        break;
+    case -6:
+        Display_printf(g_SMCDisplay, 0, 0, "  -> HTTP Server Internal memory allocation or object creation failure");
+        break;
+    case -7:
+        Display_printf(g_SMCDisplay, 0, 0, "  -> HTTP Server Internal mq creation failure");
+        break;
+    case -8:
+        Display_printf(g_SMCDisplay, 0, 0, "  -> HTTP Server Internal mutex-related failure");
+        break;
+    default:
+        break;
+    }
+
+    HTTPServer_delete(&srv);
+//    Task_sleep((unsigned int)1000);
+
+//    reboot:
     fdCloseSession(TaskSelf());
+
+
+    SFFS_Handle hSFFS;
+    hSFFS = hSFFS_open(SFFS_Internal);
+    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+//
+//    hSFFS = hSFFS_open(SFFS_External);
+//    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+
+    Task_sleep(50);
+
+//      wait for flash memory mutex
+
+//        WatchdogUnlock(WATCHDOG0_BASE);
+//        WatchdogResetDisable(WATCHDOG0_BASE);
+    //    USBDCDTerm(0);
+    USBDevDisconnect(USB0_BASE);
+
+    Task_sleep(50);
+
+    SysCtlReset();
 
     return (NULL);
 }

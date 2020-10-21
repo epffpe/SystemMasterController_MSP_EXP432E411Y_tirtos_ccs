@@ -283,6 +283,7 @@
 #include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/USBBinaryCommands.h"
 #include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/FirmwareUpgrade/USBBinaryCMD_FirmwareUpgrade.h"
 #include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/NetworkConfiguration/USBBinaryCMD_NetworkConfiguration.h"
+#include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/System/USBBinaryCMD_System.h"
 
 
 

@@ -36,7 +36,7 @@
 --stack_size=8192   /* C stack is also used for ISR stack */
 --retain=g_infoHeader
 
-HEAPSIZE = 0x29000;  /* Size of heap buffer used by HeapMem */
+HEAPSIZE = 0x25000;  /* Size of heap buffer used by HeapMem */
 
  #define APP_BASE 0x00004000
 //#define APP_BASE 0x00000000

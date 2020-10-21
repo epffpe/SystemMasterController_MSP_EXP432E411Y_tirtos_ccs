@@ -35,7 +35,6 @@
  */
 
 #include "includes.h"
-#include <ti/devices/msp432e4/driverlib/inc/hw_sysctl.h>
 
 
 extern void ti_ndk_config_Global_startupFxn();
@@ -45,6 +44,7 @@ void test();
 void vTest_CRC();
 void vTest_NVS();
 void USBSerialTest_init();
+void vRead_NVSSteveConfigParams();
 
 extern void pvPPPCU_inputLineIntHandler(uint_least8_t index);
 //extern void test2();
@@ -133,7 +133,6 @@ void *mainThread(void *arg0)
 
 void *SMC_initThread(void *arg0)
 {
-    uint32_t uniqueID0, uniqueID1, uniqueID2, uniqueID3;
     Error_Block eb;
     Watchdog_init();
 
@@ -146,10 +145,7 @@ void *SMC_initThread(void *arg0)
      */
     Task_sleep((unsigned int)1);
 
-    uniqueID0 = HWREG(SYSCTL_UNIQUEID0);
-    uniqueID1 = HWREG(SYSCTL_UNIQUEID1);
-    uniqueID2 = HWREG(SYSCTL_UNIQUEID2);
-    uniqueID3 = HWREG(SYSCTL_UNIQUEID3);
+
 
     /* Call driver init functions */
     ADCBuf_init();
@@ -160,15 +156,14 @@ void *SMC_initThread(void *arg0)
     SPI_init();
     UART_init();
     CAN_init();
-    CRC_init();
+//    CRC_init();
 //    NVS_init();
 
     MSP_EXP432E401Y_initUSB(MSP_EXP432E401Y_USBDEVICE);
 
-    USBSerialTest_init();
 
 #if !(defined(TEST_FIXTURE) || defined(DUT))
-//    SMCDisplay_init();
+    SMCDisplay_init();
 #endif
     GPIO_write(SMC_SERIAL0_DE, 1);
     Display_printf(g_SMCDisplay, 0, 0, "Starting the System Master Controller\n"
@@ -253,6 +248,7 @@ void *SMC_initThread(void *arg0)
     vUSBConsoleDevice_Params_init(&deviceParams, USBCONSOLEDEVICE_ID);
     xDevice_add(&deviceParams, &eb);
 
+    USBSerialTest_init();
 
 #ifdef TEST_FIXTURE
     /* Test Fixture */
@@ -313,6 +309,9 @@ void *SMC_initThread(void *arg0)
 #endif
 
     ti_ndk_config_Global_startupFxn();
+
+    vRead_NVSSteveConfigParams();
+
     return 0;
 }
 
@@ -779,4 +778,53 @@ void vTest_NVS()
     Display_printf(g_SMCDisplay, 0, 0, FOOTER);
     NVS_close(nvsHandle);
 }
+
+int32_t g_i32AircraftID;
+int32_t g_i32ConfigRev;
+
+void vRead_NVSSteveConfigParams()
+{
+    NVS_Handle nvsHandle;
+    NVS_Attrs regionAttrs;
+    NVS_Params nvsParams;
+
+    tURLHandlerHeader header;
+
+
+    NVS_Params_init(&nvsParams);
+    nvsHandle = NVS_open(Board_NVSEXTERNAL, &nvsParams);
+
+    if (nvsHandle == NULL) {
+        Display_printf(g_SMCDisplay, 0, 0, "NVS_open() failed.");
+        NVS_close(nvsHandle);
+        return;
+    }
+
+//    Display_printf(g_SMCDisplay, 0, 0, "\n");
+//    Display_printf(g_SMCDisplay, 0, 0, FOOTER);
+
+    /*
+     * This will populate a NVS_Attrs structure with properties specific
+     * to a NVS_Handle such as region base address, region size,
+     * and sector size.
+     */
+    NVS_getAttrs(nvsHandle, &regionAttrs);
+
+    /* Display the NVS region attributes */
+    Display_printf(g_SMCDisplay, 0, 0, "Region Base Address: 0x%x",
+            regionAttrs.regionBase);
+    Display_printf(g_SMCDisplay, 0, 0, "Sector Size: 0x%x",
+            regionAttrs.sectorSize);
+    Display_printf(g_SMCDisplay, 0, 0, "Region Size: 0x%x",
+            regionAttrs.regionSize);
+
+    NVS_read(nvsHandle, 0, (void *)&header, sizeof(tURLHandlerHeader));
+    g_i32AircraftID = header.aircraftID;
+    g_i32ConfigRev = header.configRev;
+
+    Display_printf(g_SMCDisplay, 0, 0, "URL_apiVersion: AircraftID: %d ConfigRev: %d/n", header.aircraftID, header.configRev);
+//    Display_printf(g_SMCDisplay, 0, 0, FOOTER);
+    NVS_close(nvsHandle);
+}
+
 
