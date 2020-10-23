@@ -29,10 +29,10 @@
 
 #define PRODUCT_ID                          106623
 
-#define FIRMWARE_VERSION_MAJOR              0
-#define FIRMWARE_VERSION_MINOR              2
-#define FIRMWARE_VERSION_MONTH              10
-#define FIRMWARE_VERSION_BUILD              15
+#define FIRMWARE_VERSION_MAJOR              1
+#define FIRMWARE_VERSION_MINOR              0
+#define FIRMWARE_VERSION_MONTH              0
+#define FIRMWARE_VERSION_BUILD              0
 
 
 #define DEFAULT_MODEL_NUMBER                xstr(PRODUCT_ID)
