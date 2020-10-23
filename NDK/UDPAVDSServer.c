@@ -114,7 +114,7 @@ void *pvUDPAVDSFinder_taskFxn(void *arg0)
 
     fdOpenSession(TaskSelf());
 
-    Display_printf(g_SMCDisplay, 0, 0, "UDP Server Started on Port (%d)\n", portNumber);
+    Display_printf(g_SMCDisplay, 0, 0, "UDP AVDS Finder Server Started on Port (%d)\n", portNumber);
 
     server = socket(AF_INET, SOCK_DGRAM, 0);
     if (server == -1) {

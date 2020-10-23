@@ -7,6 +7,7 @@
 
 #define __DEVICES_USBSERIAL_USBCONSOLE_USBCONSOLECOMMANDS_SYSTEMINFORMATION_USBCONSOLECMD_SYSTEMINFORMATION_GLOBAL
 #include "includes.h"
+#include <ti/devices/msp432e4/driverlib/inc/hw_sysctl.h>
 
 
 const char g_cCMDContatInformation[] = {
@@ -37,6 +38,9 @@ const char g_cCMDAboutInformation[] = {
                                         ANSI_COLOR_YELLOW " Firmware\r\n" ANSI_COLOR_RESET
                                         " System version: %d.%d.%d.%d\r\n"
                                         "\r\n"
+                                        ANSI_COLOR_YELLOW " Chip ID\r\n" ANSI_COLOR_RESET
+                                        " UniqueId: 0x%08X%08X%08X%08X\r\n"
+                                        "\r\n"
 };
 
 int CMD_USBcontact(int argc, char **argv)
@@ -49,8 +53,14 @@ int CMD_USBcontact(int argc, char **argv)
 int CMD_USBabout(int argc, char **argv)
 {
     int n;
+    uint32_t uniqueID0, uniqueID1, uniqueID2, uniqueID3;
     volatile tEEPROM_Data *infoResponse;
     char buff[256];
+
+    uniqueID0 = HWREG(SYSCTL_UNIQUEID0);
+    uniqueID1 = HWREG(SYSCTL_UNIQUEID1);
+    uniqueID2 = HWREG(SYSCTL_UNIQUEID2);
+    uniqueID3 = HWREG(SYSCTL_UNIQUEID3);
 
     infoResponse = INFO_get();
     n = sprintf(buff, g_cCMDAboutInformation,
@@ -59,7 +69,11 @@ int CMD_USBabout(int argc, char **argv)
                 FIRMWARE_VERSION_MAJOR,
                 FIRMWARE_VERSION_MINOR,
                 FIRMWARE_VERSION_MONTH,
-                FIRMWARE_VERSION_BUILD);
+                FIRMWARE_VERSION_BUILD,
+                uniqueID0,
+                uniqueID1,
+                uniqueID2,
+                uniqueID3);
     USBCDCD_sendData(USBCDCD_Console, (char *)buff, n, BIOS_WAIT_FOREVER);
     return (0);
 }

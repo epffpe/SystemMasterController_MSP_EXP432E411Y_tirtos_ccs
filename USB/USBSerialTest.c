@@ -15,7 +15,7 @@
  *
  *  This task periodically sends data to the USB host once it's connected.
  */
-void *vSUBSerialTest_transmitFxn(void *arg0)
+void *vUSBSerialTest_transmitFxn(void *arg0)
 {
     uint32_t time = 2000000;
     char *text = (char *)arg0;
@@ -39,7 +39,7 @@ void *vSUBSerialTest_transmitFxn(void *arg0)
  *  This task will receive data when data is available and block while the
  *  device is not connected to the USB host or if no data was received.
  */
-void *vSUBSerialTest_receiveFxn(void *arg0)
+void *vUSBSerialTest_receiveFxn(void *arg0)
 {
     unsigned int received;
     unsigned char data[32];

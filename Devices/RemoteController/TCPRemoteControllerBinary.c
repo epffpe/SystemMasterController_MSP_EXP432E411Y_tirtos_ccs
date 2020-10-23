@@ -20,6 +20,11 @@
 
 #include <ti/net/slnetutils.h>
 
+#ifndef MAXSOCKETS
+/* Must Match with sockets in ndk_tirtos.c */
+#define MAXSOCKETS 15
+#endif
+
 extern void fdOpenSession();
 extern void fdCloseSession();
 extern void *TaskSelf();
@@ -141,6 +146,7 @@ Void vTCPRCBinDeviceFxn(UArg arg0, UArg arg1)
 Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
 {
     // TCP variables
+    uint32_t           errorCounter;
     int                status;
     int                clientfd;
     int                server;
@@ -151,6 +157,10 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
     socklen_t          addrlen = sizeof(clientAddr);
     Task_Handle        taskHandle;
     Task_Params        taskParams;
+    Semaphore_Params    semParams;
+    Semaphore_Handle    semHandle;
+    struct timeval to;
+
     Clock_Params       clockParams;
     Clock_Handle       clockHandle;
     Error_Block        eb;
@@ -158,6 +168,7 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
 
     ASSERT(arg0 != NULL);
 
+    Error_init(&eb);
     // Open the file session
     fdOpenSession((void *)Task_self());
 
@@ -198,56 +209,114 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
         goto shutdown;
     }
 
-    optval = 1;
-    status = setsockopt(server, SOL_SOCKET, SO_KEEPALIVE, &optval, optlen);
-    if (status == -1) {
-//    if (setsockopt(server, SOL_SOCKET, SO_KEEPALIVE, &optval, optlen) < 0) {
-        System_printf("Error: setsockopt failed\n");
-        System_flush();
-        Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: setsockopt failed\n");
-        goto shutdown;
+//    optval = 1;
+//    status = setsockopt(server, SOL_SOCKET, SO_KEEPALIVE, &optval, optlen);
+//    if (status == -1) {
+////    if (setsockopt(server, SOL_SOCKET, SO_KEEPALIVE, &optval, optlen) < 0) {
+//        System_printf("Error: setsockopt failed\n");
+//        System_flush();
+//        Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: setsockopt failed\n");
+//        goto shutdown;
+//    }
+    to.tv_sec  = 3;
+    to.tv_usec = 0;
+    (void)setsockopt(server, SOL_SOCKET, SO_RCVTIMEO, &to, sizeof(to));
+
+    Semaphore_Params_init(&semParams);
+    semParams.mode = Semaphore_Mode_COUNTING;
+    semHandle = Semaphore_create(MAXSOCKETS - 1, &semParams, &eb);
+    if (semHandle == NULL) {
+        System_abort("Can't create Socket limit semaphore");
     }
 
     Clock_Params_init(&clockParams);
     clockParams.period = TCPRCBINDEVICE_SOCKET_PERIOD;
     clockParams.startFlag = TRUE;
-    while ((clientfd =
-            accept(server, (struct sockaddr *)&clientAddr, &addrlen)) != -1) {
 
-        System_printf("vTCPRCBinServerFxn: Creating thread clientfd = %d\n", clientfd);
-        System_flush();
-        Display_printf(g_SMCDisplay, 0, 0,
-                        "vTCPRCBinServerFxn: Creating thread clientfd = %d\n", clientfd);
-        /* Init the Error_Block */
-        Error_init(&eb);
-
-
-
-        /* Initialize the defaults and set the parameters. */
-        Task_Params_init(&taskParams);
-        taskParams.arg0 = (UArg)clientfd;
-        taskParams.stackSize = TCPBIN_WORKER_HANDLER_STACK;
-        taskParams.priority = TCPBIN_WORKER_TASK_PRIORITY;
-        taskHandle = Task_create((Task_FuncPtr)vTCPRCBinWorker, &taskParams, &eb);
-        if (taskHandle == NULL) {
-            System_printf("Error: Failed to create new Task\n");
-            System_flush();
-            close(clientfd);
-        }
-
-        /* addrlen is a value-result param, must reset for next accept call */
-        addrlen = sizeof(clientAddr);
-    }
-
-    System_printf("Error: accept failed.\n");
+    System_printf("vTCPRCBinServerFxn: Semaphore count = %d\n", Semaphore_getCount(semHandle));
     System_flush();
-    Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: accept failed.\n");
+
+    errorCounter = 0;
+//    while ((clientfd =
+//            accept(server, (struct sockaddr *)&clientAddr, &addrlen)) != -1) {
+    do {
+        clientfd = accept(server, (struct sockaddr *)&clientAddr, &addrlen);
+
+        if ( clientfd != -1) {
+            errorCounter = 0;
+            System_printf("vTCPRCBinServerFxn: Creating thread clientfd = %d\n", clientfd);
+            System_printf("vTCPRCBinServerFxn: Semaphore count = %d\n", Semaphore_getCount(semHandle));
+            System_flush();
+            Display_printf(g_SMCDisplay, 0, 0,
+                           "vTCPRCBinServerFxn: Creating thread clientfd = %d\n", clientfd);
+            /* Init the Error_Block */
+            Error_init(&eb);
+
+            to.tv_sec  = 5;
+            to.tv_usec = 0;
+            (void)setsockopt(clientfd, SOL_SOCKET, SO_RCVTIMEO, &to, sizeof(to));
+
+            /* Initialize the defaults and set the parameters. */
+            Task_Params_init(&taskParams);
+            taskParams.arg0 = (UArg)clientfd;
+            taskParams.arg1 = (UArg)semHandle;
+            taskParams.stackSize = TCPBIN_WORKER_HANDLER_STACK;
+            taskParams.priority = TCPBIN_WORKER_TASK_PRIORITY;
+            taskHandle = Task_create((Task_FuncPtr)vTCPRCBinWorker, &taskParams, &eb);
+            if (taskHandle == NULL) {
+                System_printf("Error: Failed to create new Task\n");
+                System_flush();
+                close(clientfd);
+            }
+
+            /* addrlen is a value-result param, must reset for next accept call */
+            addrlen = sizeof(clientAddr);
+
+            Semaphore_pend(semHandle, BIOS_WAIT_FOREVER);
+
+            System_printf("vTCPRCBinServerFxn: Semaphore Grabbed. Left = %d\n", Semaphore_getCount(semHandle));
+            System_flush();
+        }else {
+            errorCounter++;
+            System_printf("Error: accept failed.\n");
+            System_flush();
+            Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: accept failed with error code = %d.\n", clientfd);
+            Task_sleep((unsigned int)100);
+        }
+//    }
+    }while(errorCounter < 5);
+
+    System_printf("Error: accept failed. Closing TCP Server\n");
+    System_flush();
+    Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: Closing TCP Server due to error.\n");
     shutdown:
     if (server != -1) {
         close(server);
     }
     // Close the file session
     fdCloseSession((void *)Task_self());
+
+    SFFS_Handle hSFFS;
+    hSFFS = hSFFS_open(SFFS_Internal);
+    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+//
+//    hSFFS = hSFFS_open(SFFS_External);
+//    xSFFS_lockMemoryForReboot(hSFFS, BIOS_WAIT_FOREVER);
+//        vSFFS_close(hSFFS);
+
+    Task_sleep(50);
+
+//      wait for flash memory mutex
+
+//        WatchdogUnlock(WATCHDOG0_BASE);
+//        WatchdogResetDisable(WATCHDOG0_BASE);
+    //    USBDCDTerm(0);
+    USBDevDisconnect(USB0_BASE);
+
+    Task_sleep(50);
+
+    SysCtlReset();
 }
 
 
@@ -266,13 +335,34 @@ Void vTCPRCBinWorker(UArg arg0, UArg arg1)
     Task_Params taskParams;
     Task_Handle taskHandle;
     Event_Handle eventHandle;
+    Semaphore_Handle    semHandle;
+
+
+    ASSERT(arg1 != NULL);
+
 
     Error_Block eb;
     Error_init(&eb);
 
-    System_printf("vTCPRCBinWorker: start clientfd = 0x%x\n", clientfd);
+
+
+    System_printf("vTCPRCBinWorker: start clientfd = %d\n", clientfd);
     System_flush();
-    Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinWorker: start clientfd = 0x%x\n", clientfd);
+    Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinWorker: start clientfd = %d\n", clientfd);
+
+    // Open the file session
+    fdOpenSession((void *)Task_self());
+
+
+    if (arg1 == NULL) {
+        close(clientfd);
+        // Close the file session
+        fdCloseSession((void *)Task_self());
+        Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinWorker: semaphore handler invalid\n");
+
+        return;
+    }
+
 
     eventHandle = Event_create(NULL, &eb);
     Task_Params_init(&taskParams);
@@ -282,9 +372,7 @@ Void vTCPRCBinWorker(UArg arg0, UArg arg1)
     taskParams.arg1 = (UArg)eventHandle;
     taskHandle = Task_create((Task_FuncPtr)vTCPRCBinWorkerSocketTimeout, &taskParams, &eb);
 
-
-    // Open the file session
-    fdOpenSession((void *)Task_self());
+    semHandle = (Semaphore_Handle)arg1;
 
 
     while((bytesRcvd = recv(clientfd, buffer, TCPBINDEVICE_PACKETSIZE, 0)) > 0) {
@@ -293,17 +381,21 @@ Void vTCPRCBinWorker(UArg arg0, UArg arg1)
     }
 //    Task_delete(&taskHandle);
 
-    System_printf("vTCPRCBinWorker stop clientfd = 0x%x\n", clientfd);
+    System_printf("vTCPRCBinWorker: stop clientfd = %d\n", clientfd);
     System_flush();
+    Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinWorker: stop clientfd = %d\n", clientfd);
 
     Event_post(eventHandle, DEVICE_APP_KILL_EVT);
 
-    Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinWorker stop clientfd = 0x%x\n", clientfd);
 
     close(clientfd);
 
     // Close the file session
     fdCloseSession((void *)Task_self());
+
+    Semaphore_post(semHandle);
+    System_printf("vTCPRCBinWorker: Semaphore Released. clientfd = %d, count %d\n", clientfd, Semaphore_getCount(semHandle));
+    System_flush();
 }
 
 Void vTCPRCBinWorkerSocketTimeout(UArg arg0, UArg arg1)
@@ -321,8 +413,9 @@ Void vTCPRCBinWorkerSocketTimeout(UArg arg0, UArg arg1)
             break;
         }
     }
-    System_printf("vTCPRCBinWorkerSocketTimeout stop clientfd = 0x%x\n", clientfd);
+    System_printf("vTCPRCBinWorkerSocketTimeoutFxn: stop clientfd = %d\n", clientfd);
     System_flush();
+    Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinWorkerSocketTimeoutFxn: stop clientfd = %d\n", clientfd);
     // Open the file session
     fdOpenSession((void *)Task_self());
     close(clientfd);

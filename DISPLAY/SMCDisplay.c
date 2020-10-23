@@ -25,3 +25,9 @@ void SMCDisplay_init()
         while(1);
     }
 }
+
+
+void SMCDisplay_close()
+{
+    Display_close(g_SMCDisplay);
+}

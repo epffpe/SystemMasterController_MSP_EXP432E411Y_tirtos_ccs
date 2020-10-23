@@ -8,6 +8,10 @@
 #ifndef INCLUDES_H_
 #define INCLUDES_H_
 
+#define xstr(s) str(s)
+#define str(s) #s
+
+
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>
@@ -248,6 +252,7 @@
 #include "System/MAX1301/MAX1301.h"
 #include "System/Bootloader/BootloaderInterface.h"
 #include "System/FlashFileSystem/FlashFileSystemStorage.h"
+#include "System/Watchdog/Watchdog.h"
 
 
 
@@ -278,12 +283,14 @@
 #include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/USBBinaryCommands.h"
 #include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/FirmwareUpgrade/USBBinaryCMD_FirmwareUpgrade.h"
 #include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/NetworkConfiguration/USBBinaryCMD_NetworkConfiguration.h"
+#include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/System/USBBinaryCMD_System.h"
 
 
 
 #include "Devices/USBSerial/USBConsole/USBConsoleDevice.h"
 #include "Devices/USBSerial/USBConsole/USBConsoleCommands/USBConsoleCommands.h"
 #include "Devices/USBSerial/USBConsole/USBConsoleCommands/SystemInformation/USBConsoleCMD_SystemInformation.h"
+#include "Devices/USBSerial/USBConsole/USBConsoleCommands/SystemConfig/USBConsoleCMD_SystemConfig.h"
 
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"

@@ -61,6 +61,7 @@
 
 #include "Deprecated/CANTest/CANTest.h"
 
+
 #define UDPPACKETSIZE 1472
 #define MAXPORTLEN    6
 
@@ -70,6 +71,9 @@ extern void fdCloseSession();
 extern void *TaskSelf();
 
 extern Display_Handle g_SMCDisplay;
+
+extern int32_t g_i32AircraftID;
+extern int32_t g_i32ConfigRev;
 
 /*
  *  ======== echoFxn ========
@@ -87,12 +91,14 @@ void *UDPFinder_task(void *arg0)
     struct sockaddr_in localAddr;
     struct sockaddr_in clientAddr;
     socklen_t          addrlen;
+
     char               buffer[UDPPACKETSIZE];
     uint16_t           portNumber = *(uint16_t *)arg0;
     uint32_t IPTmp;
     char response[64];
 
     volatile tEEPROM_Data *pManufacturerInformation;
+
 
     fdOpenSession(TaskSelf());
 
@@ -151,7 +157,9 @@ void *UDPFinder_task(void *arg0)
 #ifdef TEST_FIXTURE
                     n = sprintf(response, "SMC Test Fixture ID: %06d", pManufacturerInformation->unitSerialNumber);
 #else
-                    n = sprintf(response, "System Master Controller SN: %06d ID: %d",
+                    n = sprintf(response, "SMC AircraftID: %d ConfigRev: %d SN: %06d ID: %d",
+                                g_i32AircraftID,
+                                g_i32ConfigRev,
                                 pManufacturerInformation->unitSerialNumber,
                                 pManufacturerInformation->udpUnitNumber);
 #endif

@@ -145,6 +145,7 @@ int URL_apiVersion(URLHandler_Handle urlHandler, int method,
         sprintf(response, "AircraftID: %d ConfigRev: %d", header.aircraftID, header.configRev);
         body = response;
         status = URLHandler_EHANDLED;
+        Display_printf(g_SMCDisplay, 0, 0, "URL_apiVersion: AircraftID: %d ConfigRev: %d", header.aircraftID, header.configRev);
     }
 
     if (status != URLHandler_ENOTHANDLED)
@@ -276,6 +277,7 @@ int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
                          const char * url, const char * urlArgs,
                          int contentLength, int ssock)
 {
+
     int status          = URLHandler_ENOTHANDLED;
     char *body          = NULL;         /* Body of HTTP response in process */
     char *contentType   = "text/plain "; /* default (text/plain), but can be overridden: text/html; charset=utf-8*/
@@ -340,14 +342,18 @@ int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
                         if (fileSize < URL_BUFFER_SIZE) {
                             i16RetVal = NVS_read(nvsHandle, memAddress, (void *) pbuffer, fileSize);
                             if (i16RetVal == NVS_STATUS_SUCCESS) {
-                                send(ssock, pbuffer, fileSize, 0);
+                                if (send(ssock, pbuffer, fileSize, 0) == -1) {
+                                    break;
+                                }
                             }
                             fileSize -= fileSize;
                             memAddress += fileSize;
                         }else {
                             i16RetVal = NVS_read(nvsHandle, memAddress, (void *) pbuffer, URL_BUFFER_SIZE);
                             if (i16RetVal == NVS_STATUS_SUCCESS) {
-                                send(ssock, pbuffer, URL_BUFFER_SIZE, 0);
+                                if (send(ssock, pbuffer, URL_BUFFER_SIZE, 0) == -1) {
+                                    break;
+                                }
                             }
                             fileSize -= URL_BUFFER_SIZE;
                             memAddress += URL_BUFFER_SIZE;
@@ -379,6 +385,9 @@ int URL_apiConfigurationNVS(URLHandler_Handle urlHandler, int method,
 
         Task_delete(&taskHandle);
         DOSet(DIO_LED_D20, DO_OFF);
+
+//        close(ssock);
+
         return status;
     }
 

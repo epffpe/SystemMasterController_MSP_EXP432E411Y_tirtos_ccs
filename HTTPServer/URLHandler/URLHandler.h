@@ -35,8 +35,8 @@ typedef struct
 tURLHandlerEntry;
 
 typedef struct {
-    uint32_t aircraftID;
-    uint32_t configRev;
+    int32_t aircraftID;
+    int32_t configRev;
     MEMZIP_FILE_HDR file_hdr;
 
 }tURLHandlerHeader;

@@ -100,9 +100,9 @@ void vTCPRCBin_FlashFileSystem_getExternalFlashStatus(int clientfd, char *payloa
 
 //    *pFramePayload = vEFS_getStatus();
 
-    hSFFS = hSFFS_open(SFFS_External);
-    *pFramePayload = xSFFS_getStatus(hSFFS, BIOS_WAIT_FOREVER);
-    vSFFS_close(hSFFS);
+//    hSFFS = hSFFS_open(SFFS_External);
+//    *pFramePayload = xSFFS_getStatus(hSFFS, BIOS_WAIT_FOREVER);
+//    vSFFS_close(hSFFS);
 
 
     bytesSent = send(clientfd, buffer, sizeof(buffer), 0);
@@ -126,10 +126,10 @@ void vTCPRCBin_FlashFileSystem_formatExternalFlashStatus(int clientfd, char *pay
 
     int32_t *pFramePayload = (int32_t *)pFrame->payload;
 
-//    *pFramePayload = vEFS_format();
-    hSFFS = hSFFS_open(SFFS_External);
-    *pFramePayload = xSFFS_format(hSFFS, BIOS_WAIT_FOREVER);
-    vSFFS_close(hSFFS);
+////    *pFramePayload = vEFS_format();
+//    hSFFS = hSFFS_open(SFFS_External);
+//    *pFramePayload = xSFFS_format(hSFFS, BIOS_WAIT_FOREVER);
+//    vSFFS_close(hSFFS);
 
 
     bytesSent = send(clientfd, buffer, sizeof(buffer), 0);

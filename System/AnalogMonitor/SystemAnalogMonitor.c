@@ -429,7 +429,8 @@ Void vSAM_taskFxn(UArg arg0, UArg arg1)
 
     if (!adcBuf){
         /* AdcBuf did not open correctly. */
-        while(1);
+        Display_printf(g_SMCDisplay, 0, 0, "AdcBuf did not open correctly");
+        return;
     }
     /* Configure the conversion struct */
     continuousConversions[0].arg = NULL;
