@@ -51,6 +51,7 @@ tUSBCmdLineEntry g_psUSBCmdTable[] =
     {"about"  ,CMD_USBabout,  " : Display information about this unit"},
     {"reboot",   CMD_USBreboot,   " : Reset the system"},
     {"dfu", CMD_USBenterProgrammingMode," : Enter in programming mode"},
+    {"set",     CMD_USBset,     " : Set parameters on the system"},
 //    {"status",   CMD_USBstatus,   " : Display the internal state"},
 //    {"voltage",   CMD_USBvoltages,   " : Display input voltages"},
 //    {"temp",   CMD_USBtemp,   " : Display uController temperature"},
@@ -318,8 +319,8 @@ int CMD_USBenterProgrammingMode(int argc, char **argv)
 
 //      wait for flash memory mutex
 
-//        WatchdogUnlock(WATCHDOG0_BASE);
-//        WatchdogResetDisable(WATCHDOG0_BASE);
+    WatchdogUnlock(WATCHDOG0_BASE);
+    WatchdogResetDisable(WATCHDOG0_BASE);
     //    USBDCDTerm(0);
     USBDevDisconnect(USB0_BASE);
 

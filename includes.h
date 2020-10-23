@@ -290,6 +290,7 @@
 #include "Devices/USBSerial/USBConsole/USBConsoleDevice.h"
 #include "Devices/USBSerial/USBConsole/USBConsoleCommands/USBConsoleCommands.h"
 #include "Devices/USBSerial/USBConsole/USBConsoleCommands/SystemInformation/USBConsoleCMD_SystemInformation.h"
+#include "Devices/USBSerial/USBConsole/USBConsoleCommands/SystemConfig/USBConsoleCMD_SystemConfig.h"
 
 #include "HTTPServer/urlsimple.h"
 #include "HTTPServer/URLHandler/URLHandler.h"

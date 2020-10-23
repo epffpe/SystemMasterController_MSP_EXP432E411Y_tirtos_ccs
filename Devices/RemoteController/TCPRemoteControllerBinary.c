@@ -280,7 +280,7 @@ Void vTCPRCBinServerFxn(UArg arg0, UArg arg1)
             errorCounter++;
             System_printf("Error: accept failed.\n");
             System_flush();
-            Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: accept failed.\n");
+            Display_printf(g_SMCDisplay, 0, 0, "vTCPRCBinServerFxn: accept failed with error code = %d.\n", clientfd);
             Task_sleep((unsigned int)100);
         }
 //    }

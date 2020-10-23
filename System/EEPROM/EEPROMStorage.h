@@ -61,6 +61,7 @@
 #define DEFAULT_EEPROM_MEM_TEST             0x200
 #define DEFAULT_EEPROM_MAC_CONFG            0x290
 #define DEFAULT_EEPROM_IP_CONFG             0x300
+#define DEFAULT_EEPROM_DEBUG_CONFG_ADDRESS  0x400
 
 
 
@@ -146,6 +147,11 @@ typedef struct {
 }tEEPROM_macConfigData;
 
 
+typedef struct {
+    uint32_t                sysLogDisplay;
+}tEEPROM_debugCfgData;
+
+
 #ifdef __cplusplus
 extern "C"  {
 #endif
@@ -176,6 +182,11 @@ volatile tEEPROM_macConfigData *psEEPMACConfg_get();
 EEPROMSTORAGE_EXT
 void vEEPMACConfg_set(tEEPROM_macConfigData *info);
 
+EEPROMSTORAGE_EXT
+volatile tEEPROM_debugCfgData *psEEPDebugConfg_get();
+EEPROMSTORAGE_EXT
+void vEEPDebugConfg_set(tEEPROM_debugCfgData *info);
+
 
 EEPROMSTORAGE_EXT
 volatile tEEPROM_Data g_sEEPROMData;
@@ -187,6 +198,9 @@ EEPROMSTORAGE_EXT
 volatile tEEPROM_macConfigData g_sEEPROMMACCfgData;
 EEPROMSTORAGE_EXT
 volatile uint32_t g_ui32EEPROMInit;
+EEPROMSTORAGE_EXT
+volatile tEEPROM_debugCfgData g_sEEPROMDebugCfgData;
+
 
 #ifdef __cplusplus
 }

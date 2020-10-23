@@ -23,9 +23,14 @@ extern "C"
 {
 #endif
 
-SMCDISPLAY_EXT Display_Handle g_SMCDisplay;
+SMCDISPLAY_EXT
+Display_Handle g_SMCDisplay;
 
-SMCDISPLAY_EXT void SMCDisplay_init();
+SMCDISPLAY_EXT
+void SMCDisplay_init();
+
+SMCDISPLAY_EXT
+void SMCDisplay_close();
 
 
 #ifdef __cplusplus

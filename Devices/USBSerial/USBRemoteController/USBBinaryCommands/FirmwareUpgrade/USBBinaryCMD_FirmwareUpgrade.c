@@ -33,8 +33,8 @@ void vUSBBinaryCMD_enterProgrammingMode(char *payload, int32_t size)
 
 //      wait for flash memory mutex
 
-//        WatchdogUnlock(WATCHDOG0_BASE);
-//        WatchdogResetDisable(WATCHDOG0_BASE);
+        WatchdogUnlock(WATCHDOG0_BASE);
+        WatchdogResetDisable(WATCHDOG0_BASE);
         //    USBDCDTerm(0);
         USBDevDisconnect(USB0_BASE);
 

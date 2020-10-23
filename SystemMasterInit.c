@@ -134,6 +134,7 @@ void *mainThread(void *arg0)
 void *SMC_initThread(void *arg0)
 {
     Error_Block eb;
+    tEEPROM_debugCfgData *psDebugCfgData;
     Watchdog_init();
 
     vWDG_init();
@@ -156,20 +157,21 @@ void *SMC_initThread(void *arg0)
     SPI_init();
     UART_init();
     CAN_init();
-//    CRC_init();
+    CRC_init();
 //    NVS_init();
 
     MSP_EXP432E401Y_initUSB(MSP_EXP432E401Y_USBDEVICE);
 
 
-#if !(defined(TEST_FIXTURE) || defined(DUT))
-    SMCDisplay_init();
-#endif
+//#if !(defined(TEST_FIXTURE) || defined(DUT))
+    psDebugCfgData = (tEEPROM_debugCfgData *)psEEPDebugConfg_get();
+    if (psDebugCfgData->sysLogDisplay) SMCDisplay_init();
+//#endif
     GPIO_write(SMC_SERIAL0_DE, 1);
     Display_printf(g_SMCDisplay, 0, 0, "Starting the System Master Controller\n"
                    "-- Compiled: "__DATE__" "__TIME__" --\n");
 
-
+    Display_printf(g_SMCDisplay, 0, 0, "Initializing vWDG_taskFxn\n");
 
     USBComposite_init(MSP_EXP432E401Y_USBDEVICE);
 
@@ -822,7 +824,7 @@ void vRead_NVSSteveConfigParams()
     g_i32AircraftID = header.aircraftID;
     g_i32ConfigRev = header.configRev;
 
-    Display_printf(g_SMCDisplay, 0, 0, "URL_apiVersion: AircraftID: %d ConfigRev: %d/n", header.aircraftID, header.configRev);
+    Display_printf(g_SMCDisplay, 0, 0, "App Config file: AircraftID: %d ConfigRev: %d Size: %d bytes\n", header.aircraftID, header.configRev, header.file_hdr.uncompressed_size);
 //    Display_printf(g_SMCDisplay, 0, 0, FOOTER);
     NVS_close(nvsHandle);
 }

@@ -296,6 +296,13 @@ const tEEPROM_macConfigData g_sDefaultEEPROMMACConfigData =
 
 
 
+const tEEPROM_debugCfgData g_sDefaultEEPROMDebugConfigData =
+{
+ .sysLogDisplay = 0,
+};
+
+
+
 volatile tEEPROM_Data *INFO_get()
 {
     return &g_sEEPROMData;
@@ -349,6 +356,18 @@ void vEEPMACConfg_set(tEEPROM_macConfigData *info)
 
 
 
+volatile tEEPROM_debugCfgData *psEEPDebugConfg_get()
+{
+    return &g_sEEPROMDebugCfgData;
+}
+
+void vEEPDebugConfg_set(tEEPROM_debugCfgData *info)
+{
+    g_sEEPROMDebugCfgData = *info;
+    EEPROMProgram((uint32_t *)&g_sEEPROMDebugCfgData, DEFAULT_EEPROM_DEBUG_CONFG_ADDRESS, sizeof(tEEPROM_debugCfgData));
+}
+
+
 
 
 void INFO_init()
@@ -386,6 +405,7 @@ void INFO_init()
     EEPROMRead((uint32_t *)&g_sEEPROMDIOCfgData, DEFAULT_EEPROM_DIO_CONFG, sizeof(tEEPROM_DIOCfgData));
     EEPROMRead((uint32_t *)&g_sEEPROMMACCfgData, DEFAULT_EEPROM_MAC_CONFG, sizeof(tEEPROM_macConfigData));
     EEPROMRead((uint32_t *)&g_sEEPROMIpCfgData, DEFAULT_EEPROM_IP_CONFG, sizeof(tEEPROM_ipConfigData));
+    EEPROMRead((uint32_t *)&g_sEEPROMDebugCfgData, DEFAULT_EEPROM_DEBUG_CONFG_ADDRESS, sizeof(tEEPROM_debugCfgData));
 
     if (g_sEEPROMData.eepromCheck != DEFAULT_EEPROM_CHECK) {
         g_sEEPROMData = g_sDefaultEEPROMData;
@@ -399,6 +419,9 @@ void INFO_init()
 
         g_sEEPROMIpCfgData = g_sDefaultEEPROMIPConfigData;
         EEPROMProgram((uint32_t *)&g_sEEPROMIpCfgData, DEFAULT_EEPROM_IP_CONFG, sizeof(tEEPROM_ipConfigData));
+
+        g_sEEPROMDebugCfgData = g_sDefaultEEPROMDebugConfigData;
+        EEPROMProgram((uint32_t *)&g_sEEPROMDebugCfgData, DEFAULT_EEPROM_DEBUG_CONFG_ADDRESS, sizeof(tEEPROM_debugCfgData));
     }
 
     g_sEEPROMIpCfgData.Domain[EEPROM_CFG_DOMAIN_MAX - 1] = 0;
