@@ -8,12 +8,17 @@
 #ifndef INCLUDES_H_
 #define INCLUDES_H_
 
+#define xstr(s) str(s)
+#define str(s) #s
+
+
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /* For usleep() */
 #include <unistd.h>
@@ -21,6 +26,20 @@
 
 /* POSIX Header files */
 #include <pthread.h>
+#include <semaphore.h>
+
+
+///* BSD support */
+//#include <netinet/in.h>
+//#include <arpa/inet.h>
+//#include <sys/socket.h>
+//
+//#include <ti/net/slnetutils.h>
+
+//#include <ti/ndk/inc/netmain.h>
+//
+//#include <ti/ndk/slnetif/slnetifndk.h>
+//#include <ti/net/slnetif.h>
 
 /* XDCtools Header files */
 #include <xdc/std.h>
@@ -40,7 +59,7 @@
 #include <ti/sysbios/knl/Swi.h>
 #include <ti/sysbios/knl/Clock.h>
 #include <ti/sysbios/knl/Semaphore.h>
-#include <ti/sysbios/knl/MailBox.h>
+#include <ti/sysbios/knl/Mailbox.h>
 #include <ti/sysbios/knl/Queue.h>
 #include <ti/sysbios/knl/Event.h>
 #include <ti/sysbios/gates/GateMutex.h>
@@ -52,6 +71,11 @@
 //#include <ti/sysbios/family/arm/m3/Hwi.h>
 
 #include <ti/sysbios/hal/Hwi.h>
+
+
+//#include <ti/net/http/httpserver.h>
+//#include <ti/net/http/http.h>
+//#include <ti/net/http/logging.h>
 
 
 //typedef char           INT8;
@@ -79,13 +103,20 @@
 
 
 #include <ti/display/Display.h>
+#include <ti/display/DisplayUart.h>
+#include <ti/display/DisplayExt.h>
+#include <ti/display/AnsiColor.h>
 
 /* TI-RTOS Header files */
 //#include <ti/drivers/EMAC.h>
 //#include <ti/drivers/emac/EMACMSP432E4.h>
 
+#include <ti/drivers/CAN.h>
 #include <ti/drivers/GPIO.h>
-// #include <ti/drivers/I2C.h>
+#include <ti/drivers/CRC.h>
+//#include <ti/drivers/gpio/GPIOMSP432E4.h>
+#include <ti/drivers/ADCBuf.h>
+ #include <ti/drivers/I2C.h>
 // #include <ti/drivers/SDSPI.h>
  #include <ti/drivers/SPI.h>
  #include <ti/drivers/UART.h>
@@ -95,6 +126,8 @@
 #include <ti/drivers/PWM.h>
 //#include <ti/drivers/pwm/PWMTiva.h>
 
+/* For usleep() */
+#include <ti/drivers/dpl/ClockP.h>
 
 //#include <inc/hw_ints.h>
 //#include "inc/hw_nvic.h"
@@ -140,10 +173,14 @@
 /* DriverLib Includes */
 #include "ti/devices/msp432e4/driverlib/driverlib.h"
 
-
+#include <third_party/spiffs/spiffs.h>
+#include <third_party/spiffs/SPIFFSNVS.h>
 
 /* Board Header file */
 #include "BoardRev10.h"
+/* Example/Board Header files */
+//#include "ti_drivers_config.h"
+#include "ti_usblib_config.h"
 
 //#define __LOG_TTY
 //#include "cmdline.h"
@@ -161,65 +198,108 @@
 //#include "EEPROMStorage.h"
 //#include "CANTest.h"
 #include "DISPLAY/SMCDisplay.h"
+#include "USB/USBComposite.h"
 
 
-//#include "DiscreteIO/DIO.h"
+
+
+#include "DiscreteIO/DIO.h"
 //#include "USB/USBCDCD.h"
 //#include "USB/DFU.h"
 //#include "USB/USBTTYbin.h"
 //#include "USB/packettype.h"
-//#include "UDPServer.h"
-//#include <Deprecated/BSPSerial.h>
-//#include <Deprecated/ALTO/ALTOInterface.h>
-//#include <Deprecated/ALTO/ForteManager/ComputerBridge.h>
-//#include <Deprecated/ALTO/ALTOMultinet/RelayControllerWorker.h>
-//#include <Deprecated/ALTO/ALTOMultinet/TempControllerWorker.h>
-//#include <Deprecated/ALTO/ALTOMultinet/ALTOMultinet.h>
-//#include <Deprecated/AVDS/AVDSClient.h>
-//#include "Deprecated/RosenDVD/Rosen.h"
-//#include "Deprecated/RosenDVD/RosenBlueRayDVD.h"
+//#include "NDK/UDPServer.h"
+#include "NDK/UDPAVDSServer.h"
+#include <Deprecated/BSPSerial.h>
+#include <Deprecated/ALTO/ALTOInterface.h>
+#include <Deprecated/ALTO/ForteManager/ComputerBridge.h>
+#include <Deprecated/ALTO/ALTOMultinet/RelayControllerWorker.h>
+#include <Deprecated/ALTO/ALTOMultinet/TempControllerWorker.h>
+#include <Deprecated/ALTO/ALTOMultinet/ALTOMultinet.h>
+#include <Deprecated/AVDS/AVDSClient.h>
+#include "Deprecated/RosenDVD/Rosen.h"
+#include "Deprecated/RosenDVD/RosenBlueRayDVD.h"
+#include "Deprecated/Panasonic/PassengerControlUnit.h"
+#include "Deprecated/CANTest/CANTest.h"
 //#include "mx66l51235f.h"
 //
 //#include "TrashCollection/TrashCollection.h"
 //
-//#include "Interfaces/Interfaces.h"
-//#include "Interfaces/IFUART.h"
-//
-//#include "Interfaces/SMC_Interfaces.h"
-//
-//
-//#include "Devices/ServiceDefinition.h"
-//#include "Devices/Devices.h"
-//#include "Devices/Utils/cmdline.h"
-//
-//#include "Devices/GenericDevice/GenericDevice.h"
-//#include "Devices/CANBus/CANTest.h"
-//#include "Devices/TestDevice/TestDevice.h"
-//#include "Devices/ALTOAmp/ALTOAmpDevice.h"
-//#include "Devices/ALTOMultinetDevice/RelayController/ALTOMultinetDeviceRelayControllerWorker.h"
-//#include "Devices/ForteManager/ForteManagerDevice.h"
-//
-//
-//
-//
-//
-//#include "Devices/RemoteController/TCPRemoteController.h"
-//#include "Devices/RemoteController/TCPConsoleCommands/TCPConsoleCommands.h"
-//
-//#include "Devices/RemoteController/TCPRemoteControllerBinary.h"
-//#include "Devices/RemoteController/TCPBinaryCommands/TCPBinaryCommands.h"
-//#include "Devices/RemoteController/TCPBinaryCommands/ALTOAmp/TCPBinaryCMD_ALTOAmp.h"
-//#include "Devices/RemoteController/TCPBinaryCommands/ALTOMultinet/TCPBinaryCMD_ALTOMultinet.h"
-//#include "Devices/RemoteController/TCPBinaryCommands/RAWCharacteristicData/TCPBinaryCMD_RAWCharacteristicData.h"
-//#include "Devices/RemoteController/TCPBinaryCommands/DiscreteIO/TCPBinaryCMD_DiscreteIO.h"
+#include "Interfaces/Interfaces.h"
+#include "Interfaces/IFUART.h"
+
+#include "Interfaces/SMC_Interfaces.h"
+
+
+#include "Devices/ServiceDefinition.h"
+#include "Devices/Devices.h"
+#include "Devices/Utils/cmdline.h"
+
+#include "Devices/GenericDevice/GenericDevice.h"
+#include "Devices/CANBus/CANTest.h"
+#include "Devices/TestDevice/TestDevice.h"
+#include "Devices/ALTOAmp/ALTOAmpDevice.h"
+#include "Devices/ALTOMultinetDevice/RelayController/ALTOMultinetDeviceRelayControllerWorker.h"
+#include "Devices/ForteManager/ForteManagerDevice.h"
+
+
+#include "System/AnalogMonitor/SystemAnalogMonitor.h"
+#include "System/InternalFlashStorage/InternalFlashStorage.h"
+#include "System/ExternalFlashStorage/ExternalFlashStorage.h"
+#include "System/EEPROM/EEPROMStorage.h"
+#include "System/I2CTempSensor/I2CTemp101.h"
+#include "System/SPIDAC/SPIDAC.h"
+#include "System/MAX1301/MAX1301.h"
+#include "System/Bootloader/BootloaderInterface.h"
+#include "System/FlashFileSystem/FlashFileSystemStorage.h"
+#include "System/Watchdog/Watchdog.h"
 
 
 
+#include "Devices/RemoteController/TCPRemoteController.h"
+#include "Devices/RemoteController/TCPConsoleCommands/TCPConsoleCommands.h"
 
+#include "Devices/RemoteController/TCPRemoteControllerBinary.h"
+#include "Devices/RemoteController/TCPBinaryCommands/TCPBinaryCommands.h"
+#include "Devices/RemoteController/TCPBinaryCommands/ALTOAmp/TCPBinaryCMD_ALTOAmp.h"
+#include "Devices/RemoteController/TCPBinaryCommands/AVDS/TCPBinaryCMD_AVDS.h"
+#include "Devices/RemoteController/TCPBinaryCommands/ALTOMultinet/TCPBinaryCMD_ALTOMultinet.h"
+#include "Devices/RemoteController/TCPBinaryCommands/RAWCharacteristicData/TCPBinaryCMD_RAWCharacteristicData.h"
+#include "Devices/RemoteController/TCPBinaryCommands/DiscreteIO/TCPBinaryCMD_DiscreteIO.h"
+#include "Devices/RemoteController/TCPBinaryCommands/SystemControl/TCPBinaryCMD_SystemControl.h"
+#include "Devices/RemoteController/TCPBinaryCommands/DAC/TCPBinaryCMD_DAC.h"
+#include "Devices/RemoteController/TCPBinaryCommands/ProductionTest/TCPBinaryCMD_ProductionTest.h"
+#include "Devices/RemoteController/TCPBinaryCommands/FlashFileSystem/TCPBinaryCMD_FlashFileSystem.h"
+#include "Devices/RemoteController/TCPBinaryCommands/ROSEN/TCPBinaryCMD_Rosen.h"
+#include "Devices/GenericDevice/TFTest/TFUARTTestDevice.h"
+#include "Devices/GenericDevice/DUTTest/DUTUartTestDevice.h"
+
+#include "Devices/AVDS/AVDSDevice.h"
+#include "Devices/AVDS/AVDSRS485Device.h"
+#include "Devices/Rosen/RosenDevice.h"
+#include "Devices/Rosen/RosenRS485Device.h"
+
+#include "Devices/USBSerial/USBRemoteController/USBRemoteControllerBinaryDevice.h"
+#include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/USBBinaryCommands.h"
+#include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/FirmwareUpgrade/USBBinaryCMD_FirmwareUpgrade.h"
+#include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/NetworkConfiguration/USBBinaryCMD_NetworkConfiguration.h"
+#include "Devices/USBSerial/USBRemoteController/USBBinaryCommands/System/USBBinaryCMD_System.h"
+
+
+
+#include "Devices/USBSerial/USBConsole/USBConsoleDevice.h"
+#include "Devices/USBSerial/USBConsole/USBConsoleCommands/USBConsoleCommands.h"
+#include "Devices/USBSerial/USBConsole/USBConsoleCommands/SystemInformation/USBConsoleCMD_SystemInformation.h"
+#include "Devices/USBSerial/USBConsole/USBConsoleCommands/SystemConfig/USBConsoleCMD_SystemConfig.h"
+
+#include "HTTPServer/urlsimple.h"
+#include "HTTPServer/URLHandler/URLHandler.h"
+#include "HTTPServer/memzip/memzip.h"
+#include "HTTPServer/memzip/urlmemzip.h"
 
 
 #define ARRSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
-
+#define MAX_SYSTEM_PRIORITY         10
 
 /*
  *

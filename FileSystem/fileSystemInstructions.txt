@@ -1,0 +1,15 @@
+Hello Giuseppe,
+
+Please use the example spiffsinternal from the path mentioned earlier. 
+The SSI port we are using is SSI-1. Once you import the file update the
+ example code files MSP_EXP432E401Y.c, MSP_EXP432E401Y.h and Board.h (attached)
+
+2262.Board.hMSP_EXP432E401Y.cMSP_EXP432E401Y.h
+
+Add the following two files to your project as there is a bug we found 
+during the debug with external flash. This is marked to be fixed in the next SDK release.
+
+SPIMSP432E4DMA.cSPIMSP432E4DMA.h
+
+We are using a Macronix Serial Flash part MX66L51235F
+

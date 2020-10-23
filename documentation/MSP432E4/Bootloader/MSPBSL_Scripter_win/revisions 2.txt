@@ -1,0 +1,77 @@
+Rev 3.3.0
+========================================================================
+11/03/2017 Fatmawati Santosa
+
+New device support:
+--
+    - MSP432E401YT, MSP432E4111YT
+
+New features / changes:
+-- 
+    - Added support MSP432E401YT and MSP432E4111YT for serial bootloader: UART, I2C, SPI 
+    - Added	support MSP432E401YT and MSP432E4111YT for Ethernet bootloader
+    - Added support for MSP432 I2C and UART BSL on the MSP-FET
+	- Added I2C slave address configuration
+	- Added new parameter in BSLDEMO to have switch polarity in BSL invoke signal
+	- Added new support to read record "0x03" in Intel Hex File, which operates the SET_PC
+    
+Bug fixes:
+--
+    - Fixed opening files problem which filename has '-'
+
+Rev 3.2.1
+========================================================================
+01/20/2017 Fatmawati Santosa
+
+New device support:
+--
+    - N/A
+
+New features / changes:
+--  
+    
+Bug fixes:
+--
+    - Fixed handling in Intel Hex File
+
+Rev 3.2.0
+========================================================================
+11/03/2016 Fatmawati Santosa
+
+New device support:
+--
+    - N/A
+
+New features / changes:
+--
+    - Added FACTORY_RESET command for MSP432P401x devices to perform the factory reset
+    - Supported input firmware image in Intel Hex File format
+    - Added Command-Line-Interface mode that is adapted from commands in MSP Flasher
+    - Coloring the BSL response status on the console to differ successful and failed status
+    - Provide the native 64 bit BSL Scripter for Linux
+    
+Bug fixes:
+--
+    - Fix the return BSL response (including error message)
+    - Interpret the address and length parameters always as hexadecimal format with or without "0x" prefix
+    - Fix the SPI and I2C communication for MSP432P4xx family
+    - Fix the relative path of firmware image file to the script file location
+    - Add example of using MSP-FET and MSP-BSL "Rocket" in User's Guide
+    - Add the package components information in README.txt
+
+Rev 3.1.0
+========================================================================
+11/27/2015 Fatmawati Santosa
+
+New device support:
+--
+    - Crypto-BSL from MSP430FR59xx/69xx family
+
+New features / changes:
+--
+    - BSL Scripter supports the communication with Crypto-BSL in FRAM devices.
+    - The additional 'LOG' mode helps user to save the executed command lines into a log file.   
+    
+Bug Fixes:
+--
+    - Improved robustness of data transmission with different baud rates

@@ -1,0 +1,566 @@
+<Rs485Commands>
+    <command>
+        <name>LIFT_UP</name>
+        <sendData>0x97 0x1</sendData>
+    </command>
+    <command>
+        <name>LIFT_DOWN</name>
+        <sendData>0x97 0x0e</sendData>
+    </command>
+    <command>
+        <name>LIFT_STATUS</name>
+        <sendData>0x98 0x55</sendData>
+    </command>
+    <command>
+        <name>POWER_ON</name>
+        <sendData>0x81 0x0f</sendData>
+    </command>
+    <command>
+        <name>POWER_OFF</name>
+        <sendData>0x81 0xf0</sendData>
+    </command>
+    <command>
+        <name>POWER_OFF_NEW</name>
+        <sendData>0x81 0x10</sendData>
+    </command>
+    <command>
+        <name>POWER_TOGGLE</name>
+        <sendData>0x81 0x3c</sendData>
+    </command>
+    <command>
+        <name>SOURCE_COMPOSITE_VIDEO_1</name>
+        <sendData>0x82 0x1</sendData>
+    </command>
+    <command>
+        <name>SOURCE_COMPOSITE_VIDEO_2</name>
+        <sendData>0x82 0x2</sendData>
+    </command>
+    <command>
+        <name>SOURCE_S_VIDEO</name>
+        <sendData>0x82 0x3</sendData>
+    </command>
+    <command>
+        <name>SOURCE_ANALOG_RGB_1</name>
+        <sendData>0x82 0x4</sendData>
+    </command>
+    <command>
+        <name>SOURCE_ANALOG_RGB_2</name>
+        <sendData>0x82 0x12</sendData>
+    </command>
+    <command>
+        <name>SOURCE_COMPONENT_1</name>
+        <sendData>0x82 0x5</sendData>
+    </command>
+    <command>
+        <name>SOURCE_COMPONENT_2</name>
+        <sendData>0x82 0x14</sendData>
+    </command>
+    <command>
+        <name>SOURCE_DVI_1</name>
+        <sendData>0x82 0x6</sendData>
+    </command>
+    <command>
+        <name>SOURCE_DVI_2</name>
+        <sendData>0x82 0x13</sendData>
+    </command>
+    <command>
+        <name>SOURCE_SDI_1</name>
+        <sendData>0x82 0x7</sendData>
+    </command>
+    <command>
+        <name>SOURCE_SDI_2</name>
+        <sendData>0x82 0x8</sendData>
+    </command>
+    <command>
+        <name>SOURCE_NEXT</name>
+        <sendData>0x82 0x10</sendData>
+    </command>
+    <command>
+        <name>SOURCE_NEXT_SCALING</name>
+        <sendData>0x82 0x11</sendData>
+    </command>
+    <command>
+        <name>BUTTON_LEFT</name>
+        <sendData>0x83 0x1</sendData>
+    </command>
+    <command>
+        <name>BUTTON_RIGHT</name>
+        <sendData>0x83 0x2</sendData>
+    </command>
+    <command>
+        <name>BUTTON_UP</name>
+        <sendData>0x83 0x3</sendData>
+    </command>
+    <command>
+        <name>BUTTON_DOWN</name>
+        <sendData>0x83 0x4</sendData>
+    </command>
+    <command>
+        <name>BUTTON_MENU</name>
+        <sendData>0x83 0x5</sendData>
+    </command>
+    <command>
+        <name>BUTTON_BRIGHTNESS_UP</name>
+        <sendData>0x83 0x11</sendData>
+    </command>
+    <command>
+        <name>BUTTON_BRIGHTNESS_DOWN</name>
+        <sendData>0x83 0x12</sendData>
+    </command>
+    <command>
+        <name>BUTTON_CONTRAST_UP</name>
+        <sendData>0x83 0x13</sendData>
+    </command>
+    <command>
+        <name>BUTTON_CONTRAST_DOWN</name>
+        <sendData>0x83 0x14</sendData>
+    </command>
+    <command>
+        <name>BUTTON_HUE_UP</name>
+        <sendData>0x83 0x15</sendData>
+    </command>
+    <command>
+        <name>BUTTON_HUE_DOWN</name>
+        <sendData>0x83 0x16</sendData>
+    </command>
+    <command>
+        <name>BUTTON_SHARPNESS_UP</name>
+        <sendData>0x83 0x17</sendData>
+    </command>
+    <command>
+        <name>BUTTON_SHARPNESS_DOWN</name>
+        <sendData>0x83 0x18</sendData>
+    </command>
+    <command>
+        <name>BUTTON_SATURATION_UP</name>
+        <sendData>0x83 0x19</sendData>
+    </command>
+    <command>
+        <name>BUTTON_SATURATION_DOWN</name>
+        <sendData>0x83 0x1a</sendData>
+    </command>
+    <command>
+        <name>BUTTON_PIP_POSITION</name>
+        <sendData>0x83 0x20</sendData>
+    </command>
+    <command>
+        <name>BUTTON_PIP_SIZE</name>
+        <sendData>0x83 0x21</sendData>
+    </command>
+    <command>
+        <name>BUTTON_PIP_SOURCE</name>
+        <sendData>0x83 0x22</sendData>
+    </command>
+    <command>
+        <name>BUTTON_SWAP</name>
+        <sendData>0x83 0x23</sendData>
+    </command>
+    <command>
+        <name>BUTTON_OK</name>
+        <sendData>0x83 0x24</sendData>
+    </command>
+    <command>
+        <name>BUTTON_EXIT</name>
+        <sendData>0x83 0x25</sendData>
+    </command>
+    <command>
+        <name>TECH_MENU</name>
+        <sendData>0x83 0x26</sendData>
+    </command>
+    <command>
+        <name>ROSENVIEW_ENTER</name>
+        <sendData>0xa0 0x2</sendData>
+    </command>
+    <command>
+        <name>ROSENVIEW_LEFT</name>
+        <sendData>0xa0 0x3</sendData>
+    </command>
+    <command>
+        <name>ROSENVIEW_RIGHT</name>
+        <sendData>0xa0 0x4</sendData>
+    </command>
+    <command>
+        <name>ROSENVIEW_UP</name>
+        <sendData>0xa0 0x5</sendData>
+    </command>
+    <command>
+        <name>ROSENVIEW_DOWN</name>
+        <sendData>0xa0 0x6</sendData>
+    </command>
+    <command>
+        <name>ROSENVIEW_MENU</name>
+        <sendData>0xa0 0x7</sendData>
+    </command>
+    <command>
+        <name>ROSENVIEW_ZOOM_IN</name>
+        <sendData>0xa0 0x8</sendData>
+    </command>
+    <command>
+        <name>ROSENVIEW_ZOOM_OUT</name>
+        <sendData>0xa0 0x9</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_1</name>
+        <sendData>0xa3 0x1</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_2</name>
+        <sendData>0xa3 0x2</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_3</name>
+        <sendData>0xa3 0x3</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_4</name>
+        <sendData>0xa3 0x4</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_5</name>
+        <sendData>0xa3 0x14</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_6</name>
+        <sendData>0xa3 0x15</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_7</name>
+        <sendData>0xa3 0x16</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_8</name>
+        <sendData>0xa3 0x17</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_9</name>
+        <sendData>0xa3 0x18</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_10</name>
+        <sendData>0xa3 0x19</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_11</name>
+        <sendData>0xa3 0x1a</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_12</name>
+        <sendData>0xa3 0x1b</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_13</name>
+        <sendData>0xa3 0x1c</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_14</name>
+        <sendData>0xa3 0x1d</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_15</name>
+        <sendData>0xa3 0x1e</sendData>
+    </command>
+    <command>
+        <name>PLAY_BRIEFING_16</name>
+        <sendData>0xa3 0x1f</sendData>
+    </command>
+    <command>
+        <name>CANCEL_BRIEFING</name>
+        <sendData>0xa3 0x0f</sendData>
+    </command>
+    <command>
+        <name>ROSENVIEW_STATUS_REQUEST</name>
+        <sendData>0xa8 0x55</sendData>
+    </command>
+    <command>
+        <name>DVD_ENTER</name>
+        <sendData>0xb0 0x1</sendData>
+    </command>
+    <command>
+        <name>DVD_MENU_LEFT</name>
+        <sendData>0xb0 0x2</sendData>
+    </command>
+    <command>
+        <name>DVD_MENU_RIGHT</name>
+        <sendData>0xb0 0x3</sendData>
+    </command>
+    <command>
+        <name>DVD_MENU_UP</name>
+        <sendData>0xb0 0x4</sendData>
+    </command>
+    <command>
+        <name>DVD_MENU_DOWN</name>
+        <sendData>0xb0 0x5</sendData>
+    </command>
+    <command>
+        <name>DVD_EJECT</name>
+        <sendData>0xb0 0x6</sendData>
+    </command>
+    <command>
+        <name>DVD_STOP</name>
+        <sendData>0xb0 0x7</sendData>
+    </command>
+    <command>
+        <name>DVD_NEXT_CHAPTER</name>
+        <sendData>0xb0 0x8</sendData>
+    </command>
+    <command>
+        <name>DVD_PREVIOUS_CHAPTER</name>
+        <sendData>0xb0 0x9</sendData>
+    </command>
+    <command>
+        <name>DVD_SUBTITLE</name>
+        <sendData>0xb0 0x0a</sendData>
+    </command>
+    <command>
+        <name>DVD_SOURCE</name>
+        <sendData>0xb0 0x0d</sendData>
+    </command>
+    <command>
+        <name>DVD_FAST_FORWARD</name>
+        <sendData>0xb0 0x0e</sendData>
+    </command>
+    <command>
+        <name>DVD_REVERSE</name>
+        <sendData>0xb0 0x0f</sendData>
+    </command>
+    <command>
+        <name>DVD_PLAY</name>
+        <sendData>0xb0 0x10</sendData>
+    </command>
+    <command>
+        <name>DVD_PLAY_PAUSE</name>
+        <sendData>0xb0 0x11</sendData>
+    </command>
+    <command>
+        <name>DVD_MENU</name>
+        <sendData>0xb0 0x13</sendData>
+    </command>
+    <command>
+        <name>DVD_POWER</name>
+        <sendData>0xb0 0x20</sendData>
+    </command>
+    <command>
+        <name>DVD_GENERAL_STATUS_REQUEST</name>
+        <sendData>0xb8 0x1</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_ENTER</name>
+        <sendData>0xb0 0x1</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_MENU_LEFT</name>
+        <sendData>0xb0 0x2</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_MENU_RIGHT</name>
+        <sendData>0xb0 0x3</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_MENU_UP</name>
+        <sendData>0xb0 0x4</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_MENU_DOWN</name>
+        <sendData>0xb0 0x5</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_EJECT</name>
+        <sendData>0xb0 0x6</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_STOP</name>
+        <sendData>0xb0 0x7</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_NEXT_CHAPTER</name>
+        <sendData>0xb0 0x8</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_PREVIOUS_CHAPTER</name>
+        <sendData>0xb0 0x9</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_SUBTITLE</name>
+        <sendData>0xb0 0x0a</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_FAST_FORWARD</name>
+        <sendData>0xb0 0x0e</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_REVERSE</name>
+        <sendData>0xb0 0x0f</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_PLAY</name>
+        <sendData>0xb0 0x10</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_PAUSE</name>
+        <sendData>0xb0 0x11</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_PLAY_PAUSE</name>
+        <sendData>0xb0 0x2b</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_MUTE</name>
+        <sendData>0xb0 0x12</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_DVD_MENU</name>
+        <sendData>0xb0 0x13</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_TITLE_MENU</name>
+        <sendData>0xb0 0x14</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_STEREO_VOLUME_UP</name>
+        <sendData>0xb0 0x16</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_STEREO_VOLUME_DOWN</name>
+        <sendData>0xb0 0x17</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_REPEAT_TITLE</name>
+        <sendData>0xb0 0x19</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_REPEAT_CHAPTER</name>
+        <sendData>0xb0 0x1c</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_GENERAL_STATUS_REQUEST</name>
+        <sendData>0xb8 0x1</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_VOLUME_UP</name>
+        <sendData>0xb0 0x0b</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_VOLUME_DOWN</name>
+        <sendData>0xb0 0x0c</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_GREEN_BUTTON</name>
+        <sendData>0xb0 0x1e</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_YELLOW_BUTTON</name>
+        <sendData>0xb0 0x1f</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_BLUE_BUTTON</name>
+        <sendData>0xb0 0x23</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_RED_BUTTON</name>
+        <sendData>0xb0 0x1d</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_ABOUT</name>
+        <sendData>0xb0 0x26</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_BACK</name>
+        <sendData>0xb0 0x25</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_REGION_A</name>
+        <sendData>0xb0 0x28</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_REGION_B</name>
+        <sendData>0xb0 0x29</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_REGION_C</name>
+        <sendData>0xb0 0x2a</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_FACTORY_RESET</name>
+        <sendData>0xb0 0x24</sendData>
+    </command>
+    <command>
+        <name>PING_ADDRESS</name>
+        <sendData>0x88 0x55</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_NUMBER_0</name>
+        <sendData>0xb0 0x70</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_NUMBER_1</name>
+        <sendData>0xb0 0x71</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_NUMBER_2</name>
+        <sendData>0xb0 0x72</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_NUMBER_3</name>
+        <sendData>0xb0 0x73</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_NUMBER_4</name>
+        <sendData>0xb0 0x74</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_NUMBER_5</name>
+        <sendData>0xb0 0x75</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_NUMBER_6</name>
+        <sendData>0xb0 0x76</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_NUMBER_7</name>
+        <sendData>0xb0 0x77</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_NUMBER_8</name>
+        <sendData>0xb0 0x78</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_NUMBER_9</name>
+        <sendData>0xb0 0x79</sendData>
+    </command>
+    <command>
+        <name>BLU_RAY_POWER_ON_OFF</name>
+        <sendData>0xb0 0x4F</sendData>
+    </command>
+    <command>
+        <name>RJ_CABLE_COMPENSATION_ON</name>
+        <sendData>0x85 0x1</sendData>
+    </command>
+    <command>
+        <name>RJ_CABLE_COMPENSATION_OFF</name>
+        <sendData>0x85 0x2</sendData>
+    </command>
+    <command>
+        <name>OPERATIONAL_MODE_STANDARD</name>
+        <sendData>0x85 0x03</sendData>
+    </command>
+	    <command>
+        <name>OPERATIONAL_MODE_AUTO_SDI</name>
+        <sendData>0x85 0x04</sendData>
+    </command>
+    <command>
+        <name>SDI_OVERSCAN_ON</name>
+        <sendData>0x85 0x5</sendData>
+    </command>
+    <command>
+        <name>SDI_OVERSCAN_OFF</name>
+        <sendData>0x85 0x6</sendData>
+    </command>
+    <command>
+        <name>INCREASE_OVERSCAN</name>
+        <sendData>0x85 0x7</sendData>
+    </command>
+    <command>
+        <name>DECREASE_OVERSCAN</name>
+        <sendData>0x85 0x8</sendData>
+    </command>
+</Rs485Commands>

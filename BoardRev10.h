@@ -52,6 +52,10 @@ extern "C" {
 #define Board_ADCBUF0CHANNEL2       MSP_EXP432E401Y_ADCBUF0CHANNEL2
 #define Board_ADCBUF0CHANNEL3       MSP_EXP432E401Y_ADCBUF0CHANNEL3
 #define Board_ADCBUF0CHANNEL4       MSP_EXP432E401Y_ADCBUF0CHANNEL4
+#define Board_ADCBUF0CHANNEL5       MSP_EXP432E401Y_ADCBUF0CHANNEL5
+#define Board_ADCBUF0CHANNEL6       MSP_EXP432E401Y_ADCBUF0CHANNEL6
+
+#define Board_ADCBUF0CHANNELCOUNT   MSP_EXP432E401Y_ADCBUF0CHANNELCOUNT
 
 #define Board_CAN0                  MSP_EXP432E401Y_CAN0
 #define Board_CAN1                  MSP_EXP432E401Y_CAN1
@@ -64,11 +68,16 @@ extern "C" {
 #define Board_GPIO_BUTTON0          MSP_EXP432E401Y_GPIO_USR_SW1
 #define Board_GPIO_BUTTON1          MSP_EXP432E401Y_GPIO_USR_SW2
 
+#define Board_LED3                  SMC_LED_D6
+#define Board_LED4                  SMC_LED_D20
+
+
 #define Board_I2C0                  MSP_EXP432E401Y_I2C0
 #define Board_I2C_TMP               MSP_EXP432E401Y_I2C0
 #define Board_I2C_TPL0401           MSP_EXP432E401Y_I2C7
 
 #define Board_NVSINTERNAL           MSP_EXP432E401Y_NVSMSP432E40
+#define Board_NVSEXTERNAL           MSP_EXP432E401Y_EXT_FLASH
 
 #define Board_PWM0                  MSP_EXP432E401Y_PWM0
 
@@ -78,6 +87,13 @@ extern "C" {
 
 #define Board_SPI0                  MSP_EXP432E401Y_SPI2
 #define Board_SPI1                  MSP_EXP432E401Y_SPI3
+#define Board_SPI2                  MSP_EXP432E401Y_SPI0
+#define Board_SPI3                  MSP_EXP432E401Y_SPI1
+
+#define Board_SPI_ADC               MSP_EXP432E401Y_SPI1
+#define Board_SPI_DAC               MSP_EXP432E401Y_SPI2
+#define Board_SPI_FLASH             MSP_EXP432E401Y_SPI3
+#define Board_SPI_FRAM              MSP_EXP432E401Y_SPI0
 
 #define Board_SPI_MASTER            MSP_EXP432E401Y_SPI2
 #define Board_SPI_SLAVE             MSP_EXP432E401Y_SPI2
@@ -88,8 +104,52 @@ extern "C" {
 #define Board_TIMER1                MSP_EXP432E401Y_TIMER1
 #define Board_TIMER2                MSP_EXP432E401Y_TIMER2
 
-#define Board_UART0                 MSP_EXP432E401Y_UART0
-#define Board_UART2                 MSP_EXP432E401Y_UART2
+
+
+#define Board_GPI_0                 SMC_GPI_0
+#define Board_GPI_1                 SMC_GPI_1
+#define Board_GPI_2                 SMC_GPI_2
+#define Board_GPI_3                 SMC_GPI_3
+#define Board_GPI_4                 SMC_GPI_4
+#define Board_GPI_5                 SMC_GPI_5
+
+
+#define Board_GPO_0                 SMC_GPO_0
+#define Board_GPO_1                 SMC_GPO_1
+#define Board_GPO_2                 SMC_GPO_2
+#define Board_GPO_3                 SMC_GPO_3
+#define Board_GPO_4                 SMC_GPO_4
+#define Board_GPO_5                 SMC_GPO_5
+
+
+#define Board_GPIOCount             MSP_EXP432E401Y_GPIOCOUNT
+
+
+/*
+ * Serial Ports
+ */
+#define Board_Serial0               MSP_EXP432E401Y_UART3
+#define Board_Serial1               MSP_EXP432E401Y_UART6
+#define Board_Serial2               MSP_EXP432E401Y_UART4
+#define Board_Serial3               MSP_EXP432E401Y_UART0
+#define Board_Serial4               MSP_EXP432E401Y_UART2
+#define Board_Serial5               MSP_EXP432E401Y_UART1
+#define Board_Serial6               MSP_EXP432E401Y_UART5
+#define Board_Serial7               MSP_EXP432E401Y_UART7
+
+#define Board_SerialMultinet        Board_Serial6
+#define Board_SerialDebug           Board_Serial5
+
+#define Board_SerialCount           MSP_EXP432E401Y_UARTCOUNT
+
+
+
+
+
+
+
+
+
 
 #define Board_WATCHDOG0             MSP_EXP432E401Y_WATCHDOG0
 

@@ -47,9 +47,11 @@
 #include "includes.h"
 
 extern void *mainThread(void *arg0);
+extern void *SMC_initThread(void *arg0);
+extern unsigned char g_macAddress[6];
 
 /* Stack size in bytes */
-#define THREADSTACKSIZE    1024
+#define THREADSTACKSIZE    2048
 
 /*
  * The following (weak) function definition is needed in applications
@@ -64,8 +66,55 @@ void __attribute__((weak)) NDK_hookInit(int32_t id) {}
 void NDK_hookInit(int32_t id) {}
 #endif
 
+#pragma DATA_SECTION(g_infoHeader, ".crcheader")
+uint32_t const g_infoHeader[] =
+{
+    0xFF01FF02,
+    0xFF03FF04,
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFFFFFF
+};
 
 extern void ti_ndk_config_Global_startupFxn();
+
+
+void programEMACAddress()
+{
+    uint32_t ulUser0, ulUser1;
+
+    ulUser0 = 0x00B61A00;
+    ulUser1 = 0x0055BF03;
+    FlashUserSet(ulUser0, ulUser1);
+    FlashUserSave();
+}
+
+void readUserFlashReg()
+{
+    uint32_t ulUser0, ulUser1, ulUser2, ulUser3;
+
+    FlashAllUserRegisterGet(&ulUser0, &ulUser1, &ulUser2, &ulUser3);
+}
+
+void initMACAddress()
+{
+    tEEPROM_macConfigData *psEEPMACConfg;
+    uint8_t *ptrByte;
+
+    psEEPMACConfg = (tEEPROM_macConfigData *)psEEPMACConfg_get();
+    ptrByte = (uint8_t *)&psEEPMACConfg->macReg0;
+    g_macAddress[0] = ptrByte[0];
+    g_macAddress[1] = ptrByte[1];
+    g_macAddress[2] = ptrByte[2];
+    ptrByte = (uint8_t *)&psEEPMACConfg->macReg1;
+    g_macAddress[3] = ptrByte[0];
+    g_macAddress[4] = ptrByte[1];
+    g_macAddress[5] = ptrByte[2];
+}
+
 
 /*
  *  ======== main ========
@@ -80,11 +129,18 @@ int main(void)
     /* Call driver init functions */
     Board_initGeneral();
 
+//    readUserFlashReg();
+//    programEMACAddress();
+
+    INFO_init();
+    initMACAddress();
+
+
     /* Initialize the attributes structure with default values */
     pthread_attr_init(&attrs);
 
     /* Set priority, detach state, and stack size attributes */
-    priParam.sched_priority = 1;
+    priParam.sched_priority = 11;
     retc = pthread_attr_setschedparam(&attrs, &priParam);
     retc |= pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED);
     retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
@@ -93,13 +149,15 @@ int main(void)
         while (1) {}
     }
 
-    retc = pthread_create(&thread, &attrs, mainThread, NULL);
+//    loadInitialization();
+//    retc = pthread_create(&thread, &attrs, mainThread, NULL);
+    retc = pthread_create(&thread, &attrs, SMC_initThread, NULL);
     if (retc != 0) {
         /* pthread_create() failed */
         while (1) {}
     }
 
-    ti_ndk_config_Global_startupFxn();
+//    ti_ndk_config_Global_startupFxn();
 
     System_printf("Starting the System Master Controller\nSystem provider is set to SysMin. "
                   "Halt the target to view any SysMin contents in ROV.\n"

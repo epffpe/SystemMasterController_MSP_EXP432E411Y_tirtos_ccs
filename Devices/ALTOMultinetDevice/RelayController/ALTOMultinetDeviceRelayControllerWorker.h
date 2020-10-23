@@ -1,0 +1,38 @@
+/*
+ * ALTOMultinetDeviceRelayControllerWorker.h
+ *
+ *  Created on: May 21, 2018
+ *      Author: epenate
+ */
+
+#ifndef DEVICES_ALTOMULTINETDEVICE_RELAYCONTROLLER_ALTOMULTINETDEVICERELAYCONTROLLERWORKER_H_
+#define DEVICES_ALTOMULTINETDEVICE_RELAYCONTROLLER_ALTOMULTINETDEVICERELAYCONTROLLERWORKER_H_
+
+
+#define RELAYCONTROLLERDEVICEWORKER_TASK_STACK_SIZE      2048
+#define RELAYCONTROLLERDEVICEWORKER_TASK_PRIORITY        5
+
+
+#ifdef __cplusplus
+extern "C"  {
+#endif
+
+
+
+#ifdef  __RELAYCONTROLLERDEVICEWORKER_GLOBAL
+    #define __RELAYCONTROLLERDEVICEWORKER_EXT
+#else
+    #define __RELAYCONTROLLERDEVICEWORKER_EXT  extern
+#endif
+__RELAYCONTROLLERDEVICEWORKER_EXT
+void vALTOMultinet_relayControllerWorker_Params_init(ALTOMultinetDeviceControllerWorker_Params *params) ;
+__RELAYCONTROLLERDEVICEWORKER_EXT
+Task_Handle xALTOMultinet_relayControllerWorker_init(void *arg0, void *ptControllerWorkerQParams);
+#ifdef __cplusplus
+}
+#endif
+
+
+
+
+#endif /* DEVICES_ALTOMULTINETDEVICE_RELAYCONTROLLER_ALTOMULTINETDEVICERELAYCONTROLLERWORKER_H_ */

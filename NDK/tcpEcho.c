@@ -37,12 +37,13 @@
 
 #include <string.h>
 #include <stdint.h>
-
+#include <xdc/runtime/System.h>
 #include <pthread.h>
 /* BSD support */
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <sys/_timeval.h>
 
 #include <ti/net/slnetutils.h>
 
@@ -71,18 +72,22 @@ void *tcpWorker(void *arg0)
 
     fdOpenSession(TaskSelf());
 
-    Display_printf(g_SMCDisplay, 0, 0, "tcpWorker: start clientfd = 0x%x\n",
-            clientfd);
+    Display_printf(g_SMCDisplay, 0, 0, "tcpWorker: start clientfd = 0x%x\n", clientfd);
 
+//    System_printf("tcpWorker: start clientfd = 0x%x\n", clientfd);
+//    System_flush();
     while ((bytesRcvd = recv(clientfd, buffer, TCPPACKETSIZE, 0)) > 0) {
         bytesSent = send(clientfd, buffer, bytesRcvd, 0);
         if (bytesSent < 0 || bytesSent != bytesRcvd) {
             Display_printf(g_SMCDisplay, 0, 0, "send failed.\n");
+//            System_printf("send failed.\n");
+//            System_flush();
             break;
         }
     }
     Display_printf(g_SMCDisplay, 0, 0, "tcpWorker stop clientfd = 0x%x\n", clientfd);
-
+//    System_printf("tcpWorker stop clientfd = 0x%x\n", clientfd);
+//    System_flush();
     close(clientfd);
 
     fdCloseSession(TaskSelf());
@@ -110,6 +115,7 @@ void *tcpHandler(void *arg0)
     int                optlen = sizeof(optval);
     socklen_t          addrlen = sizeof(clientAddr);
     uint16_t           portNumber = *(uint16_t *)arg0;
+    struct timeval      socketTimeout;
 
     fdOpenSession(TaskSelf());
 
@@ -144,6 +150,26 @@ void *tcpHandler(void *arg0)
         Display_printf(g_SMCDisplay, 0, 0, "tcpHandler: setsockopt failed\n");
         goto shutdown;
     }
+
+    optval = 30;
+    status = setsockopt(server, SOL_SOCKET, SO_KEEPALIVETIME, &optval, optlen);
+    if (status == -1) {
+        Display_printf(g_SMCDisplay, 0, 0, "tcpHandler: setsockopt failed\n");
+        goto shutdown;
+    }
+    // Socket timeouts configuration
+    socketTimeout.tv_sec = 3;
+    socketTimeout.tv_usec = 0;
+    status = setsockopt(server, SOL_SOCKET, SO_RCVTIMEO, &socketTimeout, sizeof(socketTimeout));
+    if (status == -1) {
+        Display_printf(g_SMCDisplay, 0, 0, "tcpHandler: setsockopt failed\n");
+        goto shutdown;
+    }
+//    status = setsockopt(server, SOL_SOCKET, SO_SNDTIMEO, &socketTimeout, sizeof(socketTimeout));
+//    if (status == -1) {
+//        Display_printf(g_SMCDisplay, 0, 0, "tcpHandler: setsockopt failed\n");
+//        goto shutdown;
+//    }
 
     while ((clientfd =
             accept(server, (struct sockaddr *)&clientAddr, &addrlen)) != -1) {

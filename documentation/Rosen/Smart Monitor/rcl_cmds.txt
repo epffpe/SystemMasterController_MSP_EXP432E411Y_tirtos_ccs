@@ -1,0 +1,385 @@
+
+samba_cmds.cpp
+do_mount_cifs	 Mount a samba file system share
+ share_location mount_location options
+    Mounts the samba file system specified by share_location
+    on the local directory mount_location with the specified
+    options.  If the mount_location does not exist it will attempt
+    to create it.  If there is an error mounting the file system an
+    error will be returned.
+
+do_unmount_cifs	 Unmount a samba file system share
+ mount_location
+    Unmounts the samba file system mounted on mount_location.
+    If the file system can not be unmounted, an error is returned.
+
+
+relay_cmds.cpp
+get_relay_id_range	 Returns the range of valid relay IDs
+
+    Takes no parameters and returns the numerical range of valid Relay IDs
+    as a pair of integers separated by a space representing the lowest and
+    highest valid IDs.
+
+open_relay	 Opens the specified relay
+ relayid
+    Takes one parameter which specifies the relay id to open.
+
+close_relay	 Closes the specified relay
+ relayid
+    Takes one parameter which specifies the relay id to close.
+
+get_relay_state	 Returns the current state of an external relay
+ relayid
+    Takes one parameter which specifies the relay id to get the state for.
+    The state is an integer representing INVALID (-1), OPEN (0), or CLOSED (1).
+
+
+sketchy_cmds.cpp
+stop_video_streaming_app
+start_video_streaming_app
+
+debug_cmds.cpp
+na_test	 Generate an unimplemented return for testing
+
+error_test	 Generate an error return for testing
+
+status_test	 Generate a multi-status return for testing
+
+ping	 Ping the RCL server to confirm it is running
+
+okay_test	 Generate a successful return for testing
+
+echo	 Return the command line back to the user
+
+
+utility_cmds.cpp
+get_config_xml	 Returns an XML encoded string of monitor configuration
+
+    Takes no parameters and returns an XML encoded configuration file
+    for the system.
+
+set_power_state	 Sets the power state of the display
+ power_state
+    Takes one parameter which specifies the power state to put the
+    system into.  The power state can be 'on' or 'standby' (without quotes).
+    On will turn the display on and power up all necessary components.  Standby
+    will typically turn the display off and reduce power consumption by turning
+    off any unnecessary components.
+
+set_systemui_enabled	 Enables the Android System UI.
+
+    Runs a script to enable the android system UI.
+    Takes effect immediately.
+    Does not persist through reboots if the corresponding rosen config setting
+    is not set.
+
+set_power_mode	 Set power_mode in Rosen State to provided argument.
+
+    Takes one parameter and returns whether power_mode was successfully set.
+    NOTE: This setting only persists if enough time is allowed (~200 seconds),
+    and the unit is power cycled. OR if do_save_settings RCL command is issued.
+    This is to protect the emmc from overuse.
+    The accepted states to set the device to are as follows:
+        auto_on - Device always powers into ON state
+        auto_off - Device always powers into STANDBY state
+        open_on - Transition to ON state when power discrete pin is open
+        ground_on - Transition into ON state when power discrete pin is grounded
+        momentary_on - Power into ON state; transition between STANDBY
+                       and ON states as the discrete pin is toggled.
+
+get_bit_result	 Returns the results of the Built-In-Test (BIT)
+
+    Queries the current Built In Test result on the device
+    by querying the associated field in Rosen State.
+    Note that the *successful execution* of the 'get_bit_status' command
+    returns an OKAY status, following by a string of failed test cases
+    (or the string 'GOOD' if there are no errors).  The get_bit_result
+    command returns ERROR if it is not able to query the Built In Test result.
+
+set_launcher_enabled	 Enables the Android launcher in the launch menu (available at device startup).
+
+    Runs a script to enable the android launcher on startup.
+    Takes effect after a reboot.
+    Does not persist through consecutive reboots if the corresponding rosen config
+    setting is not set.
+
+get_eth_duplex	 Returns the current ethernet duplex (half|full) settings
+ device
+    Takes the ethernet device name as a parameter and returns the current
+    ethernet duplex (half or full).
+
+get_desc	 Returns a cosmetic text description of the monitor configuration
+
+set_launcher_disabled	 Disables the Android launcher in the launch menu.
+
+    Runs a script to disable the android launcher on startup.
+    Takes effect after a reboot.
+    Does not persist through consecutive reboots if the corresponding rosen config
+.    setting is not set.
+get_temperature	 Returns a list of temperature zone values
+
+    Takes no parameters and returns a count and list of temperatures from the system
+    in the form: <n> <temp_1> <temp_2> ... <temp_n>
+
+do_rosen_config_reset	 Resets rosen config's saved state back to factory defaults
+
+   Takes no parameters
+
+get_sw_packet_rev	 Returns the Rosen firmware image revision
+
+    Takes no parameters and returns the revision number for the firmware
+    installed on the system.
+
+get_eth_speed	 Returns the current ethernet speed
+ device
+    Takes the ethernet device name as a parameter returns the
+    ethernet speed in Mbps.
+
+get_license	 returns the license key of an application.
+
+    Takes an application name as a parameter, then returns
+    the license key associated with that application, or returns
+    an error if the application does not have a license key file.
+
+get_hw_part_number	 Returns the Rosen hardware part number and Mod
+
+    Takes no parameters and returns the part number for the hardware.
+
+set_license	 adds an application license key to the system.
+
+    Takes an application name and a license key as parameters,
+    then adds a .txt file using the name of the application and
+    places the license key inside of that file.
+
+do_reboot	 Perform a soft reset operation to restart
+
+set_rosen_config	 Sets a value to and saves rosen config
+ name value
+   Where name is the name of the rosen config parameter.
+   value is the value of the rosen config parameter.
+   NOTE - this saves the all of rosen config...therefore
+   make sure to run do_rosen_config_reset when testing
+   is complete
+
+set_eth_duplex	 Sets the current ethernet duplex (half|full) setting
+ device duplex
+    Takes the ethernet device name as a parameter and sets the current
+    ethernet duplex to the duplex specified (auto, half or full).
+
+do_clear_cache	 removes all .xml files from the /cache directory.
+
+    Runs a script to clear the cache directory of previous configuration settings.
+    Immediately removes files - but requires a reboot to display the effects.
+do_memory_test	 Invoke a long-running memory test
+
+    Invokes a long-running memory test, returning STATUS
+    messages to indicate percent complete.  When done, it
+    returns OKAY, or 'Code <return code> : <problem>'.  Possible
+
+get_power_state	 Returns the current power state of the display
+
+    Takes no parameters and returns the current power state of the system.
+    Return values are 'on' or 'standby' (without quotes) to indicate that the
+    system is up and running at full-power or is in a low-power standby mode.
+
+set_packet	 Sets the packet to allow switching between the release
+    and engineering functionality automatically while
+    testing (for example during an ATP).
+
+    Takes one parameter which is the packet to set.
+
+set_boot_anim	 changes the boot animation to the provided file.
+
+    Takes a file path to a boot animation zip file as a parameter,
+    and changes the existing boot animation to the new one.  Returns
+    an error if the provided filepath is not valid.
+
+do_bit	 Runs the Built-In-Test (BIT)
+
+    Takes no parameters and runs the built-in-test. sending back
+    progressive STATUS messages as it runs. Once complete, the
+    results can be read with get_bit_result.
+
+get_power_mode	 Return the current power_mode read from Rosen State.
+
+    Takes no paramters and returns the power mode the device is set to.
+    The potential states are as follows:
+        auto_on - Device always powers into ON state
+        auto_off - Device always powers into STANDBY state
+        open_on - Transition to ON state when power discrete pin is open
+        ground_on - Transition into ON state when power discrete pin is grounded
+        momentary_on - Power into ON state; transition between STANDBY
+                       and ON states as the discrete pin is toggled.
+get_hw_part_rev	 Returns the Rosen hardware part revision
+
+    Takes no parameters and returns the revision number for the hardware.
+
+get_sw_packet_number	 Returns the Rosen firmware part number (packet number)
+
+    Takes no parameters and returns the part number for the firmware
+    installed on the system.
+
+get_session_log	  Gets the session log from the SQlite database.
+
+    No arguments are used
+
+get_serial_number	 Returns the Rosen part serial number
+
+    Takes no parameters and returns the serial number for the system.
+
+set_systemui_disabled	 Disables the Android System UI.
+
+    Runs a script to disable the android system UI.
+    Takes effect immediately.
+    Does not persist through reboots if the corresponding rosen config setting
+    is not set.
+get_bit_status	 Returns the current Built In Test status of the device
+
+    Returns the current status of the Built-In-Test.  Return values include
+    running, pass, fail, warn, or none.
+
+set_fan_state	 Sets the state of the system fan to on or off
+ on | off
+    Takes one parameter which is the state to set the fan to
+    either on or off.
+
+do_upgrade_http	 Begin an upgrade process by contacting a web server
+ ip_address port
+    Tells the monitor to begin an upgrade process by contacting a web
+    server running on the given Ethernet ip_address and port,
+    downloading images from it, and installing them. The process will
+    periodically send status message updates including the estimated
+    percent completion of the process.
+
+
+remote_cmds.cpp
+do_up	 Issues an "Up" command
+
+do_enter	 Issues an "Enter" command
+
+do_down	 Issues a "Down" command
+
+do_key	 Issues a button press command
+
+    Takes a <KeyEvent> code as parameter and simulates that keypress
+    and returns true on success
+    KeyEvent code takes the form 'KEYCODE_<key>'. Sampling includes:
+    KEYCODE_1
+    KEYCODE_A
+    KEYCODE_ENTER
+    KEYCODE_APP_SWITCH
+    For a complete listing, consult Android Developers Reference Documentation
+
+do_menu	 Issues a "Menu" command
+
+do_source	 Issues a "Source" command
+
+do_home	 Issues a "Home" button press command
+
+do_back	 Issues a "Back" button press command
+
+do_left	 Issues a "Left" command
+
+launch_app	 Sends intents to launch android applications
+ app_name (app_intent)
+    Takes one parameter and uses the Android Manager
+    to launch the specified application.
+
+do_right	 Issues a "Right" command
+
+do_mute	 Mutes/unmutes the audio of the target device
+
+do_exit	 Issues an "Exit" command
+
+
+
+video_cmds.cpp
+set_blue	 Sets the video Blue Gain value (0-100)
+
+do_set_persistent_property
+get_pix_brightness	 Returns the video Pixel Brightness value (0-100)
+
+set_red	 Sets the video Red Gain value (0-100)
+
+get_aspect	 Returns the video player's current aspect ratio
+
+    Returns the keyword for the current video input's aspect ratio, one of:
+      debug              - no scaling or stretching
+      normal             - scaled to display size, preserving aspect ratio
+      fullscreen         - scaled to display size, zoomed to eliminate black bars
+      expanded_letterbox - scaled to remove letterbox effect
+      pillarbox          - scaled to create 4:3 pillarbox effect
+      stretch            - stretched to fully fit display, potentially altering aspect ratio
+      user_specified     - use the user-specified scaling
+
+get_red	 Returns the video Red Gain value (0-100)
+
+set_hue	 Sets the video Hue value (0-100)
+
+set_saturation	 Sets the video Saturation value (0-100)
+
+do_factory_reset	 Restores the User and Technician Settings of the device to their defaults.
+
+    Takes no parameters and only returns OKAY
+    Resets user and technician settings back to their defaults by removing cached XML files.
+    Also sends the factory reset command to the video player to update the OSD.
+
+do_save_settings	 Saves any modifications to the state without needing to power cycle
+
+    Takes no parameters and only returns OKAY
+    Saves any modifications to the state without needing to power cycle
+
+set_contrast	 Sets the video Contrast value (0-100)
+
+get_green	 Returns the video Green Gain value (0-100)
+
+get_saturation	 Returns the video Saturation value (0-100)
+
+set_pix_brightness	 Sets the video Pixel Brightness value (0-100)
+
+get_hue	 Returns the video Hue value (0-100)
+
+do_get_persistent_property	 Gets the supplied key from the persistent property list
+
+    Takes a key and returns the value and OKAY on success
+
+get_blue	 Returns the video Blue Gain value (0-100)
+
+set_green	 Sets the video Green Gain value (0-100)
+
+get_resolution	 Returns the resolution from the video player
+
+get_backlight	 Returns the video Backlight Brightness value (0-100)
+
+set_nav_fixed	 Sets the system property for navbar hiding persistence
+
+get_contrast	 Returns the video Contrast value (0-100)
+
+do_restore_video_settings	 Restores the Video Settings of the device to their defaults.
+
+    Takes no parameters and only returns OKAY
+    Resets user settings back to their defaults by removing cached XML files.
+
+set_aspect	 Sets the video player's current aspect ratio
+ aspect_ratio
+    Sets the current video input's aspect ratio. The parameter is one of:
+      debug              - no scaling or stretching
+      normal             - scaled to display size, preserving aspect ratio
+      fullscreen         - scaled to display size, zoomed to eliminate black bars
+      expanded_letterbox - scaled to remove letterbox effect
+      pillarbox          - scaled to create 4:3 pillarbox effect
+      stretch            - stretched to fully fit display, potentially altering aspect ratio
+      user_specified     - use the user-specified scaling
+
+do_restore_tech_settings	 Restores the Technician Settings of the device to their defaults.
+
+    Takes no parameters and only returns OKAY
+    Resets technician settings back to their defaults by removing cached XML files.
+
+set_backlight	 Sets the video Backlight Brightness value (0-100)
+
+do_reset_persistent_properties	 Removes all variables saved to persistent storage
+
+    Takes no parameters and only returns OKAY
+

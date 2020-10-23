@@ -34,26 +34,46 @@
  *    ======== tcpEchoHooks.c ========
  */
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-
-#include <pthread.h>
+//#include <stdlib.h>
+//#include <stdint.h>
+//#include <stdbool.h>
+//
+//#include <pthread.h>
+//
 
 #include <ti/ndk/inc/netmain.h>
 
 #include <ti/ndk/slnetif/slnetifndk.h>
 #include <ti/net/slnetif.h>
+#include "includes.h"
+//
+//#include <ti/display/Display.h>
 
-#include <ti/display/Display.h>
+#define TCPPORT 2000
+#define UDPPORT 1001
+#define AVDSUDPPORT 2010
 
-#define TCPPORT 1000
 
-#define TCPHANDLERSTACK 2048
+#define TCPHANDLERSTACK 4096
+#define UDPHANDLERSTACK 4096
 #define IFPRI  4   /* Ethernet interface priority */
+
+#define HTTPSTACKSIZE   8192
+#define IF_PRIORITY     1
+#define SERVER_PORT     80
+#define SEC_SERVER_PORT 443
+
+/* Prototypes */
+extern Display_Handle display;
+extern void *serverFxn(void *arg0);
+
 
 /* Prototypes */
 extern void *tcpHandler(void *arg0);
+extern void *UDPFinder_task(void *arg0);
+extern Void udpHandlerFxn(UArg arg0, UArg arg1);
+extern Void echoFxn(UArg arg0, UArg arg1);
+extern void *pvUDPAVDSFinder_taskFxn(void *arg0);
 
 extern Display_Handle g_SMCDisplay;
 
@@ -68,27 +88,42 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
     struct sched_param  priParam;
     int                 retc;
     int                 detachState;
-    static uint16_t arg0 = TCPPORT;
+//    uint32_t            hostByteAddr;
+    static uint16_t arg0 = UDPPORT;
+    static uint16_t arg1 = AVDSUDPPORT;
     static bool createTask = true;
-    int32_t status = 0;
+    int32_t             status = 0;
+    static uint16_t     http_port = SERVER_PORT;
+//    static uint16_t     https_port = SEC_SERVER_PORT;
+//    int32_t status = 0;
 
+//    Task_Handle taskHandle;
+//    Task_Params taskParams;
+    Error_Block eb;
+    Device_Params deviceParams;
+
+//    /* Make sure Error_Block is initialized */
+    Error_init(&eb);
+
+//    System_printf("netIPAddrHook %s, line %d\n", __FILE__, __LINE__);
     status = SlNetSock_init(0);
     if (status != 0) {
-        Display_printf(g_SMCDisplay, 0, 0, "SlNetSock_init fail (%d)\n",
-            status);
+        Display_printf(g_SMCDisplay, 0, 0, "SlNetSock_init fail (%d)\n", status);
+//        System_printf("SlNetSock_init fail (%d)\n", status);
+
     }
 
     status = SlNetIf_init(0);
     if (status != 0) {
-        Display_printf(g_SMCDisplay, 0, 0, "SlNetIf_init fail (%d)\n",
-            status);
+        Display_printf(g_SMCDisplay, 0, 0, "SlNetIf_init fail (%d)\n", status);
+//        System_printf("SlNetIf_init fail (%d)\n", status);
     }
 
     status = SlNetIf_add(SLNETIF_ID_2, "eth0",
             (const SlNetIf_Config_t *)&SlNetIfConfigNDK, IFPRI);
     if (status != 0) {
-        Display_printf(g_SMCDisplay, 0, 0, "SlNetIf_add fail (%d)\n",
-            status);
+        Display_printf(g_SMCDisplay, 0, 0, "SlNetIf_add fail (%d)\n", status);
+//        System_printf("SlNetIf_add fail (%d)\n", status);
     }
 
     if (fAdd && createTask) {
@@ -97,36 +132,159 @@ void netIPAddrHook(uint32_t IPAddr, unsigned int IfIdx, unsigned int fAdd)
          *  arg0 will be the port that this task listens to.
          */
 
+        /*
+         * TCP Server. Command receiver
+         */
+        vTCPRCBinDevice_Params_init(&deviceParams, TCPRCBINDEVICE_ID);
+        xDevice_add(&deviceParams, &eb);
+
+
+        /*
+         * UDP server
+         */
+
+//        Display_printf(g_SMCDisplay, 0, 0, "Adding UDP Server on port (%d)\n", UDPPORT);
+//        Task_Params_init(&taskParams);
+//        taskParams.stackSize = UDPHANDLERSTACK;
+//        taskParams.priority = 2;
+//        taskParams.arg0 = UDPPORT;
+//        taskHandle = Task_create((Task_FuncPtr)udpHandlerFxn, &taskParams, &eb);
+//        if (taskHandle == NULL) {
+//            System_printf("main: Failed to create udpHandler Task\n");
+//        }
+
+
+
+        /* Set priority and stack size attributes */
+        pthread_attr_init(&attrs);
+        priParam.sched_priority = 2;
+
+        detachState = PTHREAD_CREATE_DETACHED;
+        retc = pthread_attr_setdetachstate(&attrs, detachState);
+        if (retc != 0) {
+            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_attr_setdetachstate() failed\n");
+//            System_printf("netIPAddrHook: pthread_attr_setdetachstate() failed\n");
+            while (1);
+        }
+
+//        pthread_attr_setschedparam(&attrs, &priParam);
+//
+//        retc |= pthread_attr_setstacksize(&attrs, TCPHANDLERSTACK);
+//        if (retc != 0) {
+//            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_attr_setstacksize() failed\n");
+////            System_printf("netIPAddrHook: pthread_attr_setstacksize() failed\n");
+//            while (1);
+//        }
+
+//        retc = pthread_create(&thread, &attrs, tcpHandler, (void *)&arg0);
+//        if (retc != 0) {
+//            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_create() failed\n");
+////            System_printf("netIPAddrHook: pthread_create() failed\n");
+//            while (1);
+//        }
+
+        /*
+         * **********************************************************************
+         */
+
+        pthread_attr_setschedparam(&attrs, &priParam);
+
+        retc |= pthread_attr_setstacksize(&attrs, UDPHANDLERSTACK);
+        if (retc != 0) {
+            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_attr_setstacksize() failed\n");
+//            System_printf("netIPAddrHook: pthread_attr_setstacksize() failed\n");
+            while (1);
+        }
+
+        arg0 = UDPPORT;
+        Display_printf(g_SMCDisplay, 0, 0, "Adding UDP Server on port (%d)\n", arg0);
+        retc = pthread_create(&thread, &attrs, UDPFinder_task, (void *)&arg0);
+//        retc = pthread_create(&thread, &attrs, echoFxn, (void *)&arg0);
+        if (retc != 0) {
+            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_create() failed\n");
+//            System_printf("netIPAddrHook: pthread_create() failed\n");
+            while (1);
+        }
+
+
+        arg1 = AVDSUDPPORT;
+        Display_printf(g_SMCDisplay, 0, 0, "Adding UDP AVDS Finder Server on port (%d)\n", arg1);
+        retc = pthread_create(&thread, &attrs, pvUDPAVDSFinder_taskFxn, (void *)&arg1);
+//        retc = pthread_create(&thread, &attrs, UDPFinder_task, (void *)&arg1);
+        if (retc != 0) {
+            Display_printf(g_SMCDisplay, 0, 0, "netIPAddrHook: pthread_create() failed\n");
+//            System_printf("netIPAddrHook: pthread_create() failed\n");
+            while (1);
+        }
+
+        /*
+         * **************************************************************************
+         * HTTP Server
+         */
+
         /* Set priority and stack size attributes */
         pthread_attr_init(&attrs);
         priParam.sched_priority = 1;
 
         detachState = PTHREAD_CREATE_DETACHED;
         retc = pthread_attr_setdetachstate(&attrs, detachState);
-        if (retc != 0) {
+        if (retc != 0)
+        {
             Display_printf(g_SMCDisplay, 0, 0,
-                    "netIPAddrHook: pthread_attr_setdetachstate() failed\n");
+                    "httpSrvBasicHooks main: pthread_attr_setdetachstate() "
+                    "failed\n");
             while (1);
         }
 
         pthread_attr_setschedparam(&attrs, &priParam);
 
-        retc |= pthread_attr_setstacksize(&attrs, TCPHANDLERSTACK);
-        if (retc != 0) {
+        retc |= pthread_attr_setstacksize(&attrs, HTTPSTACKSIZE);
+        if (retc != 0)
+        {
             Display_printf(g_SMCDisplay, 0, 0,
-                    "netIPAddrHook: pthread_attr_setstacksize() failed\n");
+                    "httpSrvBasicHooks main: pthread_attr_setstacksize() "
+                    "failed\n");
             while (1);
         }
 
-        retc = pthread_create(&thread, &attrs, tcpHandler, (void *)&arg0);
-        if (retc != 0) {
+        /* Begin the thread that will start the INSECURE server */
+        retc = pthread_create(&thread, &attrs, serverFxn, (void *)&http_port);
+        if (retc != 0)
+        {
             Display_printf(g_SMCDisplay, 0, 0,
-                    "netIPAddrHook: pthread_create() failed\n");
+                    "httpSrvBasicHooks main: http pthread_create() failed\n");
             while (1);
         }
+
+//        /* Begin the thread that will start the SECURE server */
+//        retc = pthread_create(&thread, &attrs, serverFxn, (void *)&https_port);
+//        if (retc != 0)
+//        {
+//            Display_printf(g_SMCDisplay, 0, 0,
+//                    "httpSrvBasicHooks main: https pthread_create() failed\n");
+//            while (1);
+//        }
 
         createTask = false;
     }
+//    System_flush();
+}
+
+
+/*
+ *  ======== serviceReportHook ========
+ *  NDK service report hook
+ */
+void serviceReportHook(uint32_t item, uint32_t status, uint32_t report, void *h)
+{
+    static char *taskName[] = {"Telnet", "HTTP", "NAT", "DHCPS", "DHCPC", "DNS"};
+    static char *reportStr[] = {"", "Running", "Updated", "Complete", "Fault"};
+    static char *statusStr[] =
+        {"Disabled", "Waiting", "IPTerm", "Failed","Enabled"};
+
+    Display_printf(g_SMCDisplay, 0, 0, "Service Status: %-9s: %-9s: %-9s: %03d\n",
+            taskName[item - 1], statusStr[status], reportStr[report / 256],
+            report & 0xFF);
 }
 
 

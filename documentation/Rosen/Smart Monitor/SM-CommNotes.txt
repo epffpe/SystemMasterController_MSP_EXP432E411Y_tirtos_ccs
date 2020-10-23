@@ -1,0 +1,27 @@
+Communications to the SM
+
+You can select a source via RCL.  That's done via the launch_app RCL command.  The launch_app command will send an Android intent which can launch any Android application.   Here are the commands to launch the Rosen applications:
+•	SDI2 = launch_app -n com.rosen.rosenplayer/.MainActivity -e source SDI2
+•	SDI1 = launch_app -n com.rosen.rosenplayer/.MainActivity -e source SDI1
+•	Composite = launch_app -n com.rosen.rosenplayer/.MainActivity -e source COMPOSITE
+•	Settings App = launch_app -n com.rosen.settings/.SettingsActivity
+•	Media Share = launch_app -n com.rosenaviation.mediashare/.browser.BrowserActivity
+•	Flight Info = launch_app -n com.rosenaviation.flightinfo/.MainActivity
+•	Rosen Controller = launch_app -n com.rosen.rosencontroller/.Control
+You can use an intent to launch a briefing via:
+•	-n com.rosenaviation.mediashare/com.rosenaviation.mediashare.utilities.ServerService -a com.rosenaviation.mediashare.action.BRIEFING_BROADCAST -e path <path_to_file>
+Above <path_to_file> is the path to the briefing file to playback.  
+You can use the do_key_press event to send pause/play/stop commands.  The command will send a virtual key press into the system.  The key IDs are specified in https://developer.android.com/reference/android/view/KeyEvent. 
+
+
+Well if we’re just talking about video inputs you could use an internal command called get_rosen_state to determine what the video player source is set to.  For example:
+get_rosen_state video_player.source
+
+This will return video_player.source <source> where <source> is an numeric value that maps to the sources as follows:
+SDI1 = 0
+SDI2 = 1
+HDMI = 2 
+COMPOSITE = 3
+That will allow you to determine what source is being displayed.  Note that this is an internal command that was created our ATP.  It shouldn’t change but it’s not one we regularly expose.   Also, this value won’t change if an application other than the player is brought to the front.  I.E. if you start SDI1 and then bring Media Share to the front, the source will remain 0.
+
+I realized that I forgot to answer your questions abut RS-232/485.  The monitors do support RCL over RS-232/485 however they have to be configured to do so.  Their default configuration is set to work with the Rosen briefing controller.  It can work with either RCL or the briefing controller but not both. 
